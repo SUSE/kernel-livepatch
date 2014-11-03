@@ -27,6 +27,7 @@ Group:          System/Kernel
 Source0:	uname_patch.tar.bz2
 Source1:	Makefile
 Source2:        kgr_patch_main.c
+Source3:        config.sh
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	s390x x86_64
 %kgraft_module_package
