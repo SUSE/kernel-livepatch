@@ -1,0 +1,59 @@
+#
+# spec file for package kGraft patch module
+#
+# Copyright (c) 2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+# needssslcertforbuild
+
+Name:           kgraft-patch-@@RELEASE@@
+Version:        1
+Release:        1
+%define module_num %(echo %release | sed 'y/\./_/')
+License:        GPL-2.0
+Summary:        Kgraft patch module
+Group:          System/Kernel
+Source0:	uname_patch.tar.bz2
+Source1:	Makefile
+Source2:        kgr_patch_main.c
+BuildRequires:  kernel-syms kgraft-devel
+ExclusiveArch:	s390x x86_64
+%kgraft_module_package
+
+%description
+This is an initial kGraft patch.
+
+%prep
+%setup -c
+cp %_sourcedir/kgr_patch_main.c .
+cp %_sourcedir/Makefile .
+
+%build
+set -- *
+sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
+for flavor in %flavors_to_build; do
+	mkdir -p "obj/$flavor"
+	cp -r "$@" "obj/$flavor"
+	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
+done
+
+%install
+export INSTALL_MOD_DIR=kgraft
+export INSTALL_MOD_PATH=%buildroot
+for flavor in %flavors_to_build; do
+	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules_install
+done
+
+%changelog
+
