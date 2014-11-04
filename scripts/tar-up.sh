@@ -52,8 +52,7 @@ install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
 install -m 644 rpm/kgraft-patch.changes $build_dir/kgraft-patch-"$RELEASE".changes
 install -m 644 rpm/config.sh $build_dir/config.sh
 
-sed -i "s/@@RELEASE@@/$RELEASE/g" $build_dir/kgr_patch_main.c \
-	 $build_dir/kgraft-patch-"$RELEASE".spec
+sed -i "s/@@RELEASE@@/$RELEASE/g" $build_dir/kgraft-patch-"$RELEASE".spec
 
 tsfile=source-timestamp
 ts=$(git show --pretty=format:%ct HEAD | head -n 1)

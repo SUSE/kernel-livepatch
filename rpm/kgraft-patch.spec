@@ -44,6 +44,7 @@ cp %_sourcedir/Makefile .
 %build
 set -- *
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
+sed -i 's/@@RPMRELEASE@@/%module_num/g' kgr_patch_main.c
 for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
 	cp -r "$@" "obj/$flavor"

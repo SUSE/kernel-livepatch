@@ -5,7 +5,7 @@
 #include "uname_patch/kgr_patch_uname.h"
 
 static struct kgr_patch patch = {
-	.name = "kgraft-patch-@@RELEASE@@",
+	.name = "kgraft-patch-@@RPMRELEASE@@",
 	.owner = THIS_MODULE,
 	.patches = {
 		KGR_PATCH(SyS_newuname, kgr_sys_newuname, true),
