@@ -57,7 +57,7 @@ static int override_release(char __user *release, size_t len)
 	return ret;
 }
 
-#define KGR_TAG "/kGraft"
+char *kgr_tag="/kGraft-@@GITREV@@";
 
 static struct rw_semaphore *kgr_uts_sem;
 
@@ -67,7 +67,7 @@ static int override_version(char __user *version, size_t len, char *kgr_version)
 	char *right_brace;
 	size_t newlen;
 
-	newlen = strlen(kgr_version) + strlen(KGR_TAG);
+	newlen = strlen(kgr_version) + strlen(kgr_tag);
 	if (newlen >= len) {
 		WARN_ONCE(1, "kgraft-patch: not enough space for utsname.version extension");
 		goto out;
@@ -79,9 +79,9 @@ static int override_version(char __user *version, size_t len, char *kgr_version)
 		goto out;
 	}
 
-	memmove(right_brace + strlen(KGR_TAG), right_brace,
+	memmove(right_brace + strlen(kgr_tag), right_brace,
 		strlen(right_brace) + 1);
-	memcpy(right_brace, KGR_TAG, strlen(KGR_TAG));
+	memcpy(right_brace, kgr_tag, strlen(kgr_tag));
 
 	ret = copy_to_user(version, kgr_version, newlen + 1);
 

@@ -45,6 +45,10 @@ cp %_sourcedir/Makefile .
 set -- *
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
 sed -i 's/@@RPMRELEASE@@/%module_num/g' kgr_patch_main.c
+
+commit=$(sed -n 's/GIT Revision: //p' %_sourcedir/source-timestamp)
+sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/kgr_patch_uname.c
+
 for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
 	cp -r "$@" "obj/$flavor"
