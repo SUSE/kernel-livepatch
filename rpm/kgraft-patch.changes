@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Nov 12 03:10:13 UTC 2014 - mmarek@suse.com
+
+- Mark the module as supported (bnc#904970)
+
+-------------------------------------------------------------------
 Mon Nov  3 13:37:39 UTC 2014 - mbenes@suse.com
 
 - Package with initial kGraft patch (uname)

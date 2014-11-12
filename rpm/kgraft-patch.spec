@@ -42,9 +42,10 @@ cp %_sourcedir/kgr_patch_main.c .
 cp %_sourcedir/Makefile .
 
 %build
-set -- *
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
 sed -i 's/@@RPMRELEASE@@/%module_num/g' kgr_patch_main.c
+echo 'kgraft-patch-%module_num' >Module.supported
+set -- *
 
 commit=$(sed -n 's/GIT Revision: //p' %_sourcedir/source-timestamp)
 sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/kgr_patch_uname.c
