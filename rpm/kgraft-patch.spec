@@ -53,6 +53,13 @@ sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/kgr_patch_uname.c
 for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
 	cp -r "$@" "obj/$flavor"
+	want=@@RELEASE@@
+	want=${want//_/.}-$flavor
+	have=$(make -sC %{kernel_source $flavor} kernelrelease)
+	if test "$want" != "$have"; then
+		echo "This package must be built against the $want kernel, have $have" >&2
+		exit 1
+	fi
 	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
 done
 
