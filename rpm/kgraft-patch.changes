@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov 24 14:02:20 UTC 2014 - mmarek@suse.cz
+
+- Drop the hardcoded kernel release string.
+
+-------------------------------------------------------------------
 Wed Nov 12 03:10:13 UTC 2014 - mmarek@suse.com
 
 - Mark the module as supported (bnc#904970)
