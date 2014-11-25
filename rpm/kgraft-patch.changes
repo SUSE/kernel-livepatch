@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Nov 25 15:25:31 UTC 2014 - mbenes@suse.com
+
+- Add .replace_all set as true even to the initial patch
+
+-------------------------------------------------------------------
 Mon Nov 24 14:02:20 UTC 2014 - mmarek@suse.cz
 
 - Drop the hardcoded kernel release string.
