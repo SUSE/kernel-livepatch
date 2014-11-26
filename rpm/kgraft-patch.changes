@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Nov 26 09:08:31 UTC 2014 - mbenes@suse.com
+
+- Set .immediate flags for the initial patch
+
+-------------------------------------------------------------------
 Tue Nov 25 15:25:31 UTC 2014 - mbenes@suse.com
 
 - Add .replace_all set as true even to the initial patch
