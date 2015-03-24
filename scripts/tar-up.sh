@@ -52,8 +52,6 @@ install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
 install -m 644 rpm/kgraft-patch.changes $build_dir/kgraft-patch-"$RELEASE".changes
 install -m 644 rpm/config.sh $build_dir/config.sh
 
-sed -i "s/@@RELEASE@@/$RELEASE/g" $build_dir/kgraft-patch-"$RELEASE".spec
-
 tsfile=source-timestamp
 ts=$(git show --pretty=format:%ct HEAD | head -n 1)
 date "+%Y-%m-%d %H:%M:%S %z" -d "1970-01-01 00:00 UTC $ts seconds" >$build_dir/$tsfile
@@ -62,3 +60,11 @@ branch=$(sed -ne 's|^ref: refs/heads/||p' .git/HEAD 2>/dev/null)
 if test -n "$branch"; then
 	echo "GIT Branch: $branch" >>$build_dir/$tsfile
 fi
+
+sed -i \
+	-e "s/@@RELEASE@@/$RELEASE/g" \
+	-e "/@@SOURCE_TIMESTAMP@@/ {
+		e echo -n 'Source timestamp: '; cat $build_dir/$tsfile
+		d
+	}" \
+	$build_dir/kgraft-patch-"$RELEASE".spec

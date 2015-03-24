@@ -36,6 +36,8 @@ ExclusiveArch:	s390x x86_64
 %description
 This is an initial kGraft patch.
 
+@@SOURCE_TIMESTAMP@@
+
 %prep
 %setup -c
 cp %_sourcedir/kgr_patch_main.c .

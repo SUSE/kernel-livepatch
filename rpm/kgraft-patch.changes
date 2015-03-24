@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar 24 11:14:47 UTC 2015 - mmarek@suse.cz
+
+- Add the git commit and branch to the package description (bnc#920633)
+
+-------------------------------------------------------------------
 Wed Nov 26 09:08:31 UTC 2014 - mbenes@suse.com
 
 - Set .immediate flags for the initial patch
