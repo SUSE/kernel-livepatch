@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Mar 25 12:09:38 UTC 2015 - mmarek@suse.cz
+
+- Require exact kernel version in the patch (bnc#920615).
+
+-------------------------------------------------------------------
 Tue Mar 24 11:14:47 UTC 2015 - mmarek@suse.cz
 
 - Add the git commit and branch to the package description (bnc#920633)
