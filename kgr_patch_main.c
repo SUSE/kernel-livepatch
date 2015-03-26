@@ -1,14 +1,12 @@
 #include <linux/kgraft.h>
 #include <linux/module.h>
 #include <linux/types.h>
-#include <linux/vermagic.h>
 
 #include "uname_patch/kgr_patch_uname.h"
 
 static struct kgr_patch patch = {
 	.name = "kgraft-patch-@@RPMRELEASE@@",
 	.owner = THIS_MODULE,
-	.vermagic = VERMAGIC_STRING,
 	.replace_all = true,
 	.immediate = true,
 	.patches = {
