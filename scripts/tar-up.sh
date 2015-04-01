@@ -40,8 +40,10 @@ rm -f "$build_dir"/*
 mkdir -p "$build_dir"
 
 # archives
-# eventual TODO: make it more general
-archives="uname_patch"
+# pack all directories with live patches
+#	rpm/, scripts/ and $build_dir (if local) are excluded
+build_dir_trim=$(basename $build_dir)
+archives=$(ls -d */ | cut -f1 -d'/' | sed -r "s/rpm|scripts|$build_dir_trim//")
 for archive in $archives; do
 	echo "$archive.tar.bz2"
 	tar cfj $build_dir/$archive.tar.bz2 $archive
