@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# options
 until [ "$#" = "0" ] ; do
   case "$1" in
     --dir=*)
@@ -28,6 +29,7 @@ EOF
   esac
 done
 
+# builddir
 [ -z "$build_dir" ] && build_dir=kgraft-mod-source
 if [ -z "$build_dir" ]; then
     echo "Please define the build directory with the --dir option" >&2
@@ -37,6 +39,7 @@ fi
 rm -f "$build_dir"/*
 mkdir -p "$build_dir"
 
+# archives
 # eventual TODO: make it more general
 archives="uname_patch"
 for archive in $archives; do
@@ -44,14 +47,15 @@ for archive in $archives; do
 	tar cfj $build_dir/$archive.tar.bz2 $archive
 done
 
+# install to builddir
 source $(dirname $0)/release-version.sh
 
 install -m 644 kgr_patch_main.c $build_dir
 install -m 644 Makefile $build_dir
 install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
-install -m 644 rpm/kgraft-patch.changes $build_dir/kgraft-patch-"$RELEASE".changes
 install -m 644 rpm/config.sh $build_dir/config.sh
 
+# timestamp
 tsfile=source-timestamp
 ts=$(git show --pretty=format:%ct HEAD | head -n 1)
 date "+%Y-%m-%d %H:%M:%S %z" -d "1970-01-01 00:00 UTC $ts seconds" >$build_dir/$tsfile
@@ -68,3 +72,7 @@ sed -i \
 		d
 	}" \
 	$build_dir/kgraft-patch-"$RELEASE".spec
+
+# changelog
+changelog=$build_dir/kgraft-patch-"$RELEASE".changes
+scripts/gitlog2changes.pl HEAD -- > "$changelog"

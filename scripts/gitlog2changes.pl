@@ -1,0 +1,151 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use POSIX qw(strftime setlocale LC_ALL);
+
+$ENV{'TZ'} = "CET";
+setlocale(LC_ALL, "C");
+
+{
+my ($last_ts, $last_email, $last_commit, $last_message) = (0, "");
+sub print_commit {
+	my ($commit, $email, $ts, @message) = @_;
+
+	return unless $commit;
+	# display series by the same author and with the same author date
+	# as a single changelog entry (see scripts/log2)
+	if ($last_ts != $ts || $last_email ne $email) {
+		if ($last_commit) {
+			print "- commit " . substr($last_commit, 0, 7) . "\n\n";
+		}
+		return unless @message;
+		print "-" x 67 . "\n";
+		print strftime("%a %b %e %H:%M:%S %Z %Y - $email\n\n",
+			localtime($ts));
+		$last_commit = $commit;
+		$last_message = "";
+	}
+	$last_ts = $ts;
+	$last_email = $email;
+	my $first = 1;
+	for my $line (@message) {
+		if ($line !~ /^[- ] /) {
+			if ($first) {
+				$line = "- $line";
+			} else {
+				$line = "  $line";
+			}
+		}
+		$first = 0;
+	}
+	my $msg = join("\n", @message);
+	if ($msg eq $last_message) {
+		# avoid printing cherry-picked commits twice
+		# FIXME: Handle the case where a whole patch series is
+		# cherry-picked one by one. At the same time, we do not want
+		# to filter commits, that have the same changelog within a
+		# series, but are different. See for example
+		# git grep 'e1000e: update driver version number' SLE11-SP3
+		# and many others
+		return;
+	}
+	$last_message = $msg;
+	print $msg, "\n";
+}
+}
+
+sub parse_gitlog {
+	my $fh = shift;
+
+	my @res;
+	my $cur = { message => [] };
+	my @states = qw(commit tree parent author committer blank message);
+	my $st = 0;
+	while (my $line = <$fh>) {
+		next if $line =~ /^#/;
+		chomp($line);
+		my $expect = $states[$st];
+		if ($expect eq "blank") {
+			if ($line ne "") {
+				die "Malformed git rev-parse output ($cur->{commit}): expected blank line, got \"$line\"\n";
+			}
+			$st++;
+			next;
+		}
+		if ($expect eq "message") {
+			if ($line eq "") {
+				push(@res, $cur);
+				$cur = { message => [] };
+				$st = 0;
+				next;
+			}
+			if ($line !~ s/^ {4}//) {
+				die "Malformed git rev-parse output ($cur->{commit}): expected log message, got \"$line\"\n";
+			}
+			next unless $line;
+			# delete Signed-off-by: et al
+			next if $line =~ /^[A-Z][-a-zA-Z]+-by: /;
+			push(@{$cur->{message}}, $line) if $line;
+			next;
+		}
+		# parsing commit headers
+		next if $expect eq "commit" && $line eq "";
+		(my $got = $line) =~ s/ .*//;
+		# Root commit has no "parent" header. Multiple "parent" headers are
+		# not possible, since we use --no-merges
+		if ($expect eq "parent" && $got eq "author") {
+			$expect = $states[++$st];
+		}
+		if ($got ne $expect) {
+			$cur->{commit} ||= "commit unknown";
+			die "Malformed git rev-parse output ($cur->{commit}): expected \"$expect\", got \"$got\"\n";
+		}
+		if ($got eq "commit") {
+			($cur->{commit} = $line) =~ s/^commit //;
+		} elsif ($got eq "author") {
+			($cur->{email} = $line) =~ s/.*<(.+)>.*/$1/;
+			($cur->{ts} = $line) =~ s/.*> (\d+) [-+]\d{4}$/$1/;
+			if (!$cur->{email} || !$cur->{ts}) {
+				die "Malformed author header ($cur->{commit}): $line\n";
+			}
+		}
+		$st++;
+	}
+	return @res;
+}
+
+my @fixups;
+if ($ARGV[0] eq "--fixups") {
+	shift(@ARGV);
+	my $fixups_file = shift(@ARGV);
+	open(my $fh, '<', $fixups_file) or die "$fixups_file: $!\n";
+	@fixups = parse_gitlog($fh);
+	close($fh);
+}
+
+open(my $pipe, '-|', "git", "rev-list", "--no-merges", "--pretty=raw", @ARGV)
+	or die "Error running git rev-list: $!\n";
+my @commits = parse_gitlog($pipe);
+close($pipe) or die "Error running git rev-list: $!\n";
+
+# apply any fixups
+my %commits_h = map { $_->{commit} => $_ } @commits;
+for my $fix (@fixups) {
+	my $orig = $commits_h{$fix->{commit}};
+	if (!$fix->{message}) {
+		# delete the original commit
+		$orig->{commit} = undef;
+	} else {
+		$orig->{email} = $fix->{email};
+		$orig->{ts} = $fix->{ts};
+		$orig->{message} = $fix->{message};
+	}
+}
+
+for my $c (sort { $b->{ts} - $a->{ts} } @commits) {
+	print_commit($c->{commit}, $c->{email}, $c->{ts}, @{$c->{message}});
+}
+# print "- commit 1234567" for the last commit
+print_commit($commits[$#commits]->{commit}, "", 0);
