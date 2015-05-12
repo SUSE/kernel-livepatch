@@ -34,7 +34,7 @@ ExclusiveArch:	s390x x86_64
 %kgraft_module_package
 
 %description
-This is an initial kGraft patch.
+This is a live patch for SUSE Linux Enterprise Server kernel.
 
 @@SOURCE_TIMESTAMP@@
 
