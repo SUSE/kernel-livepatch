@@ -8,7 +8,6 @@ static struct kgr_patch patch = {
 	.name = "kgraft-patch-@@RPMRELEASE@@",
 	.owner = THIS_MODULE,
 	.replace_all = true,
-	.immediate = false,
 	.patches = {
 		KGR_PATCH(SyS_newuname, kgr_sys_newuname, true),
 		KGR_PATCH_END
