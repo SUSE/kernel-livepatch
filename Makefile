@@ -1,7 +1,5 @@
 KDIR ?= /lib/modules/`uname -r`/build
 
-subdir-ccflags-y := -DDEBUG
-
 obj-m := kgraft-patch-@@RPMRELEASE@@.o
 
 kgraft-patch-@@RPMRELEASE@@-y := kgr_patch_main.o uname_patch/kgr_patch_uname.o
