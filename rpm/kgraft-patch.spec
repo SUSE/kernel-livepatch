@@ -20,7 +20,7 @@
 Name:           kgraft-patch-@@RELEASE@@
 Version:        1
 Release:        1
-%define module_num %(echo %release | sed 'y/\./_/')
+%define module_num %(echo %version-%release | sed 'y/\./_/')
 License:        GPL-2.0
 Summary:        Kgraft patch module
 Group:          System/Kernel
