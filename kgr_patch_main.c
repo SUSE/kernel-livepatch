@@ -29,7 +29,7 @@ static struct kgr_patch patch = {
 	.owner = THIS_MODULE,
 	.replace_all = true,
 	.patches = {
-		KGR_PATCH(SyS_newuname, kgr_sys_newuname, true),
+		KGR_PATCH(SyS_newuname, kgr_sys_newuname),
 		KGR_PATCH_END
 	}
 };
