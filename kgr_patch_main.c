@@ -22,6 +22,8 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
+#include "compat.h"
+
 #include "uname_patch/kgr_patch_uname.h"
 
 static struct kgr_patch patch = {
