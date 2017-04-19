@@ -73,10 +73,12 @@ done
 source $(dirname $0)/release-version.sh
 
 install -m 644 kgr_patch_main.c $build_dir
-install -m 644 Makefile $build_dir
 install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
 install -m 644 compat.h $build_dir
+
+# create new Makefile in $build_dir
+scripts/create-makefile.sh $build_dir
 
 # timestamp
 tsfile=source-timestamp
