@@ -18,8 +18,8 @@ obj-m := kgraft-patch-@@RPMRELEASE@@.o
 kgraft-patch-@@RPMRELEASE@@-y := $objects
 
 default:
-	\$(MAKE) -C \$(KDIR) M=\$(PWD) modules
+	\$(MAKE) -C \$(KDIR) M=\$(CURDIR) modules
 
 clean:
-	\$(MAKE) -C \$(KDIR) M=\$(PWD) clean
+	\$(MAKE) -C \$(KDIR) M=\$(CURDIR) clean
 EOF
