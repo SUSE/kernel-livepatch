@@ -26,12 +26,15 @@
 
 #include "uname_patch/kgr_patch_uname.h"
 
+@@KGR_PATCHES_INCLUDES@@
+
 static struct kgr_patch patch = {
 	.name = "kgraft-patch-@@RPMRELEASE@@",
 	.owner = THIS_MODULE,
 	.replace_all = true,
 	.patches = {
 		KGR_PATCH(SyS_newuname, kgr_sys_newuname),
+		@@KGR_PATCHES_FUNCS@@,
 		KGR_PATCH_END
 	}
 };
@@ -46,13 +49,21 @@ static int __init kgr_patch_init(void)
 	if (retval)
 		return retval;
 
-	return kgr_patch_kernel(&patch);
+	@@KGR_PATCHES_INIT_CALLS@@;
+
+	retval = kgr_patch_kernel(&patch);
+	if (!retval)
+		return retval;
+
+	/* jumped to from expanded KGR_PATCHES_INIT_CALLS on failure */
+@@KGR_PATCHES_INIT_ERR_HANDLERS@@:
 }
 
 static void __exit kgr_patch_cleanup(void)
 {
 	pr_info("kgraft-patch: removed\n");
 
+	@@KGR_PATCHES_CLEANUP_CALLS@@;
 	kgr_patch_remove(&patch);
 }
 
