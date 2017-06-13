@@ -30,6 +30,7 @@ Source2:        kgr_patch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
 Source5:	compat.h
+@@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	s390x x86_64
 %kgraft_module_package
@@ -41,6 +42,7 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 
 %prep
 %setup -c
+@@KGR_PATCHES_SETUP_SOURCES@@
 cp %_sourcedir/kgr_patch_main.c .
 cp %_sourcedir/Makefile .
 cp %_sourcedir/compat.h .

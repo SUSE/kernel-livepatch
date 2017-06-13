@@ -32,12 +32,13 @@
 # each corresponding to a function the subpatch wants to replace.
 #
 # Usage:
-#   register-patches.sh kgr_patch_main.c
+#   register-patches.sh kgr_patch_main.c kgraft-patch.spec
 #
 # This will properly substitute a number of placeholders in-place.
 #
 
 kgr_patch_main_file="$1"
+kgr_patch_spec_file="$2"
 
 
 # Generate list of patches
@@ -119,4 +120,40 @@ s%\s*@@KGR_PATCHES_INIT_CALLS@@;\?%$KGR_PATCHES_INIT_CALLS%;
 s%\s*@@KGR_PATCHES_INIT_ERR_HANDLERS@@:\?%$KGR_PATCHES_INIT_ERR_HANDLERS%;
 s%\s*@@KGR_PATCHES_CLEANUP_CALLS@@;\?%$KGR_PATCHES_CLEANUP_CALLS%;
 s%\s*@@KGR_PATCHES_CLEANUP_CALLS@@;\?%$KGR_PATCHES_CLEANUP_CALLS%;
+EOF
+
+
+# Finish kgraft-patch.spec:
+## Enumerate the per subpatch source *.tar.bz2.
+## Note: Start with Source6
+S=6
+## First check that none of the to be occupied Source<n> slots has
+## been used already.
+for i in "${!kgr_patches[@]}"; do
+    if grep -q "^\s*Source$((i+S))\s*:" "$kgr_patch_spec_file"; then
+	echo "error: Source$((i+S)) already used in $kgr_patch_spec_file" 1>&2
+	exit 1;
+    fi
+done
+
+KGR_PATCHES_SOURCES=$(
+	echo -n "# Auto expanded KGR_PATCHES_SOURCES:\n"
+	for i in "${!kgr_patches[@]}"; do
+		echo -n "Source$((i+S)):\t${kgr_patches[i]}.tar.bz2\n"
+	done | sed 's/\\n$//' # rm trailing extra newlines
+)
+
+## And extract them from %prep
+KGR_PATCHES_SETUP_SOURCES=$(
+	echo -n "# Auto expanded KGR_PATCHES_SETUP_SOURCES:\n"
+	if [ ${#kgr_patches[@]} -gt 0 ]; then
+	    echo -n '%setup -T -D'
+	    for i in "${!kgr_patches[@]}"; do
+		echo -n " -a $((i+S))"
+	    done
+	fi)
+
+sed -i -f - "$kgr_patch_spec_file" <<EOF
+s%@@KGR_PATCHES_SOURCES@@%$KGR_PATCHES_SOURCES%;
+s,@@KGR_PATCHES_SETUP_SOURCES@@,$KGR_PATCHES_SETUP_SOURCES,;
 EOF
