@@ -75,7 +75,7 @@ KGR_PATCHES_FUNCS=$(
 	echo -n "\t\t/* Auto expanded KGR_PATCHES_FUNCS: */\n"
 	for p in "${kgr_patches[@]}"; do
 		p="KGR_PATCH_$(echo $p | tr '[:lower:]' '[:upper:]')_FUNCS"
-		echo -n "\t\t${p},\n"
+		echo -n "\t\t${p}\n"
 	done | sed 's/\\n$//' # rm trailing extra newlines
 )
 
