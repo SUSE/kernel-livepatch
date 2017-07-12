@@ -32,7 +32,7 @@ Source4:        source-timestamp
 Source5:	shadow.c
 Source6:	shadow.h
 @@KLP_PATCHES_SOURCES@@
-BuildRequires:  kernel-syms kgraft-devel
+BuildRequires:  kernel-syms kgraft-devel libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %kgraft_module_package
 
