@@ -73,69 +73,70 @@ static int override_release(char __user *release, size_t len)
 	return ret;
 }
 
-char *kgr_tag="/kGraft-@@GITREV@@";
+char *klp_tag="/lp-@@GITREV@@";
 
-static struct rw_semaphore *kgr_uts_sem;
 
-static int override_version(char __user *version, size_t len, char *kgr_version)
+static struct rw_semaphore *klp_uts_sem;
+
+static int override_version(char __user *version, size_t len, char *klp_version)
 {
 	int ret = 0;
 	char *right_brace;
 	size_t newlen;
 
-	newlen = strlen(kgr_version) + strlen(kgr_tag);
+	newlen = strlen(klp_version) + strlen(klp_tag);
 	if (newlen >= len) {
-		WARN_ONCE(1, "kgraft-patch: not enough space for utsname.version extension");
+		WARN_ONCE(1, "livepatch: not enough space for utsname.version extension");
 		goto out;
 	}
 
-	right_brace = strchr(kgr_version, ')');
+	right_brace = strchr(klp_version, ')');
 	if (!right_brace) {
-		WARN_ONCE(1, "kgraft-patch: did not find the commit id");
+		WARN_ONCE(1, "livepatch: did not find the commit id");
 		goto out;
 	}
 
-	memmove(right_brace + strlen(kgr_tag), right_brace,
+	memmove(right_brace + strlen(klp_tag), right_brace,
 		strlen(right_brace) + 1);
-	memcpy(right_brace, kgr_tag, strlen(kgr_tag));
+	memcpy(right_brace, klp_tag, strlen(klp_tag));
 
-	ret = copy_to_user(version, kgr_version, newlen + 1);
+	ret = copy_to_user(version, klp_version, newlen + 1);
 
 out:
 	return ret;
 }
 
-asmlinkage long kgr_sys_newuname(struct new_utsname __user *name)
+asmlinkage long klp_sys_newuname(struct new_utsname __user *name)
 {
 	int errno = 0;
-	char kgr_version[65] = { 0 };
+	char klp_version[65] = { 0 };
 
-	down_read(kgr_uts_sem);
+	down_read(klp_uts_sem);
 	if (copy_to_user(name, utsname(), sizeof *name))
 		errno = -EFAULT;
-	memcpy(kgr_version, utsname()->version, sizeof(utsname()->version));
-	up_read(kgr_uts_sem);
+	memcpy(klp_version, utsname()->version, sizeof(utsname()->version));
+	up_read(klp_uts_sem);
 
 	if (!errno && override_release(name->release, sizeof(name->release)))
 		errno = -EFAULT;
 	if (!errno && override_architecture(name))
 		errno = -EFAULT;
 	if (!errno && override_version(name->version, sizeof(name->version),
-		kgr_version))
+		klp_version))
 		errno = -EFAULT;
 	return errno;
 }
 
-int kgr_patch_uname_init(void)
+int klp_patch_uname_init(void)
 {
 	unsigned long addr;
 
 	addr = kallsyms_lookup_name("uts_sem");
 	if (!addr) {
-		pr_err("kgraft-patch: symbol uts_sem not resolved\n");
+		pr_err("livepatch: symbol uts_sem not resolved\n");
 		return -EFAULT;
 	}
-	kgr_uts_sem = (struct rw_semaphore *) addr;
+	klp_uts_sem = (struct rw_semaphore *) addr;
 
 	return 0;
 }

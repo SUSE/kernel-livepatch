@@ -1,5 +1,5 @@
 /*
- * kgr_main_patch.c - kGraft patch main infrastructure
+ * livepatch_main.c - kernel live patch main infrastructure
  *
  * Copyright (c) 2014 SUSE
  *  Author: Miroslav Benes <mbenes@suse.cz>
@@ -22,50 +22,51 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
-#include "uname_patch/kgr_patch_uname.h"
+#include "uname_patch/livepatch_uname.h"
 
-@@KGR_PATCHES_INCLUDES@@
+@@KLP_PATCHES_INCLUDES@@
 
 static struct kgr_patch patch = {
 	.name = "kgraft-patch-@@RPMRELEASE@@",
 	.owner = THIS_MODULE,
 	.replace_all = true,
 	.patches = {
-		KGR_PATCH(SyS_newuname, kgr_sys_newuname),
-		@@KGR_PATCHES_FUNCS@@,
+		KGR_PATCH(SyS_newuname, klp_sys_newuname),
+		@@KLP_PATCHES_FUNCS@@,
 		KGR_PATCH_END
 	}
 };
 
-static int __init kgr_patch_init(void)
+static int __init klp_patch_init(void)
 {
 	int retval;
 
-	pr_info("kgraft-patch: initializing\n");
+	pr_info("livepatch: initializing\n");
 
-	retval = kgr_patch_uname_init();
+	retval = klp_patch_uname_init();
 	if (retval)
 		return retval;
 
-	@@KGR_PATCHES_INIT_CALLS@@;
+	@@KLP_PATCHES_INIT_CALLS@@;
 
 	retval = kgr_patch_kernel(&patch);
 	if (!retval)
 		return retval;
 
-	/* jumped to from expanded KGR_PATCHES_INIT_CALLS on failure */
-@@KGR_PATCHES_INIT_ERR_HANDLERS@@:
+	/* jumped to from expanded KLP_PATCHES_INIT_CALLS on failure */
+@@KLP_PATCHES_INIT_ERR_HANDLERS@@:
 }
 
-static void __exit kgr_patch_cleanup(void)
+static void __exit klp_patch_cleanup(void)
 {
-	pr_info("kgraft-patch: removed\n");
+	pr_info("livepatch: removed\n");
 
-	@@KGR_PATCHES_CLEANUP_CALLS@@;
+	@@KLP_PATCHES_CLEANUP_CALLS@@;
+
 	kgr_patch_remove(&patch);
 }
 
-module_init(kgr_patch_init);
-module_exit(kgr_patch_cleanup);
+module_init(klp_patch_init);
+module_exit(klp_patch_cleanup);
 
 MODULE_LICENSE("GPL");

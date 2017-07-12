@@ -26,12 +26,12 @@ Summary:        Kgraft patch module
 Group:          System/Kernel
 Source0:	uname_patch.tar.bz2
 Source1:	Makefile
-Source2:        kgr_patch_main.c
+Source2:        livepatch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
 Source5:	shadow.c
 Source6:	shadow.h
-@@KGR_PATCHES_SOURCES@@
+@@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	@@EXCARCH@@
 %kgraft_module_package
@@ -43,20 +43,20 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 
 %prep
 %setup -c
-@@KGR_PATCHES_SETUP_SOURCES@@
-cp %_sourcedir/kgr_patch_main.c .
+@@KLP_PATCHES_SETUP_SOURCES@@
+cp %_sourcedir/livepatch_main.c .
 cp %_sourcedir/Makefile .
 cp %_sourcedir/shadow.c .
 cp %_sourcedir/shadow.h .
 
 %build
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
-sed -i 's/@@RPMRELEASE@@/%module_num/g' kgr_patch_main.c
+sed -i 's/@@RPMRELEASE@@/%module_num/g' livepatch_main.c
 echo 'kgraft-patch-%module_num' >Module.supported
 set -- *
 
 commit=$(sed -n 's/GIT Revision: //p' %_sourcedir/source-timestamp)
-sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/kgr_patch_uname.c
+sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/livepatch_uname.c
 
 for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
