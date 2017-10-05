@@ -37,7 +37,7 @@
  * inside any spinlocks, but API callers should pass GFP flags according
  * to their specific needs.
  *
- * The klp_shadow_hash is an RCU-enabled hashtable and is safe against
+ * The kgr_shadow_hash is an RCU-enabled hashtable and is safe against
  * concurrent klp_shadow_free() and klp_shadow_get() operations.
  */
 
@@ -45,19 +45,38 @@
 
 #include <linux/hashtable.h>
 #include <linux/slab.h>
+#include <linux/stringify.h>
+#include <linux/module.h>
+#include <linux/kallsyms.h>
 #include "shadow.h"
 
-static DEFINE_HASHTABLE(klp_shadow_hash, 12);
+
+#define __concat_1(a, b) a ## b
+#define __concat(a, b) __concat_1(a, b)
+
+#define KGR_SHADOW_HASH_BITS 12
+#define KGR_SHADOW_HASH_SIZE (1 << KGR_SHADOW_HASH_BITS)
 
 /*
- * klp_shadow_lock provides exclusive access to the klp_shadow_hash and
+ * The following __concat() game is a safety measure: if anybody ever
+ * happens to modify KGR_SHADOW_BITS, then this will ensure that we're
+ * using a new symbol and will thus be operating on a different instance.
+ */
+#define kgr_shadow_hash __concat(kgr_shadow_hash, KGR_SHADOW_HASH_BITS)
+#define kgr_shadow_lock __concat(kgr_shadow_lock, KGR_SHADOW_HASH_BITS)
+
+static struct hlist_head (*kgr_shadow_hash)[KGR_SHADOW_HASH_SIZE];
+
+/*
+ * kgr_shadow_lock provides exclusive access to the kgr_shadow_hash and
  * the shadow variables it references.
  */
-static DEFINE_SPINLOCK(klp_shadow_lock);
+static spinlock_t *kgr_shadow_lock;
+
 
 /**
  * struct klp_shadow - shadow variable structure
- * @node:	klp_shadow_hash hash table node
+ * @node:	kgr_shadow_hash hash table node
  * @rcu_head:	RCU is used to safely free this structure
  * @obj:	pointer to parent object
  * @id:		data identifier
@@ -98,7 +117,7 @@ void *klp_shadow_get(void *obj, unsigned long id)
 
 	rcu_read_lock();
 
-	hash_for_each_possible_rcu(klp_shadow_hash, shadow, node,
+	hash_for_each_possible_rcu((*kgr_shadow_hash), shadow, node,
 				   (unsigned long)obj) {
 
 		if (klp_shadow_match(shadow, obj, id)) {
@@ -137,22 +156,22 @@ static void *__klp_shadow_get_or_alloc(void *obj, unsigned long id, void *data,
 		memcpy(new_shadow->data, data, size);
 
 	/* Look for <obj, id> again under the lock */
-	spin_lock_irqsave(&klp_shadow_lock, flags);
+	spin_lock_irqsave(kgr_shadow_lock, flags);
 	shadow_data = klp_shadow_get(obj, id);
 	if (unlikely(shadow_data)) {
 		/*
 		 * Shadow variable was found, throw away speculative
 		 * allocation.
 		 */
-		spin_unlock_irqrestore(&klp_shadow_lock, flags);
+		spin_unlock_irqrestore(kgr_shadow_lock, flags);
 		kfree(new_shadow);
 		goto exists;
 	}
 
 	/* No <obj, id> found, so attach the newly allocated one */
-	hash_add_rcu(klp_shadow_hash, &new_shadow->node,
+	hash_add_rcu((*kgr_shadow_hash), &new_shadow->node,
 		     (unsigned long)new_shadow->obj);
-	spin_unlock_irqrestore(&klp_shadow_lock, flags);
+	spin_unlock_irqrestore(kgr_shadow_lock, flags);
 
 	return new_shadow->data;
 
@@ -229,10 +248,10 @@ void klp_shadow_free(void *obj, unsigned long id)
 	struct klp_shadow *shadow;
 	unsigned long flags;
 
-	spin_lock_irqsave(&klp_shadow_lock, flags);
+	spin_lock_irqsave(kgr_shadow_lock, flags);
 
 	/* Delete <obj, id> from hash */
-	hash_for_each_possible(klp_shadow_hash, shadow, node,
+	hash_for_each_possible((*kgr_shadow_hash), shadow, node,
 			       (unsigned long)obj) {
 
 		if (klp_shadow_match(shadow, obj, id)) {
@@ -242,7 +261,7 @@ void klp_shadow_free(void *obj, unsigned long id)
 		}
 	}
 
-	spin_unlock_irqrestore(&klp_shadow_lock, flags);
+	spin_unlock_irqrestore(kgr_shadow_lock, flags);
 }
 
 /**
@@ -258,15 +277,124 @@ void klp_shadow_free_all(unsigned long id)
 	unsigned long flags;
 	int i;
 
-	spin_lock_irqsave(&klp_shadow_lock, flags);
+	spin_lock_irqsave(kgr_shadow_lock, flags);
 
 	/* Delete all <*, id> from hash */
-	hash_for_each(klp_shadow_hash, i, shadow, node) {
+	hash_for_each((*kgr_shadow_hash), i, shadow, node) {
 		if (klp_shadow_match(shadow, shadow->obj, id)) {
 			hash_del_rcu(&shadow->node);
 			kfree_rcu(shadow, rcu_head);
 		}
 	}
 
-	spin_unlock_irqrestore(&klp_shadow_lock, flags);
+	spin_unlock_irqrestore(kgr_shadow_lock, flags);
+}
+
+static int __kgr_find_other_module_shadow(void *data, const char *name,
+					  struct module *mod,
+					  unsigned long addr)
+{
+	spinlock_t **lock_addr;
+	struct hlist_head (**hash_addr)[KGR_SHADOW_HASH_SIZE];
+	char symname[MODULE_NAME_LEN + 1 +
+		     sizeof(__stringify(kgr_shadow_hash))];
+
+	if (!mod || mod == THIS_MODULE)
+		return 0;
+
+	if (strcmp(__stringify(kgr_shadow_lock), name))
+		return 0;
+
+	lock_addr = (spinlock_t **)addr;
+	if (!*lock_addr)
+		return 0;
+
+	snprintf(symname, sizeof(symname), "%s:" __stringify(kgr_shadow_hash),
+		 mod->name);
+	hash_addr = (struct hlist_head (**)[KGR_SHADOW_HASH_SIZE])
+		      kallsyms_lookup_name(symname);
+	if (!hash_addr || !*hash_addr) {
+		WARN(1, "Module %s has a %s but no %s\n", mod->name,
+			__stringify(kgr_shadow_lock),
+			__stringify(kgr_shadow_hash));
+		return 0;
+	}
+
+	kgr_shadow_lock = *lock_addr;
+	kgr_shadow_hash = *hash_addr;
+
+	return 1;
+}
+
+int kgr_shadow_init(void)
+{
+	int ret = 0;
+
+	if (kgr_shadow_lock)
+		return 0;
+
+	mutex_lock(&module_mutex);
+	if (kallsyms_on_each_symbol(__kgr_find_other_module_shadow, NULL))
+		goto out;
+
+	kgr_shadow_hash = kmalloc(sizeof(*kgr_shadow_hash), GFP_KERNEL);
+	if (!kgr_shadow_hash) {
+		pr_err("kgraft-patch: failed to allocate shadow management data\n");
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	kgr_shadow_lock = kmalloc(sizeof(*kgr_shadow_lock), GFP_KERNEL);
+	if (!kgr_shadow_lock) {
+		pr_err("kgraft-patch: failed to allocate shadow management data\n");
+		kfree(kgr_shadow_hash);
+		kgr_shadow_hash = NULL;
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	hash_init(*kgr_shadow_hash);
+	spin_lock_init(kgr_shadow_lock);
+
+out:
+	mutex_unlock(&module_mutex);
+	return ret;
+}
+
+void kgr_shadow_cleanup(void)
+{
+	struct hlist_head (*shadow_hash)[KGR_SHADOW_HASH_SIZE];
+	spinlock_t *shadow_lock;
+	int found_other = 0;
+	struct klp_shadow *shadow;
+	struct hlist_node *tmp;
+	int i;
+
+	if (!kgr_shadow_lock)
+		return;
+
+	shadow_hash = kgr_shadow_hash;
+	shadow_lock = kgr_shadow_lock;
+	mutex_lock(&module_mutex);
+	found_other = kallsyms_on_each_symbol(__kgr_find_other_module_shadow,
+					      NULL);
+
+	/*
+	 * Clear out our references to the data structures with
+	 * module_mutex being held such that other modules won't
+	 * consider us being an active user anymore.
+	 */
+	kgr_shadow_hash = NULL;
+	kgr_shadow_lock = NULL;
+	mutex_unlock(&module_mutex);
+
+	if (found_other)
+		return;
+
+	hash_for_each_safe((*shadow_hash), i, tmp, shadow, node) {
+		hash_del(&shadow->node);
+		kfree(shadow);
+	}
+	kfree(shadow_hash);
+	kfree(shadow_lock);
 }
