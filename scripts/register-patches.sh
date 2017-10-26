@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# register-patches.sh -- add subpatches to KGraft patch
+# register-patches.sh -- add subpatches to kernel live patch
 #
 # Copyright (c) 2017 SUSE
 #  Author: Nicolai Stange <nstange@suse.de>
@@ -20,7 +20,7 @@
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 #
 
-# This script expects a kGraft subpatch to live in a subdirectory
+# This script expects a kernel live subpatch to live in a subdirectory
 # SUBPATCH and to provide a SUBPATCH/livepatch_SUBPATCH.h
 # header.
 #
@@ -28,11 +28,11 @@
 # - klp_patch_SUBPATCH_init()
 # - klp_patch_SUBPATCH_cleanup()
 # and an (all uppercase) KLP_PATCH_SUBPATCH_FUNCS macro.
-# The latter should be a comma separated list of KGR_PATCH*() entries,
+# The latter should be a comma separated list of KLP_PATCH*() entries,
 # each corresponding to a function the subpatch wants to replace.
 #
 # Usage:
-#   register-patches.sh livepatch_main.c kgraft-patch.spec
+#   register-patches.sh livepatch_main.c kernel-livepatch.spec
 #
 # This will properly substitute a number of placeholders in-place.
 #
@@ -124,7 +124,7 @@ s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
 EOF
 
 
-# Finish kgraft-patch.spec:
+# Finish kernel-livepatch.spec:
 ## Enumerate the per subpatch source *.tar.bz2.
 ## Note: Start with Source7
 S=7

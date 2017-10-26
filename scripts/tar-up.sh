@@ -1,5 +1,5 @@
 #
-# tar-up.sh - script for building a kGraft rpm package
+# tar-up.sh - script for building a kernel live patch rpm package
 #
 # Copyright (c) 2014 SUSE
 #  Author: Miroslav Benes <mbenes@suse.cz>
@@ -34,10 +34,10 @@ until [ "$#" = "0" ] ; do
     -h|--help|-v|--version)
 	cat <<EOF
 
-${0##*/} prepares a kGraft module package for submission into build service
+${0##*/} prepares a kernel live patch module package for submission into build service
 
 these options are recognized:
-    -d, --dir=DIR      create package in DIR instead of default kgraft-mod-source
+    -d, --dir=DIR      create package in DIR instead of default klp-mod-source
 
 EOF
 	exit 1
@@ -50,7 +50,7 @@ EOF
 done
 
 # builddir
-[ -z "$build_dir" ] && build_dir=kgraft-mod-source
+[ -z "$build_dir" ] && build_dir=klp-mod-source
 if [ -z "$build_dir" ]; then
     echo "Please define the build directory with the --dir option" >&2
     exit 1
@@ -73,8 +73,8 @@ done
 source $(dirname $0)/release-version.sh
 
 install -m 644 livepatch_main.c $build_dir
-install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
-scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kgraft-patch-"$RELEASE".spec
+install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
+scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kernel-livepatch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
 install -m 644 shadow.c $build_dir
 install -m 644 shadow.h $build_dir
@@ -106,8 +106,8 @@ sed -i \
 		d
 	}" \
 	-e "s/@@EXCARCH@@/$excarch/" \
-	$build_dir/kgraft-patch-"$RELEASE".spec
+	$build_dir/kernel-livepatch-"$RELEASE".spec
 
 # changelog
-changelog=$build_dir/kgraft-patch-"$RELEASE".changes
+changelog=$build_dir/kernel-livepatch-"$RELEASE".changes
 scripts/gitlog2changes.pl HEAD -- > "$changelog"

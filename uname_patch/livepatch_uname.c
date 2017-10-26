@@ -1,7 +1,7 @@
 /*
- * kgraft_patch -- initial SLE Live Patching patch
+ * livepatch -- initial SLE Live Patching patch
  *
- * Patch uname to show kGraft in version string
+ * Patch uname to show Kernel Live Patching in version string
  *
  *  Copyright (c) 2014 SUSE
  *  Author: Libor Pechacek

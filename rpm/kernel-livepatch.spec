@@ -1,5 +1,5 @@
 #
-# spec file for package kGraft patch module
+# spec file for package Kernel live patch module
 #
 # Copyright (c) 2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
@@ -17,12 +17,12 @@
 
 # needssslcertforbuild
 
-Name:           kgraft-patch-@@RELEASE@@
+Name:           kernel-livepatch-@@RELEASE@@
 Version:        1
 Release:        1
 %define module_num %(echo %version-%release | sed 'y/\./_/')
 License:        GPL-2.0
-Summary:        Kgraft patch module
+Summary:        Kernel live patch module
 Group:          System/Kernel
 Source0:	uname_patch.tar.bz2
 Source1:	Makefile
@@ -32,9 +32,9 @@ Source4:        source-timestamp
 Source5:	shadow.c
 Source6:	shadow.h
 @@KLP_PATCHES_SOURCES@@
-BuildRequires:  kernel-syms kgraft-devel libelf-devel
+BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 ExclusiveArch:	@@EXCARCH@@
-%kgraft_module_package
+%klp_module_package
 
 %description
 This is a live patch for SUSE Linux Enterprise Server kernel.
@@ -52,7 +52,7 @@ cp %_sourcedir/shadow.h .
 %build
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
 sed -i 's/@@RPMRELEASE@@/%module_num/g' livepatch_main.c
-echo 'kgraft-patch-%module_num' >Module.supported
+echo 'livepatch-%module_num' >Module.supported
 set -- *
 
 commit=$(sed -n 's/GIT Revision: //p' %_sourcedir/source-timestamp)
@@ -65,7 +65,7 @@ for flavor in %flavors_to_build; do
 done
 
 %install
-export INSTALL_MOD_DIR=kgraft
+export INSTALL_MOD_DIR=livepatch
 export INSTALL_MOD_PATH=%buildroot
 for flavor in %flavors_to_build; do
 	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules_install
