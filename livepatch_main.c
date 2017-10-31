@@ -26,22 +26,8 @@
 
 @@KLP_PATCHES_INCLUDES@@
 
-static struct klp_func vmlinux_funcs[] = {
-	{
-		.old_name = "SyS_newuname",
-		.new_func = klp_sys_newuname,
-	}, { }
-};
-
-@@KLP_PATCHES_FUNCS@@;
-
 static struct klp_object objs[] = {
-	{
-		.name = NULL, /* vmlinux */
-		.funcs = vmlinux_funcs,
-	},
-	@@KLP_PATCHES_OBJS@@,
-	{ }
+	@@KLP_PATCHES_OBJS@@
 };
 
 static struct klp_patch patch = {

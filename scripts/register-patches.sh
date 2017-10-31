@@ -27,9 +27,12 @@
 # This header must provide declarations for
 # - klp_patch_SUBPATCH_init()
 # - klp_patch_SUBPATCH_cleanup()
-# and an (all uppercase) KLP_PATCH_SUBPATCH_FUNCS macro.
-# The latter should be a comma separated list of KLP_PATCH*() entries,
-# each corresponding to a function the subpatch wants to replace.
+#
+# Furthermore, each subpatch must provide a SUBPATCH/patched_funcs.csv
+# file with one line of the form
+#   obj old_func(,sympos) newfun
+# for every to be patched symbol.
+#
 #
 # Usage:
 #   register-patches.sh livepatch_main.c kernel-livepatch.spec
@@ -43,6 +46,7 @@ livepatch_spec_file="$2"
 
 # Generate list of patches
 declare -a livepatches
+declare -a patched_funcs
 for d in *; do
 	[ -d "$d" ] || continue
 	[ x"$d" = xrpm -o x"$d" = xscripts -o x"$d" = xuname_patch ] && continue
@@ -53,7 +57,13 @@ for d in *; do
 	    exit 1
 	fi
 
+	if [ ! -f "$d/patched_funcs.csv" ]; then
+	    echo "error: $d/ doesn't have a $d/patched_funcs.csv" 1>&2
+	    exit 1
+	fi
+
 	livepatches[${#livepatches[@]}]=$(basename $d)
+	patched_funcs[${#patched_funcs[@]}]=$(basename $d)/patched_funcs.csv
 done
 
 # Sort it
@@ -72,12 +82,57 @@ KLP_PATCHES_INCLUDES=$(
 	done)
 
 ## Add the individual patches' replacement entries to struct livepatch.
-KLP_PATCHES_FUNCS=$(
-	echo -n "\t\t/* Auto expanded KLP_PATCHES_FUNCS: */\n"
-	for p in "${livepatches[@]}"; do
-		p="KLP_PATCH_$(echo $p | tr '[:lower:]' '[:upper:]')_FUNCS"
-		echo -n "\t\t${p}\n"
-	done | sed 's/\\n$//' # rm trailing extra newlines
+objs=
+if [ ${#patched_funcs[@]} -gt 0 ]; then
+    objs=$(cut -f1 "${patched_funcs[@]}" | grep -v '^[[:blank:]]*$' | \
+	       grep -v vmlinux | sort | uniq)
+fi
+objs="vmlinux $objs"
+
+KLP_PATCHES_OBJS=$(
+	echo -n "\t/* Auto expanded KLP_PATCHES_OBJS: */\n"
+	for o in $objs; do
+	    echo -n '\t{\n'
+	    if [ x"$o" = xvmlinux ]; then
+		echo -n '\t\t.name = NULL,\n'
+	    else
+		echo -n "\t\t.name = \"$o\",\n"
+	    fi
+	    echo -n '\t\t.funcs = (struct klp_func[]) {\n'
+
+	    if [ x"$o" = xvmlinux ]; then
+		    echo -n '\t\t\t{ .old_name = "SyS_newuname", '
+		    echo -n '.new_func = klp_sys_newuname, '
+		    echo -n '},\n'
+	    fi
+	    if [ ${#patched_funcs[@]} -gt 0 ]; then
+		sed '/^[[:blank:]]*$/ d;' "${patched_funcs[@]}" | \
+		    while read _o oldfun newfun; do
+			if [ -z "$newfun" ]; then
+			    echo "error: invalid patched_funcs line: " \
+				 "$_o $oldfun" 1>&2
+			elif [ x"$_o" != x"$o" ]; then
+			    continue
+			fi
+
+			sympos=
+			if echo $oldfun | grep -q ','; then
+			    sympos=$(echo $oldfun | sed 's/[^,]\+,\(.\+\)/\1/')
+			    oldfun=$(echo $oldfun | sed 's/,.*//')
+			fi
+			echo -n "\t\t\t{ .old_name = \"$oldfun\", "
+			echo -n ".new_func = $newfun, "
+			if [ -n "$sympos" ]; then
+			    echo -n ".old_sympos = $sympos, "
+			fi
+			echo -n '},\n'
+		    done
+	    fi
+	    echo -n '\t\t\t{ }\n'
+	    echo -n '\t\t}\n'
+	    echo -n '\t},\n'
+	done
+	printf '\t{ }\n'
 )
 
 ## Initialize the individual patches in livepatch_init().
@@ -115,8 +170,7 @@ KLP_PATCHES_CLEANUP_CALLS=$(
 
 sed -i -f - "$livepatch_main_file" <<EOF
 s%@@KLP_PATCHES_INCLUDES@@%$KLP_PATCHES_INCLUDES%;
-s%\s*@@KLP_PATCHES_FUNCS@@,\?%$KLP_PATCHES_FUNCS%;
-s%\s*@@KLP_PATCHES_OBJS@@,\?%%;
+s%\s*@@KLP_PATCHES_OBJS@@,\?%$KLP_PATCHES_OBJS%;
 s%\s*@@KLP_PATCHES_INIT_CALLS@@;\?%$KLP_PATCHES_INIT_CALLS%;
 s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@:\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
 s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
