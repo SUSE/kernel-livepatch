@@ -158,7 +158,6 @@ KLP_PATCHES_INIT_ERR_HANDLERS=$(
 err_${livepatches[$i]}:
 EOF
 	done | sed 's%\t%\\t%g' | sed 's%$%\\n%g' | tr -d '\n';
-	echo "\treturn retval;"
 )
 
 ## Cleanup the individual patches in livepatch_cleanup().
@@ -172,7 +171,7 @@ sed -i -f - "$livepatch_main_file" <<EOF
 s%@@KLP_PATCHES_INCLUDES@@%$KLP_PATCHES_INCLUDES%;
 s%\s*@@KLP_PATCHES_OBJS@@,\?%$KLP_PATCHES_OBJS%;
 s%\s*@@KLP_PATCHES_INIT_CALLS@@;\?%$KLP_PATCHES_INIT_CALLS%;
-s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@:\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
+s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@;\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
 s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
 s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
 EOF

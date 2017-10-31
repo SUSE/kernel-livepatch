@@ -49,15 +49,15 @@ static int __init klp_patch_init(void)
 
 	retval = klp_register_patch(&patch);
 	if (retval)
-		return retval;
+		goto err_patches_cleanup;
 	retval = klp_enable_patch(&patch);
-	if (retval) {
-		WARN_ON(klp_unregister_patch(&patch));
+	if (!retval)
 		return retval;
-	}
 
-	/* jumped to from expanded KLP_PATCHES_INIT_CALLS on failure */
-@@KLP_PATCHES_INIT_ERR_HANDLERS@@:
+	WARN_ON(klp_unregister_patch(&patch));
+
+err_patches_cleanup:
+	@@KLP_PATCHES_INIT_ERR_HANDLERS@@;
 	return retval;
 }
 
