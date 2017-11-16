@@ -32,7 +32,7 @@ Source4:        source-timestamp
 Source5:	compat.h
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
-ExclusiveArch:	s390x x86_64
+ExclusiveArch:	x86_64
 %kgraft_module_package
 
 %description
