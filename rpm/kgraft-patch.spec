@@ -32,7 +32,7 @@ Source4:        source-timestamp
 Source5:	compat.h
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
-ExclusiveArch:	x86_64
+ExclusiveArch:	ppc64le x86_64
 %kgraft_module_package
 
 %description
