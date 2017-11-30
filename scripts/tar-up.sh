@@ -93,12 +93,20 @@ if test -n "$branch"; then
 	echo "GIT Branch: $branch" >>$build_dir/$tsfile
 fi
 
+# ExclusiveArch
+if [[ $RELEASE == SLE12-SP3* ]]; then
+	excarch='ppc64le x86_64'
+else
+	excarch='x86_64'
+fi
+
 sed -i \
 	-e "s/@@RELEASE@@/$RELEASE/g" \
 	-e "/@@SOURCE_TIMESTAMP@@/ {
 		e echo -n 'Source timestamp: '; cat $build_dir/$tsfile
 		d
 	}" \
+	-e "s/@@EXCARCH@@/$excarch/" \
 	$build_dir/kgraft-patch-"$RELEASE".spec
 
 # changelog

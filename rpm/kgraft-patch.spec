@@ -34,7 +34,7 @@ Source6:	shadow.c
 Source7:	shadow.h
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
-ExclusiveArch:	ppc64le x86_64
+ExclusiveArch:	@@EXCARCH@@
 %kgraft_module_package
 
 %description
