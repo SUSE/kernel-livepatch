@@ -45,7 +45,7 @@
 
 #include <linux/hashtable.h>
 #include <linux/slab.h>
-#include "shadow.h"
+#include <linux/livepatch.h>
 
 static DEFINE_HASHTABLE(klp_shadow_hash, 12);
 
@@ -111,6 +111,7 @@ void *klp_shadow_get(void *obj, unsigned long id)
 
 	return NULL;
 }
+EXPORT_SYMBOL_GPL(klp_shadow_get);
 
 static void *__klp_shadow_get_or_alloc(void *obj, unsigned long id, void *data,
 		       size_t size, gfp_t gfp_flags, bool warn_on_exist)
@@ -190,6 +191,7 @@ void *klp_shadow_alloc(void *obj, unsigned long id, void *data,
 {
 	return __klp_shadow_get_or_alloc(obj, id, data, size, gfp_flags, true);
 }
+EXPORT_SYMBOL_GPL(klp_shadow_alloc);
 
 /**
  * klp_shadow_get_or_alloc() - get existing or allocate a new shadow variable
@@ -215,6 +217,7 @@ void *klp_shadow_get_or_alloc(void *obj, unsigned long id, void *data,
 {
 	return __klp_shadow_get_or_alloc(obj, id, data, size, gfp_flags, false);
 }
+EXPORT_SYMBOL_GPL(klp_shadow_get_or_alloc);
 
 /**
  * klp_shadow_free() - detach and free a <obj, id> shadow variable
@@ -244,6 +247,7 @@ void klp_shadow_free(void *obj, unsigned long id)
 
 	spin_unlock_irqrestore(&klp_shadow_lock, flags);
 }
+EXPORT_SYMBOL_GPL(klp_shadow_free);
 
 /**
  * klp_shadow_free_all() - detach and free all <*, id> shadow variables
@@ -270,3 +274,4 @@ void klp_shadow_free_all(unsigned long id)
 
 	spin_unlock_irqrestore(&klp_shadow_lock, flags);
 }
+EXPORT_SYMBOL_GPL(klp_shadow_free_all);
