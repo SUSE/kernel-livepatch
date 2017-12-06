@@ -33,7 +33,7 @@ Source5:	shadow.c
 Source6:	shadow.h
 @@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
-ExclusiveArch:	@@EXCARCH@@
+ExclusiveArch:	ppc64le x86_64
 %klp_module_package
 
 %description
