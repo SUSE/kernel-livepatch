@@ -8,7 +8,7 @@ if [ -e "$1/Makefile" ]; then
 	exit 0
 fi
 
-objects=$(find . -type f -name "*.c" | sed "s/^\.\/\(.*\)\.c$/\1.o/" | tr '\n' ' ')
+objects=$(find . -type f -name "*.c" -o -iname "*.s" | sed "s/^\.\/\(.*\)\.[csS]$/\1.o/" | tr '\n' ' ')
 
 cat << EOF > $1/Makefile
 KDIR ?= /lib/modules/\`uname -r\`/build
