@@ -33,6 +33,7 @@ static struct klp_object objs[] = {
 static struct klp_patch patch = {
 	.mod = THIS_MODULE,
 	.objs = objs,
+	.replace = true,
 };
 
 static int __init klp_patch_init(void)
