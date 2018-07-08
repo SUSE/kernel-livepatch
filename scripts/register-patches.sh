@@ -84,7 +84,8 @@ KLP_PATCHES_INCLUDES=$(
 ## Add the individual patches' replacement entries to struct livepatch.
 objs=
 if [ ${#patched_funcs[@]} -gt 0 ]; then
-    objs=$(cut -f1 "${patched_funcs[@]}" | grep -v '^[[:blank:]]*$' | \
+    objs=$(sed 's/[[:blank:]].*//' "${patched_funcs[@]}" | \
+	       grep -v '^$' | \
 	       grep -v vmlinux | sort | uniq)
 fi
 objs="vmlinux $objs"
