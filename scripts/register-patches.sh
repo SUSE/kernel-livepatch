@@ -30,7 +30,7 @@
 #
 # Furthermore, each subpatch must provide a SUBPATCH/patched_funcs.csv
 # file with one line of the form
-#   obj old_func(,sympos) newfun
+#   obj old_func(,sympos) newfun (cpp #if condition)
 # for every to be patched symbol.
 #
 #
@@ -93,6 +93,59 @@ objs="vmlinux $objs"
 KLP_PATCHES_OBJS=$(
 	echo -n "\t/* Auto expanded KLP_PATCHES_OBJS: */\n"
 	for o in $objs; do
+	    # First gather the #if conditions for that object.
+	    # vmlinux gets always patched because of uname().
+	    declare -a o_conds
+	    o_conds=()
+	    if [ x"$o" != xvmlinux ]; then
+		for pf in "${patched_funcs[@]}"; do
+		    while read _o oldfun newfun cond; do
+			if [ -z "$_o" ]; then
+			    continue
+			elif [ -z "$newfun" ]; then
+			    echo "error: invalid patched_funcs line: " \
+				 "$_o $oldfun" 1>&2
+			elif [ x"$_o" != x"$o" ]; then
+			    continue
+			fi
+
+			if [ -z "$cond" ]; then
+			    # unconditional
+			    o_conds=()
+			    break
+			else
+			    # Avoid adding duplicates
+			    for o_c in "${o_conds[@]}"; do
+				if [ x"$o_c" = x"$cond" ]; then
+				    cond=
+				    break
+				fi
+			    done
+			    if [ -n "$cond" ]; then
+				o_conds[${#o_conds[@]}]="$cond"
+			    fi
+			fi
+		    done < "$pf"
+		done
+	    fi
+
+	    # Emit the #if condition for the object, if any
+	    if [ ${#o_conds[@]} -eq 1 ]; then
+		echo -n "#if ${o_conds[0]}\n"
+	    elif [ ${#o_conds[@]} -ne 0 ]; then
+		echo -n "#if "
+		i=0
+		while [ $i -lt ${#o_conds[@]} ]; do
+		    if [ $i -ne 0 ]; then
+			echo -n ' || '
+		    fi
+		    echo -n "(${o_conds[$i]})"
+		    i=$((i + 1))
+		done
+		unset i
+		echo -n '\n'
+	    fi
+
 	    echo -n '\t{\n'
 	    if [ x"$o" = xvmlinux ]; then
 		echo -n '\t\t.name = NULL,\n'
@@ -106,35 +159,67 @@ KLP_PATCHES_OBJS=$(
 		    echo -n '.new_func = klp_sys_newuname, '
 		    echo -n '},\n'
 	    fi
-	    if [ ${#patched_funcs[@]} -gt 0 ]; then
-		sed '/^[[:blank:]]*$/ d;' "${patched_funcs[@]}" | \
-		    while read _o oldfun newfun; do
-			if [ -z "$newfun" ]; then
-			    echo "error: invalid patched_funcs line: " \
-				 "$_o $oldfun" 1>&2
-			elif [ x"$_o" != x"$o" ]; then
-			    continue
-			fi
 
-			sympos=
-			if echo $oldfun | grep -q ','; then
-			    sympos=$(echo $oldfun | sed 's/[^,]\+,\(.\+\)/\1/')
-			    oldfun=$(echo $oldfun | sed 's/,.*//')
+	    last_cond=
+	    for pf in "${patched_funcs[@]}"; do
+		while read _o oldfun newfun cond; do
+		    if [ -z "$_o" ]; then
+			continue
+		    elif [ -z "$newfun" ]; then
+			echo "error: invalid patched_funcs line: " \
+			     "$_o $oldfun" 1>&2
+		    elif [ x"$_o" != x"$o" ]; then
+			continue
+		    fi
+
+		    # Collate multiple subsequent klp_func entries
+		    # guarded by the same #if condition. Also, do not
+		    # emit #if pragmas at the klp_func level if it
+		    # would be equivalent to what's already there at
+		    # the enclosing object level.
+		    if [ ${#o_conds[@]} -eq 1 -a x"${o_conds[0]}" = x"$cond" ]
+		    then
+			cond=
+		    fi
+		    if [ x"$last_cond" = x"$cond" ]; then
+			cond=
+		    else
+			if [ -n "$last_cond" ]; then
+			    echo -n "#endif\n"
 			fi
-			echo -n "\t\t\t{ .old_name = \"$oldfun\", "
-			echo -n ".new_func = $newfun, "
-			if [ -n "$sympos" ]; then
-			    echo -n ".old_sympos = $sympos, "
-			fi
-			echo -n '},\n'
-		    done
+			last_cond="$cond"
+		    fi
+		    if [ -n "$cond" ]; then
+			echo -n "#if $cond\n"
+		    fi
+
+		    sympos=
+		    if echo $oldfun | grep -q ','; then
+			sympos=$(echo $oldfun | sed 's/[^,]\+,\(.\+\)/\1/')
+			oldfun=$(echo $oldfun | sed 's/,.*//')
+		    fi
+		    echo -n "\t\t\t{ .old_name = \"$oldfun\", "
+		    echo -n ".new_func = $newfun, "
+		    if [ -n "$sympos" ]; then
+			echo -n ".old_sympos = $sympos, "
+		    fi
+		    echo -n '},\n'
+		done < "$pf"
+	    done
+	    if [ -n "$last_cond" ]; then
+		echo -n "#endif\n"
 	    fi
 	    echo -n '\t\t\t{ }\n'
 	    echo -n '\t\t}\n'
 	    echo -n '\t},\n'
+	    if [ ${#o_conds[@]} -ne 0 ]; then
+		echo -n '#endif\n'
+	    fi
 	done
 	printf '\t{ }\n'
 )
+### Escape the '&' character in the sed replacement
+KLP_PATCHES_OBJS="$(echo -n "$KLP_PATCHES_OBJS" | sed 's/&/\\&/g')"
 
 ## Initialize the individual patches in livepatch_init().
 KLP_PATCHES_INIT_CALLS=$(
@@ -176,7 +261,6 @@ s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@;\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
 s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
 s%\s*@@KLP_PATCHES_CLEANUP_CALLS@@;\?%$KLP_PATCHES_CLEANUP_CALLS%;
 EOF
-
 
 # Finish kernel-livepatch.spec:
 ## Enumerate the per subpatch source *.tar.bz2.
