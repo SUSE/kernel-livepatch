@@ -29,6 +29,7 @@ Source1:	Makefile
 Source2:        livepatch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
+Source5:        shadow.h
 @@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 ExclusiveArch:	ppc64le x86_64
@@ -43,6 +44,7 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 %setup -c
 @@KLP_PATCHES_SETUP_SOURCES@@
 cp %_sourcedir/livepatch_main.c .
+cp %_sourcedir/shadow.h .
 cp %_sourcedir/Makefile .
 
 %build

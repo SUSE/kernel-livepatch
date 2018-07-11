@@ -73,6 +73,7 @@ done
 source $(dirname $0)/release-version.sh
 
 install -m 644 livepatch_main.c $build_dir
+install -m 644 shadow.h $build_dir
 install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
 scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kernel-livepatch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
