@@ -29,6 +29,7 @@ Source1:	Makefile
 Source2:        kgr_patch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
+Source5:        shadow.h
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	@@EXCARCH@@
@@ -43,6 +44,7 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 %setup -c
 @@KGR_PATCHES_SETUP_SOURCES@@
 cp %_sourcedir/kgr_patch_main.c .
+cp %_sourcedir/shadow.h .
 cp %_sourcedir/Makefile .
 
 %build
