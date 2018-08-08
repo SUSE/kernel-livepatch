@@ -31,6 +31,8 @@ Source3:        config.sh
 Source4:        source-timestamp
 Source5:	shadow.c
 Source6:	shadow.h
+Source7:        kallsyms_relocs.h
+Source8:        kallsyms_relocs.c
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	@@EXCARCH@@
@@ -48,6 +50,8 @@ cp %_sourcedir/kgr_patch_main.c .
 cp %_sourcedir/Makefile .
 cp %_sourcedir/shadow.c .
 cp %_sourcedir/shadow.h .
+cp %_sourcedir/kallsyms_relocs.h .
+cp %_sourcedir/kallsyms_relocs.c .
 
 %build
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile

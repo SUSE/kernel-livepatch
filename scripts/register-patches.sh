@@ -125,8 +125,8 @@ EOF
 
 # Finish kgraft-patch.spec:
 ## Enumerate the per subpatch source *.tar.bz2.
-## Note: Start with Source7
-S=7
+## Note: Start with Source9
+S=9
 ## First check that none of the to be occupied Source<n> slots has
 ## been used already.
 for i in "${!kgr_patches[@]}"; do
