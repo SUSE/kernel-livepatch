@@ -95,7 +95,7 @@ if test -n "$branch"; then
 fi
 
 # ExclusiveArch
-if [[ $RELEASE == SLE12-SP3* ]]; then
+if [[ $RELEASE == SLE12-SP2* || $RELEASE == SLE12-SP3* ]]; then
 	excarch='ppc64le x86_64'
 else
 	excarch='x86_64'
