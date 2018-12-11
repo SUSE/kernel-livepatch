@@ -108,23 +108,23 @@ out:
 
 asmlinkage long klp_sys_newuname(struct new_utsname __user *name)
 {
-	int errno = 0;
+	struct new_utsname tmp;
 	char klp_version[65] = { 0 };
 
 	down_read(klp_uts_sem);
-	if (copy_to_user(name, utsname(), sizeof *name))
-		errno = -EFAULT;
+	memcpy(&tmp, utsname(), sizeof(tmp));
 	memcpy(klp_version, utsname()->version, sizeof(utsname()->version));
 	up_read(klp_uts_sem);
+	if (copy_to_user(name, &tmp, sizeof(tmp)))
+		return -EFAULT;
 
-	if (!errno && override_release(name->release, sizeof(name->release)))
-		errno = -EFAULT;
-	if (!errno && override_architecture(name))
-		errno = -EFAULT;
-	if (!errno && override_version(name->version, sizeof(name->version),
-		klp_version))
-		errno = -EFAULT;
-	return errno;
+	if (override_release(name->release, sizeof(name->release)))
+		return -EFAULT;
+	if (override_architecture(name))
+		return -EFAULT;
+	if (override_version(name->version, sizeof(name->version), klp_version))
+		return -EFAULT;
+	return 0;
 }
 
 int klp_patch_uname_init(void)
