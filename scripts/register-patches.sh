@@ -264,8 +264,8 @@ EOF
 
 # Finish kernel-livepatch.spec:
 ## Enumerate the per subpatch source *.tar.bz2.
-## Note: Start with Source8
-S=8
+## Note: Start with Source9
+S=9
 ## First check that none of the to be occupied Source<n> slots has
 ## been used already.
 for i in "${!livepatches[@]}"; do

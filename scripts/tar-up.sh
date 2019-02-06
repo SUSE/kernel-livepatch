@@ -76,6 +76,7 @@ install -m 644 livepatch_main.c $build_dir
 install -m 644 shadow.h $build_dir
 install -m 644 kallsyms_relocs.h $build_dir
 install -m 644 kallsyms_relocs.c $build_dir
+install -m 644 klp_convert.h $build_dir
 install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
 scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kernel-livepatch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
@@ -115,6 +116,7 @@ parse_release() {
 rel=($(parse_release $RELEASE))
 if [[ -n "${rel[0]##*Test*}" && ${rel[0]} -eq 15 && ${rel[1]} -eq 1 ]]; then
 	sed -i "s/@@USE_KLP_CONVERT@@/%define use_klp_convert 1/" $build_dir/kernel-livepatch-"$RELEASE".spec
+	sed -i "/^KDIR/a ccflags-y := -DUSE_KLP_CONVERT" $build_dir/Makefile
 else
 	sed -i "s/@@USE_KLP_CONVERT@@//" $build_dir/kernel-livepatch-"$RELEASE".spec
 fi
