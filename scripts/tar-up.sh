@@ -104,3 +104,17 @@ sed -i \
 # changelog
 changelog=$build_dir/kernel-livepatch-"$RELEASE".changes
 scripts/gitlog2changes.pl HEAD -- > "$changelog"
+
+# klp-convert
+parse_release() {
+	echo "$1" | \
+		sed 's/SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)/\1,\3,\4/' | \
+		awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }'
+}
+
+rel=($(parse_release $RELEASE))
+if [[ -n "${rel[0]##*Test*}" && ${rel[0]} -eq 15 && ${rel[1]} -eq 1 ]]; then
+	sed -i "s/@@USE_KLP_CONVERT@@/%define use_klp_convert 1/" $build_dir/kernel-livepatch-"$RELEASE".spec
+else
+	sed -i "s/@@USE_KLP_CONVERT@@//" $build_dir/kernel-livepatch-"$RELEASE".spec
+fi

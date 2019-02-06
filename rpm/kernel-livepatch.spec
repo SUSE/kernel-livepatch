@@ -17,6 +17,8 @@
 
 # needssslcertforbuild
 
+@@USE_KLP_CONVERT@@
+
 Name:           kernel-livepatch-@@RELEASE@@
 Version:        1
 Release:        1
@@ -34,6 +36,9 @@ Source6:        kallsyms_relocs.h
 Source7:        kallsyms_relocs.c
 @@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
+%if 0%{?use_klp_convert}
+BuildRequires:  kernel-default-livepatch-devel
+%endif
 ExclusiveArch:	ppc64le x86_64
 %klp_module_package
 
@@ -64,6 +69,13 @@ for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
 	cp -r "$@" "obj/$flavor"
 	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
+
+	%if 0%{?use_klp_convert}
+		module=$(find "obj/$flavor" -name 'livepatch*.ko' -printf '%f')
+		klp-convert /usr/src/linux-obj/%_target_cpu/$flavor/Symbols.list \
+			obj/$flavor/$module obj/$flavor/${module}_converted
+		mv obj/$flavor/${module}_converted obj/$flavor/$module
+	%endif
 done
 
 %install
