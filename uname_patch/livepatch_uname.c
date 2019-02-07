@@ -33,6 +33,8 @@
 #include <linux/string.h>
 #include <asm/uaccess.h>
 
+#include "klp_convert.h"
+
 #ifdef COMPAT_UTS_MACHINE
 #define override_architecture(name) \
 	(personality(current->personality) == PER_LINUX32 && \
@@ -76,7 +78,7 @@ static int override_release(char __user *release, size_t len)
 char *klp_tag="/lp-@@GITREV@@";
 
 
-static struct rw_semaphore *klp_uts_sem;
+KLP_SYM_LINKAGE struct rw_semaphore KLP_SYM(uts_sem);
 
 static int override_version(char __user *version, size_t len, char *klp_version)
 {
@@ -111,10 +113,10 @@ asmlinkage long klp_sys_newuname(struct new_utsname __user *name)
 	struct new_utsname tmp;
 	char klp_version[65] = { 0 };
 
-	down_read(klp_uts_sem);
+	down_read(&KLP_SYM(uts_sem));
 	memcpy(&tmp, utsname(), sizeof(tmp));
 	memcpy(klp_version, utsname()->version, sizeof(utsname()->version));
-	up_read(klp_uts_sem);
+	up_read(&KLP_SYM(uts_sem));
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
 		return -EFAULT;
 
@@ -127,6 +129,7 @@ asmlinkage long klp_sys_newuname(struct new_utsname __user *name)
 	return 0;
 }
 
+#ifndef USE_KLP_CONVERT
 int klp_patch_uname_init(void)
 {
 	unsigned long addr;
@@ -140,3 +143,4 @@ int klp_patch_uname_init(void)
 
 	return 0;
 }
+#endif
