@@ -48,14 +48,18 @@ static int __init klp_patch_init(void)
 
 	@@KLP_PATCHES_INIT_CALLS@@;
 
+#ifndef KLP_NOREG_API
 	retval = klp_register_patch(&patch);
 	if (retval)
 		goto err_patches_cleanup;
+#endif
 	retval = klp_enable_patch(&patch);
 	if (!retval)
 		return retval;
 
+#ifndef KLP_NOREG_API
 	WARN_ON(klp_unregister_patch(&patch));
+#endif
 
 err_patches_cleanup:
 	@@KLP_PATCHES_INIT_ERR_HANDLERS@@;
@@ -68,7 +72,9 @@ static void __exit klp_patch_cleanup(void)
 
 	@@KLP_PATCHES_CLEANUP_CALLS@@;
 
+#ifndef KLP_NOREG_API
 	WARN_ON(klp_unregister_patch(&patch));
+#endif
 }
 
 module_init(klp_patch_init);
