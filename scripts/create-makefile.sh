@@ -13,6 +13,8 @@ objects=$(find . -type f -name "*.c" -o -iname "*.s" | sed "s/^\.\/\(.*\)\.[csS]
 cat << EOF > $1/Makefile
 KDIR ?= /lib/modules/\`uname -r\`/build
 
+ccflags-y += -I\$(obj)
+
 obj-m := livepatch-@@RPMRELEASE@@.o
 
 livepatch-@@RPMRELEASE@@-y := $objects
