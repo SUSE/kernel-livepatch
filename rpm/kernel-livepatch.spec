@@ -35,6 +35,7 @@ Source5:        shadow.h
 Source6:        kallsyms_relocs.h
 Source7:        kallsyms_relocs.c
 Source8:	klp_convert.h
+Source9:	klp_syscalls.h
 @@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 %if 0%{?use_klp_convert}
@@ -57,6 +58,7 @@ cp %_sourcedir/kallsyms_relocs.h .
 cp %_sourcedir/kallsyms_relocs.c .
 cp %_sourcedir/Makefile .
 cp %_sourcedir/klp_convert.h .
+cp %_sourcedir/klp_syscalls.h .
 
 %build
 sed -i 's/@@RPMRELEASE@@/%module_num/g' Makefile
