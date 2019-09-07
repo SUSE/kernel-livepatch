@@ -155,9 +155,16 @@ KLP_PATCHES_OBJS=$(
 	    echo -n '\t\t.funcs = (struct klp_func[]) {\n'
 
 	    if [ x"$o" = xvmlinux ]; then
-		    echo -n '\t\t\t{ .old_name = "SyS_newuname", '
-		    echo -n '.new_func = klp_sys_newuname, '
-		    echo -n '},\n'
+		echo -n '\t\t\t{\n'
+		echo -n '\t\t\t  .old_name = __stringify(KLP_SYSCALL_SYM(newuname)),\n'
+		echo -n '\t\t\t  .new_func = KLP_SYSCALL_SYM(klp_newuname),\n'
+		echo -n '\t\t\t},\n'
+		echo -n '#ifdef KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS\n'
+		echo -n '\t\t\t{\n'
+		echo -n '\t\t\t  .old_name = __stringify(KLP_SYSCALL_COMPAT_STUB_SYM(newuname)),\n'
+		echo -n '\t\t\t  .new_func = KLP_SYSCALL_COMPAT_STUB_SYM(klp_newuname),\n'
+		echo -n '\t\t\t},\n'
+		echo -n '#endif\n'
 	    fi
 
 	    last_cond=

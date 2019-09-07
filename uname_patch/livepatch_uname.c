@@ -108,7 +108,7 @@ out:
 	return ret;
 }
 
-asmlinkage long klp_sys_newuname(struct new_utsname __user *name)
+__SYSCALL_DEFINEx(1, _klp_newuname,  struct new_utsname __user *, name)
 {
 	struct new_utsname tmp;
 	char klp_version[65] = { 0 };
