@@ -131,8 +131,7 @@ void *klp_shadow_get(void *obj, unsigned long id)
 	return NULL;
 }
 
-static void *__klp_shadow_get_or_alloc(void *obj, unsigned long id,
-		       klp_shadow_init_t init, void *init_data,
+static void *__klp_shadow_get_or_alloc(void *obj, unsigned long id, void *data,
 		       size_t size, gfp_t gfp_flags, bool warn_on_exist)
 {
 	struct klp_shadow *new_shadow;
@@ -152,11 +151,9 @@ static void *__klp_shadow_get_or_alloc(void *obj, unsigned long id,
 	new_shadow->obj = obj;
 	new_shadow->id = id;
 
-	/* Initialize the shadow variable if initializer provided */
-	if (init && init(new_shadow->data, init_data)) {
-		kfree(new_shadow);
-		return NULL;
-	}
+	/* Initialize the shadow variable if data provided */
+	if (data)
+		memcpy(new_shadow->data, data, size);
 
 	/* Look for <obj, id> again under the lock */
 	spin_lock_irqsave(kgr_shadow_lock, flags);
@@ -187,23 +184,6 @@ exists:
 	return shadow_data;
 }
 
-struct __klp_shadow_memcpy_init_data
-{
-	const void *src;
-	size_t size;
-};
-
-static int __klp_shadow_memcpy_init(void *new_shadow_data, void *init_data)
-{
-	struct __klp_shadow_memcpy_init_data *memcpy_init_data = init_data;
-
-	if (!memcpy_init_data->src)
-		return 0;
-
-	memcpy(new_shadow_data, memcpy_init_data->src, memcpy_init_data->size);
-	return 0;
-}
-
 /**
  * klp_shadow_alloc() - allocate and add a new shadow variable
  * @obj:	pointer to parent object
@@ -227,15 +207,7 @@ static int __klp_shadow_memcpy_init(void *new_shadow_data, void *init_data)
 void *klp_shadow_alloc(void *obj, unsigned long id, void *data,
 		       size_t size, gfp_t gfp_flags)
 {
-	struct __klp_shadow_memcpy_init_data memcpy_init_data = {
-		.src = data,
-		.size = size,
-	};
-
-	return __klp_shadow_get_or_alloc(obj, id,
-					 __klp_shadow_memcpy_init,
-					 &memcpy_init_data, size, gfp_flags,
-					 true);
+	return __klp_shadow_get_or_alloc(obj, id, data, size, gfp_flags, true);
 }
 
 /**
@@ -260,31 +232,7 @@ void *klp_shadow_alloc(void *obj, unsigned long id, void *data,
 void *klp_shadow_get_or_alloc(void *obj, unsigned long id, void *data,
 			       size_t size, gfp_t gfp_flags)
 {
-	struct __klp_shadow_memcpy_init_data memcpy_init_data = {
-		.src = data,
-		.size = size,
-	};
-
-	return __klp_shadow_get_or_alloc(obj, id,
-					 __klp_shadow_memcpy_init,
-					 &memcpy_init_data, size, gfp_flags,
-					 false);
-}
-
-void *klp_shadow_alloc_with_init(void *obj, unsigned long id,
-				 klp_shadow_init_t init, void *init_data,
-				 size_t size, gfp_t gfp_flags)
-{
-	return __klp_shadow_get_or_alloc(obj, id, init, init_data,
-					 size, gfp_flags, true);
-}
-
-void *klp_shadow_get_or_alloc_with_init(void *obj, unsigned long id,
-					klp_shadow_init_t init, void *init_data,
-					size_t size, gfp_t gfp_flags)
-{
-	return __klp_shadow_get_or_alloc(obj, id, init, init_data,
-					 size, gfp_flags, false);
+	return __klp_shadow_get_or_alloc(obj, id, data, size, gfp_flags, false);
 }
 
 /**
