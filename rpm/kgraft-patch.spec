@@ -29,10 +29,9 @@ Source1:	Makefile
 Source2:        kgr_patch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
-Source5:	shadow.c
-Source6:	shadow.h
-Source7:        kallsyms_relocs.h
-Source8:        kallsyms_relocs.c
+Source5:	shadow.h
+Source6:        kallsyms_relocs.h
+Source7:        kallsyms_relocs.c
 @@KGR_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms kgraft-devel
 ExclusiveArch:	@@EXCARCH@@
@@ -48,7 +47,6 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 @@KGR_PATCHES_SETUP_SOURCES@@
 cp %_sourcedir/kgr_patch_main.c .
 cp %_sourcedir/Makefile .
-cp %_sourcedir/shadow.c .
 cp %_sourcedir/shadow.h .
 cp %_sourcedir/kallsyms_relocs.h .
 cp %_sourcedir/kallsyms_relocs.c .

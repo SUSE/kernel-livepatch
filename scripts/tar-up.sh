@@ -76,7 +76,6 @@ install -m 644 kgr_patch_main.c $build_dir
 install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
 scripts/register-patches.sh $build_dir/kgr_patch_main.c $build_dir/kgraft-patch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
-install -m 644 shadow.c $build_dir
 install -m 644 shadow.h $build_dir
 install -m 644 kallsyms_relocs.h $build_dir
 install -m 644 kallsyms_relocs.c $build_dir
