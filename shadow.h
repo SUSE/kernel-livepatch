@@ -11,6 +11,4 @@ void klp_shadow_free_all(unsigned long id);
 int kgr_shadow_init(void);
 void kgr_shadow_cleanup(void);
 
-#define KGR_SHADOW_ID(bsc, id) (((unsigned long)(bsc) << 6) | id)
-
 #endif
