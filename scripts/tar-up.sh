@@ -95,12 +95,32 @@ if test -n "$branch"; then
 	echo "GIT Branch: $branch" >>$build_dir/$tsfile
 fi
 
+# ExclusiveArch
+excarch='x86_64 ppc64le'
+
+## s390x support is conditional on the exact codestream.
+if echo "$RELEASE" | \
+	grep -q '^SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)$'; then
+  # break $RELEASE into array of SLE release, -SP and -_Update number.
+  cs=( \
+    $(echo "$RELEASE" | \
+      sed 's/SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)/\1,\3,\4/' | \
+      awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }') \
+  )
+
+  # s390x is supported for SLE12-SP5 from update 3 onwards
+  if [ ${cs[0]} -eq 12 -a ${cs[1]} -eq 5 -a ${cs[2]} -ge 3 ]; then
+      excarch="$excarch s390x"
+  fi
+fi
+
 sed -i \
 	-e "s/@@RELEASE@@/$RELEASE/g" \
 	-e "/@@SOURCE_TIMESTAMP@@/ {
 		e echo -n 'Source timestamp: '; cat $build_dir/$tsfile
 		d
 	}" \
+	-e "s/@@EXCARCH@@/$excarch/" \
 	$build_dir/kernel-livepatch-"$RELEASE".spec
 
 # changelog

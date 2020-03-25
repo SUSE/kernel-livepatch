@@ -41,7 +41,7 @@ BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 %if 0%{?use_klp_convert}
 BuildRequires:  kernel-default-livepatch-devel
 %endif
-ExclusiveArch:	ppc64le x86_64
+ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
 %description
