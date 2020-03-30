@@ -108,8 +108,10 @@ if echo "$RELEASE" | \
       awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }') \
   )
 
-  # s390x is supported for SLE12-SP5 from update 3 onwards
-  if [ ${cs[0]} -eq 12 -a ${cs[1]} -eq 5 -a ${cs[2]} -ge 3 ]; then
+  # s390x is supported for SLE12-SP5 from update 3 onwards.
+  # s390x is supported from SLE15-SP2 onwards.
+  if [ ${cs[0]} -eq 12 -a ${cs[1]} -eq 5 -a ${cs[2]} -ge 3 -o \
+       ${cs[0]} -eq 15 -a ${cs[1]} -ge 2 ]; then
       excarch="$excarch s390x"
   fi
 fi
