@@ -1,0 +1,19 @@
+This is the live patches repository.
+
+The persons in charge of the repository are:
+	Miroslav Benes <mbenes@suse.cz>
+	Nicolai Stange <nstange@suse.de>
+
+The repository contains live patches for security vulnerabilities,
+stability and data corruption bug fixes. It is the persons'
+responsibility to maintain the repository and checking in the live
+patches to the build system.
+
+SUSE Linux Enterprise Live Patching product page can be accessed at
+https://www.suse.com/products/live-patching/.
+
+There is a public git repository at
+https://github.com/SUSE/kernel-livepatch.
+
+If there are any questions about the repository, please contact the
+above mentioned maintainers.
