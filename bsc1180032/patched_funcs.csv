@@ -1,0 +1,2 @@
+vmlinux KLP_SYSCALL_SYM(epoll_ctl) KLP_SYSCALL_SYM(klpp_epoll_ctl)
+vmlinux KLP_SYSCALL_COMPAT_STUB_SYM(epoll_ctl) KLP_SYSCALL_COMPAT_STUB_SYM(klpp_epoll_ctl) defined(KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS)
