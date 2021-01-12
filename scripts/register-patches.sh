@@ -205,7 +205,7 @@ KLP_PATCHES_OBJS=$(
 			sympos=$(echo $oldfun | sed 's/[^,]\+,\(.\+\)/\1/')
 			oldfun=$(echo $oldfun | sed 's/,.*//')
 		    fi
-		    echo -n "\t\t\t{ .old_name = \"$oldfun\", "
+		    echo -n "\t\t\t{ .old_name = __stringify($oldfun), "
 		    echo -n ".new_func = $newfun, "
 		    if [ -n "$sympos" ]; then
 			echo -n ".old_sympos = $sympos, "
