@@ -48,7 +48,7 @@
 
 #elif defined(CONFIG_S390)
 /* C.f. arch/s390/include/asm/syscall_wrapper.h */
-#define KLP_SYSCALL_SYM(name) __s390x_sys_ ## name
+#define KLP_SYSCALL_SYM(name) __se_sys_ ## name
 
 #ifdef CONFIG_COMPAT
 #define KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS 1
