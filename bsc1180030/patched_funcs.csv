@@ -1,0 +1,1 @@
+hid_multitouch mt_input_mapping klpp_mt_input_mapping IS_ENABLED(CONFIG_HID_MULTITOUCH)

@@ -1,7 +1,8 @@
 /*
  * livepatch_bsc1176896
  *
- * Fix for CVE-2020-0431, bsc#1176896
+ * Fix for CVE-2020-0431, bsc#1176896 and
+ * hid-input.c part of CVE-2020-0465, bsc#1180030
  *
  *  Upstream commit:
  *  4f3882177240 ("HID: hid-input: clear unmapped usages")
@@ -41,6 +42,7 @@
 #include <linux/module.h>
 #include "livepatch_bsc1176896.h"
 #include "../kallsyms_relocs.h"
+#include "../bsc1180030/bsc1180030_common.h"
 
 /* klp-ccp: from drivers/hid/hid-input.c */
 #include <linux/module.h>
@@ -50,14 +52,14 @@
 
 static const unsigned char (*klpe_hid_keyboard)[256];
 
-#define map_abs(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_ABS, (c))
-#define map_rel(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_REL, (c))
-#define map_key(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_KEY, (c))
-#define map_led(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_LED, (c))
+#define klpp_map_abs(c)	klpp_hid_map_usage(hidinput, usage, &bit, &max, EV_ABS, (c))
+#define klpp_map_rel(c)	klpp_hid_map_usage(hidinput, usage, &bit, &max, EV_REL, (c))
+#define klpp_map_key(c)	klpp_hid_map_usage(hidinput, usage, &bit, &max, EV_KEY, (c))
+#define klpp_map_led(c)	klpp_hid_map_usage(hidinput, usage, &bit, &max, EV_LED, (c))
 
-#define map_abs_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
+#define klpp_map_abs_clear(c)	klpp_hid_map_usage_clear(hidinput, usage, &bit, \
 		&max, EV_ABS, (c))
-#define map_key_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
+#define klpp_map_key_clear(c)	klpp_hid_map_usage_clear(hidinput, usage, &bit, \
 		&max, EV_KEY, (c))
 
 __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
@@ -118,9 +120,9 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 
 		if ((usage->hid & HID_USAGE) < 256) {
 			if (!(*klpe_hid_keyboard)[usage->hid & HID_USAGE]) goto ignore;
-			map_key_clear((*klpe_hid_keyboard)[usage->hid & HID_USAGE]);
+			klpp_map_key_clear((*klpe_hid_keyboard)[usage->hid & HID_USAGE]);
 		} else
-			map_key(KEY_UNKNOWN);
+			klpp_map_key(KEY_UNKNOWN);
 
 		break;
 
@@ -152,16 +154,16 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 			}
 		}
 
-		map_key(code);
+		klpp_map_key(code);
 		break;
 
 	case HID_UP_SIMULATION:
 		switch (usage->hid & 0xffff) {
-		case 0xba: map_abs(ABS_RUDDER);   break;
-		case 0xbb: map_abs(ABS_THROTTLE); break;
-		case 0xc4: map_abs(ABS_GAS);      break;
-		case 0xc5: map_abs(ABS_BRAKE);    break;
-		case 0xc8: map_abs(ABS_WHEEL);    break;
+		case 0xba: klpp_map_abs(ABS_RUDDER);   break;
+		case 0xbb: klpp_map_abs(ABS_THROTTLE); break;
+		case 0xc4: klpp_map_abs(ABS_GAS);      break;
+		case 0xc5: klpp_map_abs(ABS_BRAKE);    break;
+		case 0xc8: klpp_map_abs(ABS_WHEEL);    break;
 		default:   goto ignore;
 		}
 		break;
@@ -169,21 +171,21 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 	case HID_UP_GENDESK:
 		if ((usage->hid & 0xf0) == 0x80) {	/* SystemControl */
 			switch (usage->hid & 0xf) {
-			case 0x1: map_key_clear(KEY_POWER);  break;
-			case 0x2: map_key_clear(KEY_SLEEP);  break;
-			case 0x3: map_key_clear(KEY_WAKEUP); break;
-			case 0x4: map_key_clear(KEY_CONTEXT_MENU); break;
-			case 0x5: map_key_clear(KEY_MENU); break;
-			case 0x6: map_key_clear(KEY_PROG1); break;
-			case 0x7: map_key_clear(KEY_HELP); break;
-			case 0x8: map_key_clear(KEY_EXIT); break;
-			case 0x9: map_key_clear(KEY_SELECT); break;
-			case 0xa: map_key_clear(KEY_RIGHT); break;
-			case 0xb: map_key_clear(KEY_LEFT); break;
-			case 0xc: map_key_clear(KEY_UP); break;
-			case 0xd: map_key_clear(KEY_DOWN); break;
-			case 0xe: map_key_clear(KEY_POWER2); break;
-			case 0xf: map_key_clear(KEY_RESTART); break;
+			case 0x1: klpp_map_key_clear(KEY_POWER);  break;
+			case 0x2: klpp_map_key_clear(KEY_SLEEP);  break;
+			case 0x3: klpp_map_key_clear(KEY_WAKEUP); break;
+			case 0x4: klpp_map_key_clear(KEY_CONTEXT_MENU); break;
+			case 0x5: klpp_map_key_clear(KEY_MENU); break;
+			case 0x6: klpp_map_key_clear(KEY_PROG1); break;
+			case 0x7: klpp_map_key_clear(KEY_HELP); break;
+			case 0x8: klpp_map_key_clear(KEY_EXIT); break;
+			case 0x9: klpp_map_key_clear(KEY_SELECT); break;
+			case 0xa: klpp_map_key_clear(KEY_RIGHT); break;
+			case 0xb: klpp_map_key_clear(KEY_LEFT); break;
+			case 0xc: klpp_map_key_clear(KEY_UP); break;
+			case 0xd: klpp_map_key_clear(KEY_DOWN); break;
+			case 0xe: klpp_map_key_clear(KEY_POWER2); break;
+			case 0xf: klpp_map_key_clear(KEY_RESTART); break;
 			default: goto unknown;
 			}
 			break;
@@ -191,7 +193,7 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 
 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
 			switch (usage->hid & 0xf) {
-			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
+			case 0x05: klpp_map_key_clear(KEY_SWITCHVIDEOMODE); break;
 			default: goto ignore;
 			}
 			break;
@@ -215,10 +217,10 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 			default: goto unknown;
 			}
 			if (field->dpad) {
-				map_abs(field->dpad);
+				klpp_map_abs(field->dpad);
 				goto ignore;
 			}
-			map_abs(ABS_HAT0X);
+			klpp_map_abs(ABS_HAT0X);
 			break;
 		}
 
@@ -227,26 +229,26 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 		case HID_GD_X: case HID_GD_Y: case HID_GD_Z:
 		case HID_GD_RX: case HID_GD_RY: case HID_GD_RZ:
 			if (field->flags & HID_MAIN_ITEM_RELATIVE)
-				map_rel(usage->hid & 0xf);
+				klpp_map_rel(usage->hid & 0xf);
 			else
-				map_abs_clear(usage->hid & 0xf);
+				klpp_map_abs_clear(usage->hid & 0xf);
 			break;
 
 		case HID_GD_SLIDER: case HID_GD_DIAL: case HID_GD_WHEEL:
 			if (field->flags & HID_MAIN_ITEM_RELATIVE)
-				map_rel(usage->hid & 0xf);
+				klpp_map_rel(usage->hid & 0xf);
 			else
-				map_abs(usage->hid & 0xf);
+				klpp_map_abs(usage->hid & 0xf);
 			break;
 
 		case HID_GD_HATSWITCH:
 			usage->hat_min = field->logical_minimum;
 			usage->hat_max = field->logical_maximum;
-			map_abs(ABS_HAT0X);
+			klpp_map_abs(ABS_HAT0X);
 			break;
 
-		case HID_GD_START:	map_key_clear(BTN_START);	break;
-		case HID_GD_SELECT:	map_key_clear(BTN_SELECT);	break;
+		case HID_GD_START:	klpp_map_key_clear(BTN_START);	break;
+		case HID_GD_SELECT:	klpp_map_key_clear(BTN_SELECT);	break;
 
 		default: goto unknown;
 		}
@@ -255,17 +257,17 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 
 	case HID_UP_LED:
 		switch (usage->hid & 0xffff) {		      /* HID-Value:                   */
-		case 0x01:  map_led (LED_NUML);     break;    /*   "Num Lock"                 */
-		case 0x02:  map_led (LED_CAPSL);    break;    /*   "Caps Lock"                */
-		case 0x03:  map_led (LED_SCROLLL);  break;    /*   "Scroll Lock"              */
-		case 0x04:  map_led (LED_COMPOSE);  break;    /*   "Compose"                  */
-		case 0x05:  map_led (LED_KANA);     break;    /*   "Kana"                     */
-		case 0x27:  map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
-		case 0x4c:  map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
-		case 0x09:  map_led (LED_MUTE);     break;    /*   "Mute"                     */
-		case 0x4b:  map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
-		case 0x19:  map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
-		case 0x4d:  map_led (LED_CHARGING); break;    /*   "External Power Connected" */
+		case 0x01:  klpp_map_led (LED_NUML);     break;    /*   "Num Lock"                 */
+		case 0x02:  klpp_map_led (LED_CAPSL);    break;    /*   "Caps Lock"                */
+		case 0x03:  klpp_map_led (LED_SCROLLL);  break;    /*   "Scroll Lock"              */
+		case 0x04:  klpp_map_led (LED_COMPOSE);  break;    /*   "Compose"                  */
+		case 0x05:  klpp_map_led (LED_KANA);     break;    /*   "Kana"                     */
+		case 0x27:  klpp_map_led (LED_SLEEP);    break;    /*   "Stand-By"                 */
+		case 0x4c:  klpp_map_led (LED_SUSPEND);  break;    /*   "System Suspend"           */
+		case 0x09:  klpp_map_led (LED_MUTE);     break;    /*   "Mute"                     */
+		case 0x4b:  klpp_map_led (LED_MISC);     break;    /*   "Generic Indicator"        */
+		case 0x19:  klpp_map_led (LED_MAIL);     break;    /*   "Message Waiting"          */
+		case 0x4d:  klpp_map_led (LED_CHARGING); break;    /*   "External Power Connected" */
 
 		default: goto ignore;
 		}
@@ -282,43 +284,43 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 				set_bit(EV_KEY, input->evbit);
 				set_bit(BTN_TOUCH, input->keybit);
 			}
-			map_abs_clear(ABS_PRESSURE);
+			klpp_map_abs_clear(ABS_PRESSURE);
 			break;
 
 		case 0x32: /* InRange */
 			switch (field->physical & 0xff) {
-			case 0x21: map_key(BTN_TOOL_MOUSE); break;
-			case 0x22: map_key(BTN_TOOL_FINGER); break;
-			default: map_key(BTN_TOOL_PEN); break;
+			case 0x21: klpp_map_key(BTN_TOOL_MOUSE); break;
+			case 0x22: klpp_map_key(BTN_TOOL_FINGER); break;
+			default: klpp_map_key(BTN_TOOL_PEN); break;
 			}
 			break;
 
 		case 0x3c: /* Invert */
-			map_key_clear(BTN_TOOL_RUBBER);
+			klpp_map_key_clear(BTN_TOOL_RUBBER);
 			break;
 
 		case 0x3d: /* X Tilt */
-			map_abs_clear(ABS_TILT_X);
+			klpp_map_abs_clear(ABS_TILT_X);
 			break;
 
 		case 0x3e: /* Y Tilt */
-			map_abs_clear(ABS_TILT_Y);
+			klpp_map_abs_clear(ABS_TILT_Y);
 			break;
 
 		case 0x33: /* Touch */
 		case 0x42: /* TipSwitch */
 		case 0x43: /* TipSwitch2 */
 			device->quirks &= ~HID_QUIRK_NOTOUCH;
-			map_key_clear(BTN_TOUCH);
+			klpp_map_key_clear(BTN_TOUCH);
 			break;
 
 		case 0x44: /* BarrelSwitch */
-			map_key_clear(BTN_STYLUS);
+			klpp_map_key_clear(BTN_STYLUS);
 			break;
 
 		case 0x46: /* TabletPick */
 		case 0x5a: /* SecondaryBarrelSwitch */
-			map_key_clear(BTN_STYLUS2);
+			klpp_map_key_clear(BTN_STYLUS2);
 			break;
 
 		case 0x5b: /* TransducerSerialNumber */
@@ -334,23 +336,23 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 
 	case HID_UP_TELEPHONY:
 		switch (usage->hid & HID_USAGE) {
-		case 0x2f: map_key_clear(KEY_MICMUTE);		break;
-		case 0xb0: map_key_clear(KEY_NUMERIC_0);	break;
-		case 0xb1: map_key_clear(KEY_NUMERIC_1);	break;
-		case 0xb2: map_key_clear(KEY_NUMERIC_2);	break;
-		case 0xb3: map_key_clear(KEY_NUMERIC_3);	break;
-		case 0xb4: map_key_clear(KEY_NUMERIC_4);	break;
-		case 0xb5: map_key_clear(KEY_NUMERIC_5);	break;
-		case 0xb6: map_key_clear(KEY_NUMERIC_6);	break;
-		case 0xb7: map_key_clear(KEY_NUMERIC_7);	break;
-		case 0xb8: map_key_clear(KEY_NUMERIC_8);	break;
-		case 0xb9: map_key_clear(KEY_NUMERIC_9);	break;
-		case 0xba: map_key_clear(KEY_NUMERIC_STAR);	break;
-		case 0xbb: map_key_clear(KEY_NUMERIC_POUND);	break;
-		case 0xbc: map_key_clear(KEY_NUMERIC_A);	break;
-		case 0xbd: map_key_clear(KEY_NUMERIC_B);	break;
-		case 0xbe: map_key_clear(KEY_NUMERIC_C);	break;
-		case 0xbf: map_key_clear(KEY_NUMERIC_D);	break;
+		case 0x2f: klpp_map_key_clear(KEY_MICMUTE);		break;
+		case 0xb0: klpp_map_key_clear(KEY_NUMERIC_0);	break;
+		case 0xb1: klpp_map_key_clear(KEY_NUMERIC_1);	break;
+		case 0xb2: klpp_map_key_clear(KEY_NUMERIC_2);	break;
+		case 0xb3: klpp_map_key_clear(KEY_NUMERIC_3);	break;
+		case 0xb4: klpp_map_key_clear(KEY_NUMERIC_4);	break;
+		case 0xb5: klpp_map_key_clear(KEY_NUMERIC_5);	break;
+		case 0xb6: klpp_map_key_clear(KEY_NUMERIC_6);	break;
+		case 0xb7: klpp_map_key_clear(KEY_NUMERIC_7);	break;
+		case 0xb8: klpp_map_key_clear(KEY_NUMERIC_8);	break;
+		case 0xb9: klpp_map_key_clear(KEY_NUMERIC_9);	break;
+		case 0xba: klpp_map_key_clear(KEY_NUMERIC_STAR);	break;
+		case 0xbb: klpp_map_key_clear(KEY_NUMERIC_POUND);	break;
+		case 0xbc: klpp_map_key_clear(KEY_NUMERIC_A);	break;
+		case 0xbd: klpp_map_key_clear(KEY_NUMERIC_B);	break;
+		case 0xbe: klpp_map_key_clear(KEY_NUMERIC_C);	break;
+		case 0xbf: klpp_map_key_clear(KEY_NUMERIC_D);	break;
 		default: goto ignore;
 		}
 		break;
@@ -358,178 +360,178 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 	case HID_UP_CONSUMER:	/* USB HUT v1.12, pages 75-84 */
 		switch (usage->hid & HID_USAGE) {
 		case 0x000: goto ignore;
-		case 0x030: map_key_clear(KEY_POWER);		break;
-		case 0x031: map_key_clear(KEY_RESTART);		break;
-		case 0x032: map_key_clear(KEY_SLEEP);		break;
-		case 0x034: map_key_clear(KEY_SLEEP);		break;
-		case 0x035: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
-		case 0x036: map_key_clear(BTN_MISC);		break;
+		case 0x030: klpp_map_key_clear(KEY_POWER);		break;
+		case 0x031: klpp_map_key_clear(KEY_RESTART);		break;
+		case 0x032: klpp_map_key_clear(KEY_SLEEP);		break;
+		case 0x034: klpp_map_key_clear(KEY_SLEEP);		break;
+		case 0x035: klpp_map_key_clear(KEY_KBDILLUMTOGGLE);	break;
+		case 0x036: klpp_map_key_clear(BTN_MISC);		break;
 
-		case 0x040: map_key_clear(KEY_MENU);		break; /* Menu */
-		case 0x041: map_key_clear(KEY_SELECT);		break; /* Menu Pick */
-		case 0x042: map_key_clear(KEY_UP);		break; /* Menu Up */
-		case 0x043: map_key_clear(KEY_DOWN);		break; /* Menu Down */
-		case 0x044: map_key_clear(KEY_LEFT);		break; /* Menu Left */
-		case 0x045: map_key_clear(KEY_RIGHT);		break; /* Menu Right */
-		case 0x046: map_key_clear(KEY_ESC);		break; /* Menu Escape */
-		case 0x047: map_key_clear(KEY_KPPLUS);		break; /* Menu Value Increase */
-		case 0x048: map_key_clear(KEY_KPMINUS);		break; /* Menu Value Decrease */
+		case 0x040: klpp_map_key_clear(KEY_MENU);		break; /* Menu */
+		case 0x041: klpp_map_key_clear(KEY_SELECT);		break; /* Menu Pick */
+		case 0x042: klpp_map_key_clear(KEY_UP);		break; /* Menu Up */
+		case 0x043: klpp_map_key_clear(KEY_DOWN);		break; /* Menu Down */
+		case 0x044: klpp_map_key_clear(KEY_LEFT);		break; /* Menu Left */
+		case 0x045: klpp_map_key_clear(KEY_RIGHT);		break; /* Menu Right */
+		case 0x046: klpp_map_key_clear(KEY_ESC);		break; /* Menu Escape */
+		case 0x047: klpp_map_key_clear(KEY_KPPLUS);		break; /* Menu Value Increase */
+		case 0x048: klpp_map_key_clear(KEY_KPMINUS);		break; /* Menu Value Decrease */
 
-		case 0x060: map_key_clear(KEY_INFO);		break; /* Data On Screen */
-		case 0x061: map_key_clear(KEY_SUBTITLE);	break; /* Closed Caption */
-		case 0x063: map_key_clear(KEY_VCR);		break; /* VCR/TV */
-		case 0x065: map_key_clear(KEY_CAMERA);		break; /* Snapshot */
-		case 0x069: map_key_clear(KEY_RED);		break;
-		case 0x06a: map_key_clear(KEY_GREEN);		break;
-		case 0x06b: map_key_clear(KEY_BLUE);		break;
-		case 0x06c: map_key_clear(KEY_YELLOW);		break;
-		case 0x06d: map_key_clear(KEY_ZOOM);		break;
+		case 0x060: klpp_map_key_clear(KEY_INFO);		break; /* Data On Screen */
+		case 0x061: klpp_map_key_clear(KEY_SUBTITLE);	break; /* Closed Caption */
+		case 0x063: klpp_map_key_clear(KEY_VCR);		break; /* VCR/TV */
+		case 0x065: klpp_map_key_clear(KEY_CAMERA);		break; /* Snapshot */
+		case 0x069: klpp_map_key_clear(KEY_RED);		break;
+		case 0x06a: klpp_map_key_clear(KEY_GREEN);		break;
+		case 0x06b: klpp_map_key_clear(KEY_BLUE);		break;
+		case 0x06c: klpp_map_key_clear(KEY_YELLOW);		break;
+		case 0x06d: klpp_map_key_clear(KEY_ZOOM);		break;
 
-		case 0x06f: map_key_clear(KEY_BRIGHTNESSUP);		break;
-		case 0x070: map_key_clear(KEY_BRIGHTNESSDOWN);		break;
-		case 0x072: map_key_clear(KEY_BRIGHTNESS_TOGGLE);	break;
-		case 0x073: map_key_clear(KEY_BRIGHTNESS_MIN);		break;
-		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
-		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
+		case 0x06f: klpp_map_key_clear(KEY_BRIGHTNESSUP);		break;
+		case 0x070: klpp_map_key_clear(KEY_BRIGHTNESSDOWN);		break;
+		case 0x072: klpp_map_key_clear(KEY_BRIGHTNESS_TOGGLE);	break;
+		case 0x073: klpp_map_key_clear(KEY_BRIGHTNESS_MIN);		break;
+		case 0x074: klpp_map_key_clear(KEY_BRIGHTNESS_MAX);		break;
+		case 0x075: klpp_map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
 
-		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
-		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
-		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
+		case 0x079: klpp_map_key_clear(KEY_KBDILLUMUP);	break;
+		case 0x07a: klpp_map_key_clear(KEY_KBDILLUMDOWN);	break;
+		case 0x07c: klpp_map_key_clear(KEY_KBDILLUMTOGGLE);	break;
 
-		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
-		case 0x083: map_key_clear(KEY_LAST);		break;
-		case 0x084: map_key_clear(KEY_ENTER);		break;
-		case 0x088: map_key_clear(KEY_PC);		break;
-		case 0x089: map_key_clear(KEY_TV);		break;
-		case 0x08a: map_key_clear(KEY_WWW);		break;
-		case 0x08b: map_key_clear(KEY_DVD);		break;
-		case 0x08c: map_key_clear(KEY_PHONE);		break;
-		case 0x08d: map_key_clear(KEY_PROGRAM);		break;
-		case 0x08e: map_key_clear(KEY_VIDEOPHONE);	break;
-		case 0x08f: map_key_clear(KEY_GAMES);		break;
-		case 0x090: map_key_clear(KEY_MEMO);		break;
-		case 0x091: map_key_clear(KEY_CD);		break;
-		case 0x092: map_key_clear(KEY_VCR);		break;
-		case 0x093: map_key_clear(KEY_TUNER);		break;
-		case 0x094: map_key_clear(KEY_EXIT);		break;
-		case 0x095: map_key_clear(KEY_HELP);		break;
-		case 0x096: map_key_clear(KEY_TAPE);		break;
-		case 0x097: map_key_clear(KEY_TV2);		break;
-		case 0x098: map_key_clear(KEY_SAT);		break;
-		case 0x09a: map_key_clear(KEY_PVR);		break;
+		case 0x082: klpp_map_key_clear(KEY_VIDEO_NEXT);	break;
+		case 0x083: klpp_map_key_clear(KEY_LAST);		break;
+		case 0x084: klpp_map_key_clear(KEY_ENTER);		break;
+		case 0x088: klpp_map_key_clear(KEY_PC);		break;
+		case 0x089: klpp_map_key_clear(KEY_TV);		break;
+		case 0x08a: klpp_map_key_clear(KEY_WWW);		break;
+		case 0x08b: klpp_map_key_clear(KEY_DVD);		break;
+		case 0x08c: klpp_map_key_clear(KEY_PHONE);		break;
+		case 0x08d: klpp_map_key_clear(KEY_PROGRAM);		break;
+		case 0x08e: klpp_map_key_clear(KEY_VIDEOPHONE);	break;
+		case 0x08f: klpp_map_key_clear(KEY_GAMES);		break;
+		case 0x090: klpp_map_key_clear(KEY_MEMO);		break;
+		case 0x091: klpp_map_key_clear(KEY_CD);		break;
+		case 0x092: klpp_map_key_clear(KEY_VCR);		break;
+		case 0x093: klpp_map_key_clear(KEY_TUNER);		break;
+		case 0x094: klpp_map_key_clear(KEY_EXIT);		break;
+		case 0x095: klpp_map_key_clear(KEY_HELP);		break;
+		case 0x096: klpp_map_key_clear(KEY_TAPE);		break;
+		case 0x097: klpp_map_key_clear(KEY_TV2);		break;
+		case 0x098: klpp_map_key_clear(KEY_SAT);		break;
+		case 0x09a: klpp_map_key_clear(KEY_PVR);		break;
 
-		case 0x09c: map_key_clear(KEY_CHANNELUP);	break;
-		case 0x09d: map_key_clear(KEY_CHANNELDOWN);	break;
-		case 0x0a0: map_key_clear(KEY_VCR2);		break;
+		case 0x09c: klpp_map_key_clear(KEY_CHANNELUP);	break;
+		case 0x09d: klpp_map_key_clear(KEY_CHANNELDOWN);	break;
+		case 0x0a0: klpp_map_key_clear(KEY_VCR2);		break;
 
-		case 0x0b0: map_key_clear(KEY_PLAY);		break;
-		case 0x0b1: map_key_clear(KEY_PAUSE);		break;
-		case 0x0b2: map_key_clear(KEY_RECORD);		break;
-		case 0x0b3: map_key_clear(KEY_FASTFORWARD);	break;
-		case 0x0b4: map_key_clear(KEY_REWIND);		break;
-		case 0x0b5: map_key_clear(KEY_NEXTSONG);	break;
-		case 0x0b6: map_key_clear(KEY_PREVIOUSSONG);	break;
-		case 0x0b7: map_key_clear(KEY_STOPCD);		break;
-		case 0x0b8: map_key_clear(KEY_EJECTCD);		break;
-		case 0x0bc: map_key_clear(KEY_MEDIA_REPEAT);	break;
-		case 0x0b9: map_key_clear(KEY_SHUFFLE);		break;
-		case 0x0bf: map_key_clear(KEY_SLOW);		break;
+		case 0x0b0: klpp_map_key_clear(KEY_PLAY);		break;
+		case 0x0b1: klpp_map_key_clear(KEY_PAUSE);		break;
+		case 0x0b2: klpp_map_key_clear(KEY_RECORD);		break;
+		case 0x0b3: klpp_map_key_clear(KEY_FASTFORWARD);	break;
+		case 0x0b4: klpp_map_key_clear(KEY_REWIND);		break;
+		case 0x0b5: klpp_map_key_clear(KEY_NEXTSONG);	break;
+		case 0x0b6: klpp_map_key_clear(KEY_PREVIOUSSONG);	break;
+		case 0x0b7: klpp_map_key_clear(KEY_STOPCD);		break;
+		case 0x0b8: klpp_map_key_clear(KEY_EJECTCD);		break;
+		case 0x0bc: klpp_map_key_clear(KEY_MEDIA_REPEAT);	break;
+		case 0x0b9: klpp_map_key_clear(KEY_SHUFFLE);		break;
+		case 0x0bf: klpp_map_key_clear(KEY_SLOW);		break;
 
-		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
-		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
-		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
-		case 0x0e2: map_key_clear(KEY_MUTE);		break;
-		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
-		case 0x0e9: map_key_clear(KEY_VOLUMEUP);	break;
-		case 0x0ea: map_key_clear(KEY_VOLUMEDOWN);	break;
-		case 0x0f5: map_key_clear(KEY_SLOW);		break;
+		case 0x0cd: klpp_map_key_clear(KEY_PLAYPAUSE);	break;
+		case 0x0cf: klpp_map_key_clear(KEY_VOICECOMMAND);	break;
+		case 0x0e0: klpp_map_abs_clear(ABS_VOLUME);		break;
+		case 0x0e2: klpp_map_key_clear(KEY_MUTE);		break;
+		case 0x0e5: klpp_map_key_clear(KEY_BASSBOOST);	break;
+		case 0x0e9: klpp_map_key_clear(KEY_VOLUMEUP);	break;
+		case 0x0ea: klpp_map_key_clear(KEY_VOLUMEDOWN);	break;
+		case 0x0f5: klpp_map_key_clear(KEY_SLOW);		break;
 
-		case 0x181: map_key_clear(KEY_BUTTONCONFIG);	break;
-		case 0x182: map_key_clear(KEY_BOOKMARKS);	break;
-		case 0x183: map_key_clear(KEY_CONFIG);		break;
-		case 0x184: map_key_clear(KEY_WORDPROCESSOR);	break;
-		case 0x185: map_key_clear(KEY_EDITOR);		break;
-		case 0x186: map_key_clear(KEY_SPREADSHEET);	break;
-		case 0x187: map_key_clear(KEY_GRAPHICSEDITOR);	break;
-		case 0x188: map_key_clear(KEY_PRESENTATION);	break;
-		case 0x189: map_key_clear(KEY_DATABASE);	break;
-		case 0x18a: map_key_clear(KEY_MAIL);		break;
-		case 0x18b: map_key_clear(KEY_NEWS);		break;
-		case 0x18c: map_key_clear(KEY_VOICEMAIL);	break;
-		case 0x18d: map_key_clear(KEY_ADDRESSBOOK);	break;
-		case 0x18e: map_key_clear(KEY_CALENDAR);	break;
-		case 0x18f: map_key_clear(KEY_TASKMANAGER);	break;
-		case 0x190: map_key_clear(KEY_JOURNAL);		break;
-		case 0x191: map_key_clear(KEY_FINANCE);		break;
-		case 0x192: map_key_clear(KEY_CALC);		break;
-		case 0x193: map_key_clear(KEY_PLAYER);		break;
-		case 0x194: map_key_clear(KEY_FILE);		break;
-		case 0x196: map_key_clear(KEY_WWW);		break;
-		case 0x199: map_key_clear(KEY_CHAT);		break;
-		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
-		case 0x19e: map_key_clear(KEY_COFFEE);		break;
-		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
-		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
-		case 0x1a3: map_key_clear(KEY_NEXT);		break;
-		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
-		case 0x1a6: map_key_clear(KEY_HELP);		break;
-		case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
-		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
-		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
-		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
-		case 0x1b4: map_key_clear(KEY_FILE);		break;
-		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
-		case 0x1b7: map_key_clear(KEY_AUDIO);		break;
-		case 0x1b8: map_key_clear(KEY_VIDEO);		break;
-		case 0x1bc: map_key_clear(KEY_MESSENGER);	break;
-		case 0x1bd: map_key_clear(KEY_INFO);		break;
-		case 0x1cb: map_key_clear(KEY_ASSISTANT);	break;
-		case 0x201: map_key_clear(KEY_NEW);		break;
-		case 0x202: map_key_clear(KEY_OPEN);		break;
-		case 0x203: map_key_clear(KEY_CLOSE);		break;
-		case 0x204: map_key_clear(KEY_EXIT);		break;
-		case 0x207: map_key_clear(KEY_SAVE);		break;
-		case 0x208: map_key_clear(KEY_PRINT);		break;
-		case 0x209: map_key_clear(KEY_PROPS);		break;
-		case 0x21a: map_key_clear(KEY_UNDO);		break;
-		case 0x21b: map_key_clear(KEY_COPY);		break;
-		case 0x21c: map_key_clear(KEY_CUT);		break;
-		case 0x21d: map_key_clear(KEY_PASTE);		break;
-		case 0x21f: map_key_clear(KEY_FIND);		break;
-		case 0x221: map_key_clear(KEY_SEARCH);		break;
-		case 0x222: map_key_clear(KEY_GOTO);		break;
-		case 0x223: map_key_clear(KEY_HOMEPAGE);	break;
-		case 0x224: map_key_clear(KEY_BACK);		break;
-		case 0x225: map_key_clear(KEY_FORWARD);		break;
-		case 0x226: map_key_clear(KEY_STOP);		break;
-		case 0x227: map_key_clear(KEY_REFRESH);		break;
-		case 0x22a: map_key_clear(KEY_BOOKMARKS);	break;
-		case 0x22d: map_key_clear(KEY_ZOOMIN);		break;
-		case 0x22e: map_key_clear(KEY_ZOOMOUT);		break;
-		case 0x22f: map_key_clear(KEY_ZOOMRESET);	break;
-		case 0x233: map_key_clear(KEY_SCROLLUP);	break;
-		case 0x234: map_key_clear(KEY_SCROLLDOWN);	break;
-		case 0x238: map_rel(REL_HWHEEL);		break;
-		case 0x23d: map_key_clear(KEY_EDIT);		break;
-		case 0x25f: map_key_clear(KEY_CANCEL);		break;
-		case 0x269: map_key_clear(KEY_INSERT);		break;
-		case 0x26a: map_key_clear(KEY_DELETE);		break;
-		case 0x279: map_key_clear(KEY_REDO);		break;
+		case 0x181: klpp_map_key_clear(KEY_BUTTONCONFIG);	break;
+		case 0x182: klpp_map_key_clear(KEY_BOOKMARKS);	break;
+		case 0x183: klpp_map_key_clear(KEY_CONFIG);		break;
+		case 0x184: klpp_map_key_clear(KEY_WORDPROCESSOR);	break;
+		case 0x185: klpp_map_key_clear(KEY_EDITOR);		break;
+		case 0x186: klpp_map_key_clear(KEY_SPREADSHEET);	break;
+		case 0x187: klpp_map_key_clear(KEY_GRAPHICSEDITOR);	break;
+		case 0x188: klpp_map_key_clear(KEY_PRESENTATION);	break;
+		case 0x189: klpp_map_key_clear(KEY_DATABASE);	break;
+		case 0x18a: klpp_map_key_clear(KEY_MAIL);		break;
+		case 0x18b: klpp_map_key_clear(KEY_NEWS);		break;
+		case 0x18c: klpp_map_key_clear(KEY_VOICEMAIL);	break;
+		case 0x18d: klpp_map_key_clear(KEY_ADDRESSBOOK);	break;
+		case 0x18e: klpp_map_key_clear(KEY_CALENDAR);	break;
+		case 0x18f: klpp_map_key_clear(KEY_TASKMANAGER);	break;
+		case 0x190: klpp_map_key_clear(KEY_JOURNAL);		break;
+		case 0x191: klpp_map_key_clear(KEY_FINANCE);		break;
+		case 0x192: klpp_map_key_clear(KEY_CALC);		break;
+		case 0x193: klpp_map_key_clear(KEY_PLAYER);		break;
+		case 0x194: klpp_map_key_clear(KEY_FILE);		break;
+		case 0x196: klpp_map_key_clear(KEY_WWW);		break;
+		case 0x199: klpp_map_key_clear(KEY_CHAT);		break;
+		case 0x19c: klpp_map_key_clear(KEY_LOGOFF);		break;
+		case 0x19e: klpp_map_key_clear(KEY_COFFEE);		break;
+		case 0x19f: klpp_map_key_clear(KEY_CONTROLPANEL);		break;
+		case 0x1a2: klpp_map_key_clear(KEY_APPSELECT);		break;
+		case 0x1a3: klpp_map_key_clear(KEY_NEXT);		break;
+		case 0x1a4: klpp_map_key_clear(KEY_PREVIOUS);	break;
+		case 0x1a6: klpp_map_key_clear(KEY_HELP);		break;
+		case 0x1a7: klpp_map_key_clear(KEY_DOCUMENTS);	break;
+		case 0x1ab: klpp_map_key_clear(KEY_SPELLCHECK);	break;
+		case 0x1ae: klpp_map_key_clear(KEY_KEYBOARD);	break;
+		case 0x1b1: klpp_map_key_clear(KEY_SCREENSAVER);		break;
+		case 0x1b4: klpp_map_key_clear(KEY_FILE);		break;
+		case 0x1b6: klpp_map_key_clear(KEY_IMAGES);		break;
+		case 0x1b7: klpp_map_key_clear(KEY_AUDIO);		break;
+		case 0x1b8: klpp_map_key_clear(KEY_VIDEO);		break;
+		case 0x1bc: klpp_map_key_clear(KEY_MESSENGER);	break;
+		case 0x1bd: klpp_map_key_clear(KEY_INFO);		break;
+		case 0x1cb: klpp_map_key_clear(KEY_ASSISTANT);	break;
+		case 0x201: klpp_map_key_clear(KEY_NEW);		break;
+		case 0x202: klpp_map_key_clear(KEY_OPEN);		break;
+		case 0x203: klpp_map_key_clear(KEY_CLOSE);		break;
+		case 0x204: klpp_map_key_clear(KEY_EXIT);		break;
+		case 0x207: klpp_map_key_clear(KEY_SAVE);		break;
+		case 0x208: klpp_map_key_clear(KEY_PRINT);		break;
+		case 0x209: klpp_map_key_clear(KEY_PROPS);		break;
+		case 0x21a: klpp_map_key_clear(KEY_UNDO);		break;
+		case 0x21b: klpp_map_key_clear(KEY_COPY);		break;
+		case 0x21c: klpp_map_key_clear(KEY_CUT);		break;
+		case 0x21d: klpp_map_key_clear(KEY_PASTE);		break;
+		case 0x21f: klpp_map_key_clear(KEY_FIND);		break;
+		case 0x221: klpp_map_key_clear(KEY_SEARCH);		break;
+		case 0x222: klpp_map_key_clear(KEY_GOTO);		break;
+		case 0x223: klpp_map_key_clear(KEY_HOMEPAGE);	break;
+		case 0x224: klpp_map_key_clear(KEY_BACK);		break;
+		case 0x225: klpp_map_key_clear(KEY_FORWARD);		break;
+		case 0x226: klpp_map_key_clear(KEY_STOP);		break;
+		case 0x227: klpp_map_key_clear(KEY_REFRESH);		break;
+		case 0x22a: klpp_map_key_clear(KEY_BOOKMARKS);	break;
+		case 0x22d: klpp_map_key_clear(KEY_ZOOMIN);		break;
+		case 0x22e: klpp_map_key_clear(KEY_ZOOMOUT);		break;
+		case 0x22f: klpp_map_key_clear(KEY_ZOOMRESET);	break;
+		case 0x233: klpp_map_key_clear(KEY_SCROLLUP);	break;
+		case 0x234: klpp_map_key_clear(KEY_SCROLLDOWN);	break;
+		case 0x238: klpp_map_rel(REL_HWHEEL);		break;
+		case 0x23d: klpp_map_key_clear(KEY_EDIT);		break;
+		case 0x25f: klpp_map_key_clear(KEY_CANCEL);		break;
+		case 0x269: klpp_map_key_clear(KEY_INSERT);		break;
+		case 0x26a: klpp_map_key_clear(KEY_DELETE);		break;
+		case 0x279: klpp_map_key_clear(KEY_REDO);		break;
 
-		case 0x289: map_key_clear(KEY_REPLY);		break;
-		case 0x28b: map_key_clear(KEY_FORWARDMAIL);	break;
-		case 0x28c: map_key_clear(KEY_SEND);		break;
+		case 0x289: klpp_map_key_clear(KEY_REPLY);		break;
+		case 0x28b: klpp_map_key_clear(KEY_FORWARDMAIL);	break;
+		case 0x28c: klpp_map_key_clear(KEY_SEND);		break;
 
-		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
-		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
-		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
-		case 0x2ca: map_key_clear(KEY_KBDINPUTASSIST_NEXTGROUP);		break;
-		case 0x2cb: map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
-		case 0x2cc: map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
+		case 0x2c7: klpp_map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
+		case 0x2c8: klpp_map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
+		case 0x2c9: klpp_map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
+		case 0x2ca: klpp_map_key_clear(KEY_KBDINPUTASSIST_NEXTGROUP);		break;
+		case 0x2cb: klpp_map_key_clear(KEY_KBDINPUTASSIST_ACCEPT);	break;
+		case 0x2cc: klpp_map_key_clear(KEY_KBDINPUTASSIST_CANCEL);	break;
 
-		case 0x29f: map_key_clear(KEY_SCALE);		break;
+		case 0x29f: klpp_map_key_clear(KEY_SCALE);		break;
 
-		default: map_key_clear(KEY_UNKNOWN);
+		default: klpp_map_key_clear(KEY_UNKNOWN);
 		}
 		break;
 
@@ -543,18 +545,18 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 	case HID_UP_HPVENDOR:	/* Reported on a Dutch layout HP5308 */
 		set_bit(EV_REP, input->evbit);
 		switch (usage->hid & HID_USAGE) {
-		case 0x021: map_key_clear(KEY_PRINT);           break;
-		case 0x070: map_key_clear(KEY_HP);		break;
-		case 0x071: map_key_clear(KEY_CAMERA);		break;
-		case 0x072: map_key_clear(KEY_SOUND);		break;
-		case 0x073: map_key_clear(KEY_QUESTION);	break;
-		case 0x080: map_key_clear(KEY_EMAIL);		break;
-		case 0x081: map_key_clear(KEY_CHAT);		break;
-		case 0x082: map_key_clear(KEY_SEARCH);		break;
-		case 0x083: map_key_clear(KEY_CONNECT);	        break;
-		case 0x084: map_key_clear(KEY_FINANCE);		break;
-		case 0x085: map_key_clear(KEY_SPORT);		break;
-		case 0x086: map_key_clear(KEY_SHOP);	        break;
+		case 0x021: klpp_map_key_clear(KEY_PRINT);           break;
+		case 0x070: klpp_map_key_clear(KEY_HP);		break;
+		case 0x071: klpp_map_key_clear(KEY_CAMERA);		break;
+		case 0x072: klpp_map_key_clear(KEY_SOUND);		break;
+		case 0x073: klpp_map_key_clear(KEY_QUESTION);	break;
+		case 0x080: klpp_map_key_clear(KEY_EMAIL);		break;
+		case 0x081: klpp_map_key_clear(KEY_CHAT);		break;
+		case 0x082: klpp_map_key_clear(KEY_SEARCH);		break;
+		case 0x083: klpp_map_key_clear(KEY_CONNECT);	        break;
+		case 0x084: klpp_map_key_clear(KEY_FINANCE);		break;
+		case 0x085: klpp_map_key_clear(KEY_SPORT);		break;
+		case 0x086: klpp_map_key_clear(KEY_SHOP);	        break;
 		default:    goto ignore;
 		}
 		break;
@@ -562,9 +564,9 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 	case HID_UP_HPVENDOR2:
 		set_bit(EV_REP, input->evbit);
 		switch (usage->hid & HID_USAGE) {
-		case 0x001: map_key_clear(KEY_MICMUTE);		break;
-		case 0x003: map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-		case 0x004: map_key_clear(KEY_BRIGHTNESSUP);	break;
+		case 0x001: klpp_map_key_clear(KEY_MICMUTE);		break;
+		case 0x003: klpp_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+		case 0x004: klpp_map_key_clear(KEY_BRIGHTNESSUP);	break;
 		default:    goto ignore;
 		}
 		break;
@@ -585,7 +587,7 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 
 	case HID_UP_PID:
 		switch (usage->hid & HID_USAGE) {
-		case 0xa4: map_key_clear(BTN_DEAD);	break;
+		case 0xa4: klpp_map_key_clear(BTN_DEAD);	break;
 		default: goto ignore;
 		}
 		break;
@@ -594,21 +596,29 @@ void klpp_hidinput_configure_usage(struct hid_input *hidinput, struct hid_field 
 	unknown:
 		if (field->report_size == 1) {
 			if (field->report->type == HID_OUTPUT_REPORT) {
-				map_led(LED_MISC);
+				klpp_map_led(LED_MISC);
 				break;
 			}
-			map_key(BTN_MISC);
+			klpp_map_key(BTN_MISC);
 			break;
 		}
 		if (field->flags & HID_MAIN_ITEM_RELATIVE) {
-			map_rel(REL_MISC);
+			klpp_map_rel(REL_MISC);
 			break;
 		}
-		map_abs(ABS_MISC);
+		klpp_map_abs(ABS_MISC);
 		break;
 	}
 
 mapped:
+	/*
+	 * Fix CVE-2020-0465
+	 *  +3 lines
+	 */
+	/* Mapping failed, bail out */
+	if (!bit)
+		return;
+
 	/*
 	 * Fix CVE-2020-0431
 	 *  -3 lines, +9 lines
