@@ -1,0 +1,1 @@
+mwifiex mwifiex_cmd_802_11_ad_hoc_start klpp_mwifiex_cmd_802_11_ad_hoc_start IS_ENABLED(CONFIG_MWIFIEX)
