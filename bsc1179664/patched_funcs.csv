@@ -1,0 +1,2 @@
+vmlinux do_huge_pmd_wp_page klpp_do_huge_pmd_wp_page
+vmlinux __split_huge_pmd klpp___split_huge_pmd
