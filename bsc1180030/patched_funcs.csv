@@ -1,0 +1,2 @@
+vmlinux hidinput_configure_usage klpp_hidinput_configure_usage IS_ENABLED(CONFIG_HID)
+hid_multitouch mt_input_mapping klpp_mt_input_mapping IS_ENABLED(CONFIG_HID)
