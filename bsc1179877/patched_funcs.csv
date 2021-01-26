@@ -1,0 +1,4 @@
+vmlinux __do_SAK klpp___do_SAK
+vmlinux __proc_set_tty klpp___proc_set_tty
+vmlinux disassociate_ctty klpp_disassociate_ctty
+vmlinux tty_jobctrl_ioctl klpp_tty_jobctrl_ioctl
