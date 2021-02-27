@@ -1,23 +1,96 @@
 /*
  * livepatch_bsc1176012
  *
- * Fix for CVE-2020-14381, bsc#1176012
+ * Fix for CVE-2020-14381, bsc#1176012 and CVE-2021-3347, bsc#1181553
  *
- *  Upstream commit:
+ *  Upstream commit for CVE-2020-14381:
  *  8019ad13ef7f ("futex: Fix inode life-time issue")
  *
- *  SLE12-SP2 and -SP3 commit:
+ *  SLE12-SP2 and -SP3 commit for CVE-2020-14381:
  *  804983cf0756bc6715608a9e1adeb18d46f892c4
  *
- *  SLE12-SP4, SLE12-SP5, SLE15 and SLE15-SP1 commits:
+ *  SLE12-SP4, SLE12-SP5, SLE15 and SLE15-SP1 commit for CVE-2020-14381:
  *  0091d772bf287fec3a2e84ada01e5510e22ce46c
  *  7c2a3c29f3c6779e6b82570110c6f9b45d6010cd
  *
- *  SLE15-SP2 commit:
+ *  SLE15-SP2 commit for CVE-2020-14381:
  *  aa54a719ea49abb6f11166239cecd36a7ab6a5c1
  *
  *
- *  Copyright (c) 2020 SUSE
+ *  Upstream commits for CVE-2021-3347:
+ *  6b4f4bc9cb22 ("locking/futex: Allow low-level atomic operations to return
+ *                 -EAGAIN")
+ *  9f5d1c336a10 ("futex: Handle transient "ownerless" rtmutex state correctly")
+ *  1e106aa3509b ("futex: Don't enable IRQs unconditionally in put_pi_state()")
+ *  12bb3f7f1b03 ("futex: Ensure the correct return value from futex_lock_pi()")
+ *  04b79c55201f ("futex: Replace pointless printk in fixup_owner()")
+ *  c5cade200ab9 ("futex: Provide and use pi_state_update_owner()")
+ *  2156ac193416 ("rtmutex: Remove unused argument
+ *                 from rt_mutex_proxy_unlock()")
+ *  6ccc84f917d3 ("futex: Use pi_state_update_owner() in put_pi_state()")
+ *  f2dac39d9398 ("futex: Simplify fixup_pi_state_owner()")
+ *  34b1a1ce1458 ("futex: Handle faults correctly for PI futexes")
+ *
+ *  SLE12-SP2 and SLE12-SP3 commits for CVE-2021-3347:
+ *  73663d8a45b8328532b7901c0cfcfa8ed9ee67d4
+ *  e1fc006ef66520c31fab2b9572bb04a979a5844f
+ *  6c60412b2792170920b3db5b9879f12c5784ff9b
+ *  e2c6d647fe6c7c346c786d8bc37579ed9feee4a6
+ *  c87ed53d465c9e4a9dcd636d9c154c8777f8f84f
+ *  553c1a3c1fba0de86c8e5c0064aece6966e27fcf
+ *  3307ee69c9e29f4c72dba1e6779b45ba0799d472
+ *  c188bc685cc781f4ed4431d53e12f23b4419b45e
+ *  0f091912e862f7546d0cea60511b148d3dac07d4
+ *  eaeb5cd80af07b2d9712e1938d68c5bbc6f4c8ca
+ *  51a6ea0a9d6c232ee255c3d98a9007c7b6d4d66a
+ *  73b507f89bd348bd41f27851302231340aa52887
+ *  446b9bf34bc2f33816f3c71294f2b80b7869262b
+ *  d0d92ebb8860e7713969d2ae23c53f68f1bdd344
+ *  5c581f525fb2fc6523bfd7a770a9ee62a5ba1b7a
+ *  727868366c01c7bce4bf232a09040d9b6e16aee0
+ *  51eb6990c7c9403e5c82e0a66144e0ff6e1e952a
+ *  e5f413c12d8a83b344d9bc33f34e4dcc8651514c
+ *  06c33b17abd7d05ee0635d82c8f80aad8390a646
+ *  f588b4ec2e87427c8bd29b80223da02c2e0eff45
+ *  c1bd2314b241715d82fd0751dd5670aeab3fec60
+ *  437ab1569581cfbb28e3ec0dd6a50a7af77c2eca
+ *  ac0d9a151b33ca176e82f6f00bc364cf98ed144c
+ *  3ea3e69e54b9a840b5b622db069077638f909343
+ *  c41659a772085fb6649530e45049b039bb2d9d99
+ *  cce36b88cbc54aba3a02290f679f2a57f61d6c16 (SLE12-SP3 only)
+ *
+ *  SLE12-SP4, SLE12-SP5, SLE15 and SLE15-SP1 commits for CVE-2021-3347:
+ *  60003eaf0885b9ae01d18e45fad2e11934d9d6bf (SLE12-SP5 + SLE15-SP1 only)
+ *  96fc4b89769eb37be05dc1d7f07b54c04b3731a1 (SLE12-SP5 + SLE15-SP1 only)
+ *  19b7ad52837a6281d19ae1dcc91ecbd22bb03325
+ *  47116ff320dc436a77570fad745e0785210fd747
+ *  d60800efe414ee57d3305259dbaf3f42131ef550
+ *  122df43674e1e0694534cc7116657393846f5de8
+ *  2081c4c509b3bbd88d9b1c4598cb22e8a8f6620d
+ *  3c34595ba02bbee6c84ea4599bf31d9af344d969
+ *  e293043c889a8925020e385c2182c69741748ec5
+ *  ccacb1085ee9ff6d34a44e28155d80c2364366fa
+ *  058c695a81a3a15d89b90958840af8e50d7e8cbd
+ *  0ba69a9af32cc3575877623dbb7592b0b18aedcb
+ *  424d8c77978886d7ee7481092ca298f8a49e53f1 (SLE15 only)
+ *  901da74cd86e5a11c37b8db6471340a11420e830 (SLE12-SP5 + SLE15-SP1 only)
+ *  96704b75162d319ec38238229e19ed2539061656 (SLE12-SP5 + SLE15-SP1 only)
+ *
+ *  SLE15-SP2 commits for CVE-2021-3347:
+ *  1f84aa83d29b61762e93e69ba813d06d69d0129a
+ *  15c899ad75e036f3345e0d2ceab13ef0dc4c40e4
+ *  3e3a93fcbd64b7a9326cbb15256e6f395cd6110a
+ *  5928ceda161395b4ab5d0cc926440891ebc7e294
+ *  00c28bf548b6497abb3bd30caedef7c3eb22f3e8
+ *  40403938aca364fbe138d252266284bdaeb3db91
+ *  df16641065ad91f8ba36f471d823819e7f5a439a
+ *  b1c5ed250bd4d8817c4d367492e422a6d76f836b
+ *  72f29b4ee6719d2f1dc2fd28ea1c3932d07648b6
+ *  ceb865c876c4e6661dc4d65bf43f49971535cc6c
+ *  8a00d32516a676e9ee022c8c857f680229017856
+ *
+ *
+ *  Copyright (c) 2020, 2021 SUSE
  *  Author: Nicolai Stange <nstange@suse.de>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
@@ -370,7 +443,6 @@ static bool (*klpe_rt_mutex_cleanup_proxy_lock)(struct rt_mutex *lock,
 static int (*klpe_rt_mutex_futex_trylock)(struct rt_mutex *l);
 static int (*klpe___rt_mutex_futex_trylock)(struct rt_mutex *l);
 
-static void (*klpe_rt_mutex_futex_unlock)(struct rt_mutex *lock);
 static bool (*klpe___rt_mutex_futex_unlock)(struct rt_mutex *lock,
 				 struct wake_q_head *wqh);
 
@@ -871,6 +943,30 @@ static int refill_pi_state_cache(void)
 	return 0;
 }
 
+/* New. */
+static void klpp_pi_state_update_owner(struct futex_pi_state *pi_state,
+				       struct task_struct *new_owner)
+{
+	struct task_struct *old_owner = pi_state->owner;
+
+	lockdep_assert_held(&pi_state->pi_mutex.wait_lock);
+
+	if (old_owner) {
+		raw_spin_lock(&old_owner->pi_lock);
+		WARN_ON(list_empty(&pi_state->list));
+		list_del_init(&pi_state->list);
+		raw_spin_unlock(&old_owner->pi_lock);
+	}
+
+	if (new_owner) {
+		raw_spin_lock(&new_owner->pi_lock);
+		WARN_ON(!list_empty(&pi_state->list));
+		list_add(&pi_state->list, &new_owner->pi_state_list);
+		pi_state->owner = new_owner;
+		raw_spin_unlock(&new_owner->pi_lock);
+	}
+}
+
 static void (*klpe_get_pi_state)(struct futex_pi_state *pi_state);
 
 static void (*klpe_put_pi_state)(struct futex_pi_state *pi_state);
@@ -911,7 +1007,7 @@ static void (*klpe___unqueue_futex)(struct futex_q *q);
 
 static void (*klpe_mark_wake_futex)(struct wake_q_head *wake_q, struct futex_q *q);
 
-static int klpr_wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_state)
+static int klpp_wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state *pi_state)
 {
 	u32 uninitialized_var(curval), newval;
 	struct task_struct *new_owner;
@@ -920,7 +1016,13 @@ static int klpr_wake_futex_pi(u32 __user *uaddr, u32 uval, struct futex_pi_state
 	int ret = 0;
 
 	new_owner = (*klpe_rt_mutex_next_owner)(&pi_state->pi_mutex);
-	if (WARN_ON_ONCE(!new_owner)) {
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line, +1 line
+	 * Note: remove the WARN_ON_ONCE() because it's bogus
+	 * and gets triggered in our testcase.
+	 */
+	if (!new_owner) {
 		/*
 		 * As per the comment in futex_unlock_pi() this should not happen.
 		 *
@@ -1868,18 +1970,34 @@ retry:
 
 static void (*klpe_unqueue_me_pi)(struct futex_q *q);
 
-static int klpr_fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+/*
+ * Fix CVE-2021-3347
+ *  -1 line, +1 line
+ */
+static int klpp___fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
 				struct task_struct *argowner)
 {
+	/*
+	 * Fix CVE-2021-3347
+	 *  +1 line
+	 */
+	u32 uval, uninitialized_var(curval), newval, newtid;
 	struct futex_pi_state *pi_state = q->pi_state;
-	u32 uval, uninitialized_var(curval), newval;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line
+	 */
 	struct task_struct *oldowner, *newowner;
-	u32 newtid;
-	int ret;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -2 lines, +1 line
+	 */
+	int err = 0;
 
-	lockdep_assert_held(q->lock_ptr);
-
-	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+	/*
+	 * Fix CVE-2021-3347
+	 *  -3 lines
+	 */
 
 	oldowner = pi_state->owner;
 
@@ -1913,21 +2031,47 @@ retry:
 			 * We raced against a concurrent self; things are
 			 * already fixed up. Nothing to do.
 			 */
-			ret = 0;
-			goto out_unlock;
+			/*
+			 * Fix CVE-2021-3347
+			 *  -2 lines, +1 line
+			 */
+			return 0;
 		}
 
 		if ((*klpe___rt_mutex_futex_trylock)(&pi_state->pi_mutex)) {
-			/* We got the lock after all, nothing to fix. */
-			ret = 0;
-			goto out_unlock;
+			/*
+			 * Fix CVE-2021-3347
+			 *  -3 lines, +2 lines
+			 */
+			/* We got the lock. pi_state is correct. Tell caller. */
+			return 1;
 		}
 
 		/*
-		 * Since we just failed the trylock; there must be an owner.
+		 * Fix CVE-2021-3347
+		 *  -3 lines, +4 lines
+		 */
+		/*
+		 * The trylock just failed, so either there is an owner or
+		 * there is a higher priority waiter than this one.
 		 */
 		newowner = rt_mutex_owner(&pi_state->pi_mutex);
-		BUG_ON(!newowner);
+		/*
+		 * Fix CVE-2021-3347
+		 *  -1 line, +12 lines
+		 */
+		/*
+		 * If the higher priority waiter has not yet taken over the
+		 * rtmutex then newowner is NULL. We can't return here with
+		 * that state because it's inconsistent vs. the user space
+		 * state. So drop the locks and try again. It's a valid
+		 * situation and not any different from the other retry
+		 * conditions.
+		 */
+		if (unlikely(!newowner)) {
+			err = -EAGAIN;
+			goto handle_err;
+		}
 	} else {
 		WARN_ON_ONCE(argowner != current);
 		if (oldowner == current) {
@@ -1935,8 +2079,11 @@ retry:
 			 * We raced against a concurrent self; things are
 			 * already fixed up. Nothing to do.
 			 */
-			ret = 0;
-			goto out_unlock;
+			/*
+			 * Fix CVE-2021-3347
+			 *  -2 lines, +1 line
+			 */
+			return 1;
 		}
 		newowner = argowner;
 	}
@@ -1946,14 +2093,25 @@ retry:
 	if (!pi_state->owner)
 		newtid |= FUTEX_OWNER_DIED;
 
-	if ((*klpe_get_futex_value_locked)(&uval, uaddr))
-		goto handle_fault;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -2 lines, +3 lines
+	 */
+	err = (*klpe_get_futex_value_locked)(&uval, uaddr);
+	if (err)
+		goto handle_err;
 
 	for (;;) {
 		newval = (uval & FUTEX_OWNER_DIED) | newtid;
 
-		if ((*klpe_cmpxchg_futex_value_locked)(&curval, uaddr, uval, newval))
-			goto handle_fault;
+		/*
+		 * Fix CVE-2021-3347
+		 *  -2 lines, +3 lines
+		 */
+		err = (*klpe_cmpxchg_futex_value_locked)(&curval, uaddr, uval, newval);
+		if (err)
+			goto handle_err;
+
 		if (curval == uval)
 			break;
 		uval = curval;
@@ -1963,41 +2121,65 @@ retry:
 	 * We fixed up user space. Now we need to fix the pi_state
 	 * itself.
 	 */
-	if (pi_state->owner != NULL) {
-		raw_spin_lock(&pi_state->owner->pi_lock);
-		WARN_ON(list_empty(&pi_state->list));
-		list_del_init(&pi_state->list);
-		raw_spin_unlock(&pi_state->owner->pi_lock);
-	}
-
-	pi_state->owner = newowner;
-
-	raw_spin_lock(&newowner->pi_lock);
-	WARN_ON(!list_empty(&pi_state->list));
-	list_add(&pi_state->list, &newowner->pi_state_list);
-	raw_spin_unlock(&newowner->pi_lock);
-	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
-
-	return 0;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -13 lines, +1 line
+	 */
+	klpp_pi_state_update_owner(pi_state, newowner);
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line
+	 */
 
 	/*
-	 * To handle the page fault we need to drop the locks here. That gives
-	 * the other task (either the highest priority waiter itself or the
-	 * task which stole the rtmutex) the chance to try the fixup of the
-	 * pi_state. So once we are back from handling the fault we need to
-	 * check the pi_state after reacquiring the locks and before trying to
-	 * do another fixup. When the fixup has been done already we simply
-	 * return.
+	 * Fix CVE-2021-3347
+	 *  -1 line, +1 line
+	 */
+	return argowner == current;
+
+	/*
+	 * Fix CVE-2021-3347
+	 *  -8 lines, +8 lines
+	 */
+	/*
+	 * In order to reschedule or handle a page fault, we need to drop the
+	 * locks here. In the case of a fault, this gives the other task
+	 * (either the highest priority waiter itself or the task which stole
+	 * the rtmutex) the chance to try the fixup of the pi_state. So once we
+	 * are back from handling the fault we need to check the pi_state after
+	 * reacquiring the locks and before trying to do another fixup. When
+	 * the fixup has been done already we simply return.
 	 *
 	 * Note: we hold both hb->lock and pi_mutex->wait_lock. We can safely
 	 * drop hb->lock since the caller owns the hb -> futex_q relation.
 	 * Dropping the pi_mutex->wait_lock requires the state revalidate.
 	 */
-handle_fault:
+/*
+ * Fix CVE-2021-3347
+ *  -1 line, +1 line
+ */
+handle_err:
 	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
 	spin_unlock(q->lock_ptr);
 
-	ret = (*klpe_fault_in_user_writeable)(uaddr);
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line, +14 lines
+	 */
+	switch (err) {
+	case -EFAULT:
+		err = (*klpe_fault_in_user_writeable)(uaddr);
+		break;
+
+	case -EAGAIN:
+		cond_resched();
+		err = 0;
+		break;
+
+	default:
+		WARN_ON_ONCE(1);
+		break;
+	}
 
 	spin_lock(q->lock_ptr);
 	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
@@ -2006,23 +2188,124 @@ handle_fault:
 	 * Check if someone else fixed it for us:
 	 */
 	if (pi_state->owner != oldowner) {
-		ret = 0;
-		goto out_unlock;
+		/*
+		 * Fix CVE-2021-3347
+		 *  -2 lines, +1 line
+		 */
+		return argowner == current;
 	}
 
-	if (ret)
-		goto out_unlock;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -8 lines, +23 lines
+	 */
+	/* Retry if err was -EAGAIN or the fault in succeeded */
+	if (!err)
+		goto retry;
 
-	goto retry;
+	/*
+	 * fault_in_user_writeable() failed so user state is immutable. At
+	 * best we can make the kernel state consistent but user state will
+	 * be most likely hosed and any subsequent unlock operation will be
+	 * rejected due to PI futex rule [10].
+	 *
+	 * Ensure that the rtmutex owner is also the pi_state owner despite
+	 * the user space value claiming something different. There is no
+	 * point in unlocking the rtmutex if current is the owner as it
+	 * would need to wait until the next waiter has taken the rtmutex
+	 * to guarantee consistent state. Keep it simple. Userspace asked
+	 * for this wreckaged state.
+	 *
+	 * The rtmutex has an owner - either current or some other
+	 * task. See the EAGAIN loop above.
+	 */
+	klpp_pi_state_update_owner(pi_state, rt_mutex_owner(&pi_state->pi_mutex));
 
-out_unlock:
+	return err;
+}
+
+/*
+ * Fix CVE-2021-3347
+ *  +13 lines
+ */
+static int klpp_fixup_pi_state_owner(u32 __user *uaddr, struct futex_q *q,
+				struct task_struct *argowner)
+{
+	struct futex_pi_state *pi_state = q->pi_state;
+	int ret;
+
+	lockdep_assert_held(q->lock_ptr);
+
+	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+	ret = klpp___fixup_pi_state_owner(uaddr, q, argowner);
 	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
 	return ret;
 }
 
 static long (*klpe_futex_wait_restart)(struct restart_block *restart);
 
-static int (*klpe_fixup_owner)(u32 __user *uaddr, struct futex_q *q, int locked);
+static int klpp_fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
+{
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line
+	 */
+
+	if (locked) {
+		/*
+		 * Got the lock. We might not be the anticipated owner if we
+		 * did a lock-steal - fix up the PI-state in that case:
+		 *
+		 * Speculative pi_state->owner read (we don't hold wait_lock);
+		 * since we own the lock pi_state->owner == current is the
+		 * stable state, anything else needs more attention.
+		 */
+		if (q->pi_state->owner != current)
+			/*
+			 * Fix CVE-2021-3347
+			 *  -1 line, +1 line
+			 */
+			return klpp_fixup_pi_state_owner(uaddr, q, current);
+		/*
+		 * Fix CVE-2021-3347
+		 *  -1 line, +1 line
+		 */
+		return 1;
+	}
+
+	/*
+	 * If we didn't get the lock; check if anybody stole it from us. In
+	 * that case, we need to fix up the uval to point to them instead of
+	 * us, otherwise bad things happen. [10]
+	 *
+	 * Another speculative read; pi_state->owner == current is unstable
+	 * but needs our attention.
+	 */
+	if (q->pi_state->owner == current) {
+		/*
+		 * Fix CVE-2021-3347
+		 *  -2 lines, +1 line
+		 */
+		return klpp_fixup_pi_state_owner(uaddr, q, NULL);
+	}
+
+	/*
+	 * Fix CVE-2021-3347
+	 *  -10 lines, +6 lines
+	 */
+	/*
+	 * Paranoia check. If we did not take the lock, then we should not be
+	 * the owner of the rt_mutex. Warn and establish consistent state.
+	 */
+	if (WARN_ON_ONCE(rt_mutex_owner(&q->pi_state->pi_mutex) == current))
+		return klpp_fixup_pi_state_owner(uaddr, q, current);
+
+	/*
+	 * Fix CVE-2021-3347
+	 *  -2 lines, +1 line
+	 */
+	return 0;
+}
 
 static void (*klpe_futex_wait_queue_me)(struct futex_hash_bucket *hb, struct futex_q *q,
 				struct hrtimer_sleeper *timeout);
@@ -2218,7 +2501,10 @@ static int klpp_futex_lock_pi(u32 __user *uaddr, unsigned int flags,
 			 ktime_t *time, int trylock)
 {
 	struct hrtimer_sleeper timeout, *to = NULL;
-	struct futex_pi_state *pi_state = NULL;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line
+	 */
 	struct rt_mutex_waiter rt_waiter;
 	struct futex_hash_bucket *hb;
 	/*
@@ -2361,7 +2647,7 @@ no_block:
 	 * Fixup the pi_state owner and possibly acquire the lock if we
 	 * haven't already.
 	 */
-	res = (*klpe_fixup_owner)(uaddr, &q, !ret);
+	res = klpp_fixup_owner(uaddr, &q, !ret);
 	/*
 	 * If fixup_owner() returned an error, proprogate that.  If it acquired
 	 * the lock, clear our -ETIMEDOUT or -EINTR.
@@ -2370,21 +2656,17 @@ no_block:
 		ret = (res < 0) ? res : 0;
 
 	/*
-	 * If fixup_owner() faulted and was unable to handle the fault, unlock
-	 * it and return the fault to userspace.
+	 * Fix CVE-2021-3347
+	 *  -8 lines
 	 */
-	if (ret && (rt_mutex_owner(&q.pi_state->pi_mutex) == current)) {
-		pi_state = q.pi_state;
-		(*klpe_get_pi_state)(pi_state);
-	}
 
 	/* Unqueue and drop the lock */
 	(*klpe_unqueue_me_pi)(&q);
 
-	if (pi_state) {
-		(*klpe_rt_mutex_futex_unlock)(&pi_state->pi_mutex);
-		(*klpe_put_pi_state)(pi_state);
-	}
+	/*
+	 * Fix CVE-2021-3347
+	 *  -4 lines
+	 */
 
 	goto out_put_key;
 
@@ -2519,7 +2801,7 @@ retry:
 		spin_unlock(&hb->lock);
 
 		/* drops pi_state->pi_mutex.wait_lock */
-		ret = klpr_wake_futex_pi(uaddr, uval, pi_state);
+		ret = klpp_wake_futex_pi(uaddr, uval, pi_state);
 
 		(*klpe_put_pi_state)(pi_state);
 
@@ -2642,7 +2924,10 @@ static int klpp_futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 				 u32 __user *uaddr2)
 {
 	struct hrtimer_sleeper timeout, *to = NULL;
-	struct futex_pi_state *pi_state = NULL;
+	/*
+	 * Fix CVE-2021-3347
+	 *  -1 line
+	 */
 	struct rt_mutex_waiter rt_waiter;
 	struct futex_hash_bucket *hb;
 	union futex_key key2 = FUTEX_KEY_INIT;
@@ -2756,17 +3041,26 @@ static int klpp_futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 		 */
 		if (q.pi_state && (q.pi_state->owner != current)) {
 			spin_lock(q.lock_ptr);
-			ret = klpr_fixup_pi_state_owner(uaddr2, &q, current);
-			if (ret && rt_mutex_owner(&q.pi_state->pi_mutex) == current) {
-				pi_state = q.pi_state;
-				(*klpe_get_pi_state)(pi_state);
-			}
+			ret = klpp_fixup_pi_state_owner(uaddr2, &q, current);
+			/*
+			 * Fix CVE-2021-3347
+			 *  -4 lines
+			 */
 			/*
 			 * Drop the reference to the pi state which
 			 * the requeue_pi() code acquired for us.
 			 */
 			(*klpe_put_pi_state)(q.pi_state);
 			spin_unlock(q.lock_ptr);
+			/*
+			 * Fix CVE-2021-3347
+			 *  +5 lines
+			 */
+			/*
+			 * Adjust the return value. It's either -EFAULT or
+			 * success (1) but the caller expects 0 for success.
+			 */
+			ret = ret < 0 ? ret : 0;
 		}
 	} else {
 		struct rt_mutex *pi_mutex;
@@ -2789,7 +3083,7 @@ static int klpp_futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 		 * Fixup the pi_state owner and possibly acquire the lock if we
 		 * haven't already.
 		 */
-		res = (*klpe_fixup_owner)(uaddr2, &q, !ret);
+		res = klpp_fixup_owner(uaddr2, &q, !ret);
 		/*
 		 * If fixup_owner() returned an error, proprogate that.  If it
 		 * acquired the lock, clear -ETIMEDOUT or -EINTR.
@@ -2798,23 +3092,18 @@ static int klpp_futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
 			ret = (res < 0) ? res : 0;
 
 		/*
-		 * If fixup_pi_state_owner() faulted and was unable to handle
-		 * the fault, unlock the rt_mutex and return the fault to
-		 * userspace.
+		 * Fix CVE-2021-3347
+		 *  -9 lines
 		 */
-		if (ret && rt_mutex_owner(&q.pi_state->pi_mutex) == current) {
-			pi_state = q.pi_state;
-			(*klpe_get_pi_state)(pi_state);
-		}
 
 		/* Unqueue and drop the lock. */
 		(*klpe_unqueue_me_pi)(&q);
 	}
 
-	if (pi_state) {
-		(*klpe_rt_mutex_futex_unlock)(&pi_state->pi_mutex);
-		(*klpe_put_pi_state)(pi_state);
-	}
+	/*
+	 * Fix CVE-2021-3347
+	 *  -4 lines
+	 */
 
 	if (ret == -EINTR) {
 		/*
@@ -2941,7 +3230,6 @@ static struct klp_kallsyms_reloc klp_funcs[] = {
 	  (void *)&klpe_rt_mutex_cleanup_proxy_lock },
 	{ "rt_mutex_futex_trylock", (void *)&klpe_rt_mutex_futex_trylock },
 	{ "__rt_mutex_futex_trylock", (void *)&klpe___rt_mutex_futex_trylock },
-	{ "rt_mutex_futex_unlock", (void *)&klpe_rt_mutex_futex_unlock },
 	{ "__rt_mutex_futex_unlock", (void *)&klpe___rt_mutex_futex_unlock },
 	{ "rt_mutex_postunlock", (void *)&klpe_rt_mutex_postunlock },
 	{ "fault_in_user_writeable", (void *)&klpe_fault_in_user_writeable },
@@ -2952,7 +3240,6 @@ static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "mark_wake_futex", (void *)&klpe_mark_wake_futex },
 	{ "get_pi_state", (void *)&klpe_get_pi_state },
 	{ "put_pi_state", (void *)&klpe_put_pi_state },
-	{ "fixup_owner", (void *)&klpe_fixup_owner },
 	{ "attach_to_pi_state", (void *)&klpe_attach_to_pi_state },
 	{ "attach_to_pi_owner", (void *)&klpe_attach_to_pi_owner },
 	{ "futex_lock_pi_atomic", (void *)&klpe_futex_lock_pi_atomic },
