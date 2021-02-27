@@ -3,18 +3,20 @@
  *
  * Fix for CVE-2020-29368, bsc#1179664
  *
- *  Upstream commit:
+ *  Upstream commits:
  *  c444eb564fb1 ("mm: thp: make the THP mapcount atomic against
  *                 __split_huge_pmd_locked()")
+ *  1c2f67308af4 ("mm: thp: fix MADV_REMOVE deadlock on shmem THP")
  *
  *  SLE12-SP2 and -SP3 commit:
- *  To be determined, evalutation pending.
+ *  To be determined, evaluation pending.
  *
  *  SLE12-SP4, SLE12-SP5, SLE15 and SLE15-SP1 commit:
  *  None yet.
  *
- *  SLE15-SP2 commit:
- *  None yet.
+ *  SLE15-SP2 commits:
+ *  842b18f53c6671062a6a8183a5f9e01842deb847
+ *  9d15b367d1aad9257acf13e589b29b74a7b069f6
  *
  *
  *  Copyright (c) 2021 SUSE
@@ -859,7 +861,7 @@ void klpp___split_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
 	 * Fix CVE-2020-29368
 	 * +2 lines
 	 */
-	bool was_locked = false;
+	bool do_unlock_page = false;
 	pmd_t _pmd;
 
 	mmu_notifier_invalidate_range_start(mm, haddr, haddr + HPAGE_PMD_SIZE);
@@ -872,11 +874,10 @@ void klpp___split_huge_pmd(struct vm_area_struct *vma, pmd_t *pmd,
 	VM_BUG_ON(freeze && !page);
 	/*
 	 * Fix CVE-2020-29368
-	 *  -2 lines, +6 lines
+	 *  -2 lines, +5 lines
 	 */
 	if (page) {
 		VM_WARN_ON_ONCE(!PageLocked(page));
-		was_locked = true;
 		if (page != klpr_pmd_page(*pmd))
 			goto out;
 	}
@@ -889,23 +890,33 @@ repeat:
 	if (pmd_trans_huge(*pmd)) {
 		/*
 		 * Fix CVE-2020-29368
-		 *  -1 line, +17 lines
+		 *  -1 line, +27 lines
 		 */
 		if (!page) {
 			page = klpr_pmd_page(*pmd);
-			if (unlikely(!trylock_page(page))) {
-				get_page(page);
-				_pmd = *pmd;
-				spin_unlock(ptl);
-				lock_page(page);
-				spin_lock(ptl);
-				if (unlikely(!pmd_same(*pmd, _pmd))) {
-					unlock_page(page);
+			/*
+			 * An anonymous page must be locked, to ensure that a
+			 * concurrent reuse_swap_page() sees stable mapcount;
+			 * but reuse_swap_page() is not used on shmem or file,
+			 * and page lock must not be taken when zap_pmd_range()
+			 * calls __split_huge_pmd() while i_mmap_lock is held.
+			 */
+			if (PageAnon(page)) {
+				if (unlikely(!trylock_page(page))) {
+					get_page(page);
+					_pmd = *pmd;
+					spin_unlock(ptl);
+					lock_page(page);
+					spin_lock(ptl);
+					if (unlikely(!pmd_same(*pmd, _pmd))) {
+						unlock_page(page);
+						put_page(page);
+						page = NULL;
+						goto repeat;
+					}
 					put_page(page);
-					page = NULL;
-					goto repeat;
 				}
-				put_page(page);
+				do_unlock_page = true;
 			}
 		}
 		if (PageMlocked(page))
@@ -919,7 +930,7 @@ out:
 	 * Fix CVE-2020-29368
 	 *  +1 line
 	 */
-	if (!was_locked && page)
+	if (do_unlock_page)
 		unlock_page(page);
 	mmu_notifier_invalidate_range_end(mm, haddr, haddr + HPAGE_PMD_SIZE);
 }
