@@ -1,21 +1,8 @@
 /*
- * livepatch_bsc1183120
+ * bsc1183491_scsi_transport_iscsi
  *
- * Fix for CVE-2021-27363, bsc#1183120
- *
- *  Upstream commit:
- *  688e8128b7a9 ("scsi: iscsi: Restrict sessions and handles to admin
- *                 capabilities")
- *
- *  SLE12-SP2 and -SP3 commit:
- *  670f56951e6b77bd42bba74a9459bd07307c56ba
- *
- *  SLE12-SP4, SLE12-SP5, SLE15 and SLE15-SP1 commit:
- *  f14c2105dc0b71323c4410fe64c15475d3bb12c5
- *
- *  SLE15-SP2 commit:
- *  826d5cf3adffd826b98978db640a16045e668914
- *
+ * Fix for CVE-2021-27363, bsc#1183120 and the scsi_transport_iscsi part
+ * of CVE-2021-27365, bsc#1183491.
  *
  *  Copyright (c) 2021 SUSE
  *  Author: Nicolai Stange <nstange@suse.de>
@@ -126,7 +113,41 @@ klpp_show_transport_handle(struct device *dev, struct device_attribute *attr,
 	 */
 	if (!capable(CAP_SYS_ADMIN))
 		return -EACCES;
-	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
+	/*
+	 * Fix CVE-2021-27365
+	 *  -1 line, +2 lines
+	 */
+	return scnprintf(buf, PAGE_SIZE, "%llu\n",
+		  (unsigned long long)iscsi_handle(priv->iscsi_transport));
+}
+
+#define klpp_show_transport_attr(name, format)				\
+ssize_t								\
+klpp_show_transport_##name(struct device *dev, 				\
+		      struct device_attribute *attr,char *buf)		\
+{									\
+	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);	\
+	/*								\
+	 * Fix CVE-2021-27365						\
+	 *  -1 line, +1 line						\
+	 */								\
+	return scnprintf(buf, PAGE_SIZE, format"\n", priv->iscsi_transport->name); \
+}									\
+
+klpp_show_transport_attr(caps, "0x%x");
+
+#define iscsi_dev_to_endpoint(_dev) \
+	container_of(_dev, struct iscsi_endpoint, dev)
+
+ssize_t
+klpp_show_ep_handle(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
+	/*
+	 * Fix CVE-2021-27365
+	 *  -1 line, +1 line
+	 */
+	return scnprintf(buf, PAGE_SIZE, "%llu\n", (unsigned long long) ep->id);
 }
 
 static int (*klpe_flashnode_match_index)(struct device *dev, void *data);
@@ -148,6 +169,25 @@ klpr_iscsi_get_flashnode_by_index(struct Scsi_Host *shost, uint32_t idx)
 static struct iscsi_cls_session *(*klpe_iscsi_session_lookup)(uint32_t sid);
 
 static struct iscsi_cls_conn *(*klpe_iscsi_conn_lookup)(uint32_t sid, uint32_t cid);
+
+static struct {
+	int value;
+	char *name;
+} (*klpe_iscsi_session_state_names)[3];
+
+static const char *klpr_iscsi_session_state_name(int state)
+{
+	int i;
+	char *name = NULL;
+
+	for (i = 0; i < ARRAY_SIZE((*klpe_iscsi_session_state_names)); i++) {
+		if ((*klpe_iscsi_session_state_names)[i].value == state) {
+			name = (*klpe_iscsi_session_state_names)[i].name;
+			break;
+		}
+	}
+	return name;
+}
 
 static struct iscsi_internal *
 (*klpe_iscsi_if_transport_lookup)(struct iscsi_transport *tt);
@@ -288,12 +328,19 @@ klpr_iscsi_if_destroy_conn(struct iscsi_transport *transport, struct iscsi_ueven
 }
 
 static int
-klpr_iscsi_set_param(struct iscsi_transport *transport, struct iscsi_uevent *ev)
+klpp_iscsi_set_param(struct iscsi_transport *transport, struct iscsi_uevent *ev)
 {
 	char *data = (char*)ev + sizeof(*ev);
 	struct iscsi_cls_conn *conn;
 	struct iscsi_cls_session *session;
 	int err = 0, value = 0;
+
+	/*
+	 * Fix CVE-2021-27365
+	 *  +3 lines
+	 */
+	if (ev->u.set_param.len > PAGE_SIZE)
+		return -EINVAL;
 
 	session = (*klpe_iscsi_session_lookup)(ev->u.set_param.sid);
 	conn = (*klpe_iscsi_conn_lookup)(ev->u.set_param.sid, ev->u.set_param.cid);
@@ -432,7 +479,7 @@ klpr_iscsi_tgt_dscvr(struct iscsi_transport *transport,
 }
 
 static int
-klpr_iscsi_set_host_param(struct iscsi_transport *transport,
+klpp_iscsi_set_host_param(struct iscsi_transport *transport,
 		     struct iscsi_uevent *ev)
 {
 	char *data = (char*)ev + sizeof(*ev);
@@ -441,6 +488,13 @@ klpr_iscsi_set_host_param(struct iscsi_transport *transport,
 
 	if (!transport->set_host_param)
 		return -ENOSYS;
+
+	/*
+	 * Fix CVE-2021-27365
+	 *  +3 lines
+	 */
+	if (ev->u.set_host_param.len > PAGE_SIZE)
+		return -EINVAL;
 
 	shost = (*klpe_scsi_host_lookup)(ev->u.set_host_param.host_no);
 	if (!shost) {
@@ -985,6 +1039,7 @@ int
 klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
 {
 	int err = 0;
+	u32 pdu_len;
 	u32 portid;
 	struct iscsi_uevent *ev = nlmsg_data(nlh);
 	struct iscsi_transport *transport = NULL;
@@ -1088,7 +1143,7 @@ klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *grou
 					      "binding\n");
 		break;
 	case ISCSI_UEVENT_SET_PARAM:
-		err = klpr_iscsi_set_param(transport, ev);
+		err = klpp_iscsi_set_param(transport, ev);
 		break;
 	case ISCSI_UEVENT_START_CONN:
 		conn = (*klpe_iscsi_conn_lookup)(ev->u.start_conn.sid, ev->u.start_conn.cid);
@@ -1105,6 +1160,18 @@ klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *grou
 			err = -EINVAL;
 		break;
 	case ISCSI_UEVENT_SEND_PDU:
+		/*
+		 * Fix CVE-2021-27365
+		 *  +8 lines
+		 */
+		pdu_len = nlh->nlmsg_len - sizeof(*nlh) - sizeof(*ev);
+
+		if ((ev->u.send_pdu.hdr_size > pdu_len) ||
+		    (ev->u.send_pdu.data_size > (pdu_len - ev->u.send_pdu.hdr_size))) {
+			err = -EINVAL;
+			break;
+		}
+
 		conn = (*klpe_iscsi_conn_lookup)(ev->u.send_pdu.sid, ev->u.send_pdu.cid);
 		if (conn)
 			ev->r.retcode =	transport->send_pdu(conn,
@@ -1127,7 +1194,7 @@ klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *grou
 		err = klpr_iscsi_tgt_dscvr(transport, ev);
 		break;
 	case ISCSI_UEVENT_SET_HOST_PARAM:
-		err = klpr_iscsi_set_host_param(transport, ev);
+		err = klpp_iscsi_set_host_param(transport, ev);
 		break;
 	case ISCSI_UEVENT_PATH_UPDATE:
 		err = klpr_iscsi_set_path(transport, ev);
@@ -1182,11 +1249,69 @@ klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *grou
 	return err;
 }
 
+ssize_t
+klpp_show_priv_session_state(struct device *dev, struct device_attribute *attr,
+			char *buf)
+{
+	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+	/*
+	 * Fix CVE-2021-27365
+	 *  -1 line, +1 line
+	 */
+	return scnprintf(buf, PAGE_SIZE, "%s\n", klpr_iscsi_session_state_name(session->state));
+}
+
+ssize_t
+klpp_show_priv_session_creator(struct device *dev, struct device_attribute *attr,
+			char *buf)
+{
+	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+	/*
+	 * Fix CVE-2021-27365
+	 *  -1 line, +1 line
+	 */
+	return scnprintf(buf, PAGE_SIZE, "%d\n", session->creator);
+}
+
+ssize_t
+klpp_show_priv_session_target_id(struct device *dev, struct device_attribute *attr,
+			    char *buf)
+{
+	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+	/*
+	 * Fix CVE-2021-27365
+	 *  -1 line, +1 line
+	 */
+	return scnprintf(buf, PAGE_SIZE, "%d\n", session->target_id);
+}
+
+#define klpp_iscsi_priv_session_attr_show(field, format)		\
+ssize_t								\
+klpp_show_priv_session_##field(struct device *dev, 			\
+			  struct device_attribute *attr, char *buf)	\
+{									\
+	struct iscsi_cls_session *session = 				\
+			iscsi_dev_to_session(dev->parent);		\
+	if (session->field == -1)					\
+		/*							\
+		 * Fix CVE-2021-27365					\
+		 *  -1 line, +1 line					\
+		 */							\
+		return scnprintf(buf, PAGE_SIZE, "off\n");		\
+	/*								\
+	 * Fix CVE-2021-27365						\
+	 *  -1 line, +1 line						\
+	 */								\
+	return scnprintf(buf, PAGE_SIZE, format"\n", session->field);	\
+}
+
+klpp_iscsi_priv_session_attr_show(recovery_tmo, "%d");
+
 
 
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include "livepatch_bsc1183120.h"
+#include "livepatch_bsc1183491.h"
 #include "../kallsyms_relocs.h"
 
 #define LIVEPATCHED_MODULE "scsi_transport_iscsi"
@@ -1194,11 +1319,13 @@ klpp_iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *grou
 static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "dbg_session", (void *)&klpe_dbg_session, "scsi_transport_iscsi" },
 	{ "dbg_conn", (void *)&klpe_dbg_conn, "scsi_transport_iscsi" },
+	{ "iscsi_session_state_names", (void *)&klpe_iscsi_session_state_names,
+	  "scsi_transport_iscsi" },
 	{ "scsi_is_host_device", (void *)&klpe_scsi_is_host_device,
 	  "scsi_mod" },
-	{ "scsi_queue_work", (void *)&klpe_scsi_queue_work, "scsi_mod" },
 	{ "scsi_host_put", (void *)&klpe_scsi_host_put, "scsi_mod" },
 	{ "scsi_host_lookup", (void *)&klpe_scsi_host_lookup, "scsi_mod" },
+	{ "scsi_queue_work", (void *)&klpe_scsi_queue_work, "scsi_mod" },
 	{ "iscsi_lookup_endpoint", (void *)&klpe_iscsi_lookup_endpoint,
 	  "scsi_transport_iscsi" },
 	{ "iscsi_find_flashnode_conn", (void *)&klpe_iscsi_find_flashnode_conn,
@@ -1213,10 +1340,9 @@ static struct klp_kallsyms_reloc klp_funcs[] = {
 	  "scsi_transport_iscsi" },
 	{ "iscsi_multicast_skb", (void *)&klpe_iscsi_multicast_skb,
 	  "scsi_transport_iscsi" },
-
 };
 
-static int livepatch_bsc1183120_module_notify(struct notifier_block *nb,
+static int livepatch_bsc1183491_module_notify(struct notifier_block *nb,
 					      unsigned long action, void *data)
 {
 	struct module *mod = data;
@@ -1231,12 +1357,12 @@ static int livepatch_bsc1183120_module_notify(struct notifier_block *nb,
 	return ret;
 }
 
-static struct notifier_block livepatch_bsc1183120_module_nb = {
-	.notifier_call = livepatch_bsc1183120_module_notify,
+static struct notifier_block livepatch_bsc1183491_module_nb = {
+	.notifier_call = livepatch_bsc1183491_module_notify,
 	.priority = INT_MIN+1,
 };
 
-int livepatch_bsc1183120_init(void)
+int livepatch_bsc1183491_scsi_transport_iscsi_init(void)
 {
 	int ret;
 
@@ -1248,13 +1374,13 @@ int livepatch_bsc1183120_init(void)
 			goto out;
 	}
 
-	ret = register_module_notifier(&livepatch_bsc1183120_module_nb);
+	ret = register_module_notifier(&livepatch_bsc1183491_module_nb);
 out:
 	mutex_unlock(&module_mutex);
 	return ret;
 }
 
-void livepatch_bsc1183120_cleanup(void)
+void livepatch_bsc1183491_scsi_transport_iscsi_cleanup(void)
 {
-	unregister_module_notifier(&livepatch_bsc1183120_module_nb);
+	unregister_module_notifier(&livepatch_bsc1183491_module_nb);
 }
