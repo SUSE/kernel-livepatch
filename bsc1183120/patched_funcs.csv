@@ -1,2 +1,0 @@
-scsi_transport_iscsi show_transport_handle klpp_show_transport_handle
-scsi_transport_iscsi iscsi_if_recv_msg klpp_iscsi_if_recv_msg
