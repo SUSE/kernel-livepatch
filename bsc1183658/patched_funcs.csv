@@ -1,0 +1,1 @@
+r8188eu rtw_wx_set_scan klpp_rtw_wx_set_scan IS_ENABLED(CONFIG_R8188EU)
