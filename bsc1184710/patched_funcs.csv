@@ -1,0 +1,1 @@
+vmlinux do_jit klpp_do_jit IS_ENABLED(CONFIG_X86_64)
