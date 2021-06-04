@@ -1,0 +1,2 @@
+bluetooth hci_chan_create klpp_hci_chan_create IS_ENABLED(CONFIG_BT)
+bluetooth hci_event_packet klpp_hci_event_packet IS_ENABLED(CONFIG_BT)
