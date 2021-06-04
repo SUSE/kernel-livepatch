@@ -1,0 +1,1 @@
+bluetooth hci_req_sync klpp_hci_req_sync IS_ENABLED(CONFIG_BT)
