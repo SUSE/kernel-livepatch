@@ -1,0 +1,1 @@
+vmlinux hid_add_field klpp_hid_add_field IS_ENABLED(CONFIG_HID)
