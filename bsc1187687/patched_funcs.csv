@@ -1,0 +1,2 @@
+af_key pfkey_dump klpp_pfkey_dump IS_MODULE(CONFIG_NET_KEY)
+vmlinux pfkey_dump klpp_pfkey_dump !IS_MODULE(CONFIG_NET_KEY)
