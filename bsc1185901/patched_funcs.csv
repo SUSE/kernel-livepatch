@@ -1,0 +1,2 @@
+vmlinux inet_create klpp_inet_create
+vmlinux inet6_create klpp_inet6_create
