@@ -1,0 +1,3 @@
+arp_tables translate_compat_table klpp_arp_tables_translate_compat_table
+ip_tables translate_compat_table klpp_ip_tables_translate_compat_table
+ip6_tables translate_compat_table klpp_ip6_tables_translate_compat_table
