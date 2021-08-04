@@ -1,0 +1,3 @@
+vmlinux traverse klpp_traverse
+vmlinux seq_read klpp_seq_read
+vmlinux single_open_size klpp_single_open_size
