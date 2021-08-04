@@ -1,0 +1,1 @@
+kvm kvmppc_rtas_hcall klpp_kvmppc_rtas_hcall IS_ENABLED(CONFIG_KVM_BOOK3S_64)
