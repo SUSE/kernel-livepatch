@@ -1,0 +1,2 @@
+can_bcm bcm_sendmsg klpp_bcm_sendmsg IS_ENABLED(CONFIG_CAN_BCM)
+can_bcm bcm_release klpp_bcm_release IS_ENABLED(CONFIG_CAN_BCM)
