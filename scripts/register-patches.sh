@@ -97,6 +97,7 @@ KLP_PATCHES_OBJS=$(
 	    # vmlinux gets always patched because of uname().
 	    declare -a o_conds
 	    o_conds=()
+	    any_unconds=no
 	    if [ x"$o" != xvmlinux ]; then
 		for pf in "${patched_funcs[@]}"; do
 		    while read _o oldfun newfun cond; do
@@ -111,7 +112,7 @@ KLP_PATCHES_OBJS=$(
 
 			if [ -z "$cond" ]; then
 			    # unconditional
-			    o_conds=()
+			    any_unconds=yes
 			    break
 			else
 			    # Avoid adding duplicates
@@ -127,6 +128,10 @@ KLP_PATCHES_OBJS=$(
 			fi
 		    done < "$pf"
 		done
+	    fi
+
+	    if [ $any_unconds != no ]; then
+		o_conds=()
 	    fi
 
 	    # Emit the #if condition for the object, if any
