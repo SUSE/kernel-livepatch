@@ -1,0 +1,1 @@
+kvm_amd recalc_intercepts klpp_recalc_intercepts IS_ENABLED(CONFIG_KVM_AMD)
