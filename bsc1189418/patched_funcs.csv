@@ -1,1 +1,2 @@
 kvm_amd recalc_intercepts klpp_recalc_intercepts IS_ENABLED(CONFIG_KVM_AMD)
+kvm_amd enter_svm_guest_mode klpp_enter_svm_guest_mode IS_ENABLED(CONFIG_KVM_AMD)
