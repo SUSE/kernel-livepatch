@@ -1,0 +1,5 @@
+bluetooth sco_conn_del klpp_sco_conn_del IS_ENABLED(CONFIG_BT)
+bluetooth __sco_sock_close klpp___sco_sock_close IS_ENABLED(CONFIG_BT)
+bluetooth sco_sock_sendmsg klpp_sco_sock_sendmsg IS_ENABLED(CONFIG_BT)
+bluetooth sco_sock_recvmsg klpp_sco_sock_recvmsg IS_ENABLED(CONFIG_BT)
+bluetooth sco_sock_getsockopt klpp_sco_sock_getsockopt IS_ENABLED(CONFIG_BT)
