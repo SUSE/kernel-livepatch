@@ -1,0 +1,4 @@
+vmlinux discard_port_data klpp_discard_port_data
+vmlinux port_has_data klpp_port_has_data
+vmlinux control_work_handler klpp_control_work_handler
+vmlinux in_intr klpp_in_intr
