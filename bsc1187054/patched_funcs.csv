@@ -1,0 +1,2 @@
+bluetooth hci_sock_dev_event klpp_hci_sock_dev_event IS_ENABLED(CONFIG_BT)
+bluetooth hci_sock_ioctl klpp_hci_sock_ioctl IS_ENABLED(CONFIG_BT)
