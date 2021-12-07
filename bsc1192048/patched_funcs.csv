@@ -1,0 +1,5 @@
+vmlinux bpf_skb_adjust_room klpp_bpf_skb_adjust_room
+vmlinux bpf_skb_change_tail klpp_bpf_skb_change_tail
+vmlinux sk_skb_change_tail klpp_sk_skb_change_tail
+vmlinux bpf_skb_change_head klpp_bpf_skb_change_head
+vmlinux sk_skb_change_head klpp_sk_skb_change_head
