@@ -1,0 +1,2 @@
+ath ath_key_delete klpp_ath_key_delete IS_ENABLED(CONFIG_ATH9K)
+ath9k ath9k_stop klpp_ath9k_stop IS_ENABLED(CONFIG_ATH9K)
