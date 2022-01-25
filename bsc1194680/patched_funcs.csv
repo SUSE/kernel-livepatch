@@ -1,0 +1,2 @@
+nfc llcp_sock_bind klpp_llcp_sock_bind IS_ENABLED(CONFIG_NFC)
+nfc llcp_sock_connect klpp_llcp_sock_connect IS_ENABLED(CONFIG_NFC)
