@@ -1,0 +1,1 @@
+firedtv fdtv_ca_ioctl klpp_fdtv_ca_ioctl IS_ENABLED(CONFIG_DVB_FIREDTV)
