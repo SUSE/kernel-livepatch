@@ -1,0 +1,2 @@
+vmlinux unix_dgram_recvmsg klpp_unix_dgram_recvmsg
+vmlinux unix_stream_read_generic klpp_unix_stream_read_generic
