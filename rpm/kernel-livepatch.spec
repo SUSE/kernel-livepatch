@@ -66,9 +66,6 @@ sed -i 's/@@RPMRELEASE@@/%module_num/g' livepatch_main.c
 echo 'livepatch-%module_num' >Module.supported
 set -- *
 
-commit=$(sed -n 's/GIT Revision: //p' %_sourcedir/source-timestamp)
-sed -i "s/@@GITREV@@/${commit:0:7}/g" uname_patch/livepatch_uname.c
-
 for flavor in %flavors_to_build; do
 	mkdir -p "obj/$flavor"
 	cp -r "$@" "obj/$flavor"

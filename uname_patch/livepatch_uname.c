@@ -75,8 +75,7 @@ static int override_release(char __user *release, size_t len)
 	return ret;
 }
 
-char *klp_tag="/lp-@@GITREV@@";
-
+const char *klp_tag="/lp";
 
 KLP_SYM_LINKAGE struct rw_semaphore KLP_SYM(uts_sem);
 
