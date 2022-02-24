@@ -82,3 +82,4 @@ module_exit(klp_patch_cleanup);
 
 MODULE_LICENSE("GPL");
 MODULE_INFO(livepatch, "Y");
+MODULE_INFO(klpgitrev, "@@GITREV@@");

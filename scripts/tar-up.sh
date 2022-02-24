@@ -88,8 +88,9 @@ scripts/create-makefile.sh $build_dir
 # timestamp
 tsfile=source-timestamp
 ts=$(git show --pretty=format:%ct HEAD | head -n 1)
+commit=$(git rev-parse HEAD)
 date "+%Y-%m-%d %H:%M:%S %z" -d "1970-01-01 00:00 UTC $ts seconds" >$build_dir/$tsfile
-echo "GIT Revision: $(git rev-parse HEAD)" >> $build_dir/$tsfile
+echo "GIT Revision: $commit" >> $build_dir/$tsfile
 branch=$(sed -ne 's|^ref: refs/heads/||p' .git/HEAD 2>/dev/null)
 if test -n "$branch"; then
 	echo "GIT Branch: $branch" >>$build_dir/$tsfile
@@ -126,6 +127,8 @@ sed -i \
 	}" \
 	-e "s/@@EXCARCH@@/$excarch/" \
 	$build_dir/kernel-livepatch-"$RELEASE".spec
+
+sed -i "s/@@GITREV@@/$commit/" $build_dir/livepatch_main.c
 
 # changelog
 changelog=$build_dir/kernel-livepatch-"$RELEASE".changes
