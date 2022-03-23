@@ -1,0 +1,1 @@
+rtsx_usb_ms rtsx_usb_ms_drv_remove klpp_rtsx_usb_ms_drv_remove IS_ENABLED(CONFIG_MEMSTICK_REALTEK_USB)
