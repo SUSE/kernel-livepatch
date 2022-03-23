@@ -1,0 +1,3 @@
+vmlinux cgroup_release_agent_write klpp_cgroup_release_agent_write
+vmlinux cgroup1_remount klpp_cgroup1_remount
+vmlinux cgroup1_mount klpp_cgroup1_mount
