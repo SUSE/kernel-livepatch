@@ -1,0 +1,1 @@
+vmwgfx vmw_execbuf_process klpp_vmw_execbuf_process IS_ENABLED(CONFIG_DRM_VMWGFX)
