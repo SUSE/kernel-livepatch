@@ -1,0 +1,2 @@
+esp4 esp_output_head klpp_esp_output_head IS_ENABLED(CONFIG_INET_ESP)
+esp6 esp6_output_head klpp_esp6_output_head IS_ENABLED(CONFIG_INET6_ESP)
