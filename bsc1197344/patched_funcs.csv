@@ -1,0 +1,2 @@
+fuse fuse_copy_args klpp_fuse_copy_args
+fuse fuse_direct_io klpp_fuse_direct_io
