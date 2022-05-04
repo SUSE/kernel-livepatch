@@ -1,0 +1,2 @@
+i915 i915_vma_bind klpp_i915_vma_bind IS_ENABLED(CONFIG_DRM_I915)
+i915 __i915_gem_object_put_pages klpp___i915_gem_object_put_pages IS_ENABLED(CONFIG_DRM_I915)
