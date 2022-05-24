@@ -154,7 +154,9 @@ static int livepatch_bsc1195949_module_notify(struct notifier_block *nb,
 	if (action != MODULE_STATE_COMING || strcmp(mod->name, LIVEPATCHED_MODULE))
 		return 0;
 
+	mutex_lock(&module_mutex);
 	ret = __klp_resolve_kallsyms_relocs(klp_funcs, ARRAY_SIZE(klp_funcs));
+	mutex_unlock(&module_mutex);
 	WARN(ret, "livepatch: delayed kallsyms lookup failed. System is broken and can crash.\n");
 
 	return ret;
