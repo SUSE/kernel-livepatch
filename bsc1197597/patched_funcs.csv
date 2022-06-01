@@ -1,0 +1,5 @@
+snd_pcm snd_pcm_action_nonatomic klpp_snd_pcm_action_nonatomic IS_ENABLED(CONFIG_SND_PCM)
+snd_pcm snd_pcm_hw_params klpp_snd_pcm_hw_params IS_ENABLED(CONFIG_SND_PCM)
+snd_pcm snd_pcm_common_ioctl klpp_snd_pcm_common_ioctl IS_ENABLED(CONFIG_SND_PCM)
+snd_pcm __snd_pcm_lib_xfer klpp___snd_pcm_lib_xfer IS_ENABLED(CONFIG_SND_PCM)
+snd_pcm snd_pcm_lib_preallocate_proc_write klpp_snd_pcm_lib_preallocate_proc_write IS_ENABLED(CONFIG_SND_PCM)
