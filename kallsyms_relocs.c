@@ -57,10 +57,11 @@ static int __find_callback(void *data, const char *name,
 	return 0;
 }
 
-static int (*klp_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
-							   struct module *,
-							   unsigned long),
-						 void *data);
+static
+int (*klpe_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
+						     struct module *,
+						     unsigned long),
+					   void *data);
 
 static int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 					 unsigned long count)
@@ -74,7 +75,7 @@ static int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 		args.match_count = 0;
 
 		if (args.reloc.objname) {
-			klp_module_kallsyms_on_each_symbol(__find_callback,
+			klpe_module_kallsyms_on_each_symbol(__find_callback,
 							   &args);
 		} else {
 			kallsyms_on_each_symbol(__find_callback, &args);
@@ -101,16 +102,16 @@ static int __kallsyms_relocs_init(void)
 {
 	static struct klp_kallsyms_reloc bootstrap_relocs[] = {
 		{ "module_kallsyms_on_each_symbol",
-		  (void *)&klp_module_kallsyms_on_each_symbol },
+		  (void *)&klpe_module_kallsyms_on_each_symbol },
 	};
 
 	/* Already initialized? */
-	if (klp_module_kallsyms_on_each_symbol)
+	if (klpe_module_kallsyms_on_each_symbol)
 		return 0;
 
 	/*
 	 * All relocations are against symbols from vmlinux, the yet
-	 * unresolved klp_module_kallsyms_on_each_symbol() will not
+	 * unresolved klpe_module_kallsyms_on_each_symbol() will not
 	 * get invoked and the call below will work fine at this stage
 	 * already.
 	 */
