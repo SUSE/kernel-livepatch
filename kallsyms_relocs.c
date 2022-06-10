@@ -62,35 +62,11 @@ static int (*klp_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
 							   unsigned long),
 						 void *data);
 
-/* Bootstrap: resolve non-exported module_kallsyms_on_each_symbol() */
-static int __kallsyms_relocs_init(void)
+static int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
+					 unsigned long count)
 {
-	const char symname[] = "module_kallsyms_on_each_symbol";
-
-	if (klp_module_kallsyms_on_each_symbol)
-		return 0;
-
-	klp_module_kallsyms_on_each_symbol =
-		(void *)kallsyms_lookup_name(symname);
-
-	if (!klp_module_kallsyms_on_each_symbol) {
-		pr_err("livepatch: symbol %s not resolved\n", symname);
-		return -ENOENT;
-	}
-
-	return 0;
-}
-
-int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
-				unsigned long count)
-{
-	int ret;
 	unsigned long i;
 	struct find_args args;
-
-	ret = __kallsyms_relocs_init();
-	if (ret)
-		return ret;
 
 	for (i = 0; i < count; ++i) {
 		*relocs[i].addr = NULL;
@@ -118,4 +94,38 @@ int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 	}
 
 	return 0;
+}
+
+/* Bootstrap: resolve non-exported module_kallsyms_on_each_symbol() */
+static int __kallsyms_relocs_init(void)
+{
+	static struct klp_kallsyms_reloc bootstrap_relocs[] = {
+		{ "module_kallsyms_on_each_symbol",
+		  (void *)&klp_module_kallsyms_on_each_symbol },
+	};
+
+	/* Already initialized? */
+	if (klp_module_kallsyms_on_each_symbol)
+		return 0;
+
+	/*
+	 * All relocations are against symbols from vmlinux, the yet
+	 * unresolved klp_module_kallsyms_on_each_symbol() will not
+	 * get invoked and the call below will work fine at this stage
+	 * already.
+	 */
+	return __klp_resolve_kallsyms_relocs(bootstrap_relocs,
+					     ARRAY_SIZE(bootstrap_relocs));
+}
+
+int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
+				unsigned long count)
+{
+	int ret;
+
+	ret = __kallsyms_relocs_init();
+	if (ret)
+		return ret;
+
+	return  __klp_resolve_kallsyms_relocs(relocs, count);
 }
