@@ -100,7 +100,7 @@ static int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 struct module *(*klpe_find_module)(const char *name);
 
 /* Bootstrap: resolve non-exported module_kallsyms_on_each_symbol() */
-static int __kallsyms_relocs_init(void)
+int klp_kallsyms_relocs_init(void)
 {
 	static struct klp_kallsyms_reloc bootstrap_relocs[] = {
 		{ "module_kallsyms_on_each_symbol",
@@ -127,7 +127,7 @@ int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 {
 	int ret;
 
-	ret = __kallsyms_relocs_init();
+	ret = klp_kallsyms_relocs_init();
 	if (ret)
 		return ret;
 

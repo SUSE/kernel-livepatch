@@ -9,6 +9,8 @@ struct klp_kallsyms_reloc
 	unsigned long sympos;
 };
 
+int klp_kallsyms_relocs_init(void);
+
 int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 				unsigned long count);
 
