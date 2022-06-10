@@ -81,12 +81,8 @@ static int __kallsyms_relocs_init(void)
 	return 0;
 }
 
-/*
- * Must be called with module_mutex held if any of the relocs'
- * ->objname can be non-NULL.
- */
-int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
-				  unsigned long count)
+int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
+				unsigned long count)
 {
 	int ret;
 	unsigned long i;
