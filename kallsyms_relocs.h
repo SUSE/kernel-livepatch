@@ -12,4 +12,6 @@ struct klp_kallsyms_reloc
 int klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 				unsigned long count);
 
+extern struct module *(*klpe_find_module)(const char *name);
+
 #endif /* _KLP_KALLSYMS_RELOCS */
