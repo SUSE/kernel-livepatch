@@ -1,0 +1,1 @@
+nfcmrvl nfcmrvl_nci_unregister_dev klpp_nfcmrvl_nci_unregister_dev IS_ENABLED(CONFIG_NFC_MRVL)
