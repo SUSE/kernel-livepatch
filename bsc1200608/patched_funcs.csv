@@ -1,0 +1,2 @@
+sctp_diag sctp_diag_dump klpp_sctp_diag_dump
+sctp sctp_endpoint_put klpp_sctp_endpoint_put
