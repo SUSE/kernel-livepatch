@@ -34,6 +34,7 @@
 #include <asm/uaccess.h>
 
 #include "klp_convert.h"
+#include "livepatch_uname.h"
 
 #ifdef COMPAT_UTS_MACHINE
 #define override_architecture(name) \
