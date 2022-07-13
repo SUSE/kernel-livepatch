@@ -1,0 +1,1 @@
+vmlinux kgdb_cpu_enter klpp_kgdb_cpu_enter IS_ENABLED(CONFIG_KGDB)
