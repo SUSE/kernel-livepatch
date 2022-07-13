@@ -57,9 +57,13 @@
 #define KLP_COMPAT_SYSCALL_SYM(name) __s390_compat_sys_ ## name
 #endif /* CONFIG_COMPAT */
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
 #define KLP_SYSCALL_DECLx(x, sym, ...)			\
 	asmlinkage long sym(__MAP(x,__SC_LONG,__VA_ARGS__))
-
+#else
+#define KLP_SYSCALL_DECLx(x, sym, ...)			\
+	long sym(struct pt_regs *regs)
+#endif
 
 #else
 /* C.f. include/linux/syscalls.h */
