@@ -1,0 +1,1 @@
+ath9k_htc ath9k_htc_probe_device klpp_ath9k_htc_probe_device IS_ENABLED(CONFIG_ATH9K_HTC)
