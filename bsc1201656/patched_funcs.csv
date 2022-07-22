@@ -1,0 +1,1 @@
+st21nfca_hci st21nfca_connectivity_event_received klpp_st21nfca_connectivity_event_received IS_ENABLED(CONFIG_NFC_ST21NFCA)
