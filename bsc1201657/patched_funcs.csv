@@ -1,0 +1,1 @@
+mcba_usb mcba_usb_start_xmit klpp_mcba_usb_start_xmit IS_ENABLED(CONFIG_CAN_MCBA_USB)
