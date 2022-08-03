@@ -1,0 +1,1 @@
+vgem vgem_gem_dumb_create klpp_vgem_gem_dumb_create IS_ENABLED(CONFIG_DRM_VGEM)
