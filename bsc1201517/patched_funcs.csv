@@ -1,0 +1,1 @@
+ems_usb ems_usb_start_xmit klpp_ems_usb_start_xmit IS_ENABLED(CONFIG_CAN_EMS_USB)
