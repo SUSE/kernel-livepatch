@@ -1,0 +1,3 @@
+vmlinux ip_build_and_send_pkt klpp_ip_build_and_send_pkt
+vmlinux ip_queue_xmit klpp_ip_queue_xmit
+vmlinux __ip_make_skb klpp___ip_make_skb
