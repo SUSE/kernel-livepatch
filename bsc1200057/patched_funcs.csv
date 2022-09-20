@@ -1,0 +1,4 @@
+floppy interpret_errors klpp_interpret_errors  IS_ENABLED(CONFIG_BLK_DEV_FD)
+floppy bad_flp_intr klpp_bad_flp_intr  IS_ENABLED(CONFIG_BLK_DEV_FD)
+floppy fd_locked_ioctl klpp_fd_locked_ioctl  IS_ENABLED(CONFIG_BLK_DEV_FD)
+floppy redo_fd_request klpp_redo_fd_request  IS_ENABLED(CONFIG_BLK_DEV_FD)
