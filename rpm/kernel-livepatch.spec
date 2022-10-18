@@ -17,6 +17,7 @@
 
 # needssslcertforbuild
 
+%define variant @@VARIANT@@%{nil}
 @@USE_KLP_CONVERT@@
 
 Name:           kernel-livepatch-@@RELEASE@@
@@ -37,9 +38,13 @@ Source7:        kallsyms_relocs.c
 Source8:	klp_convert.h
 Source9:	klp_syscalls.h
 @@KLP_PATCHES_SOURCES@@
-BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
+BuildRequires:  kernel-syms%{variant} kernel-livepatch-tools-devel libelf-devel
 %if 0%{?use_klp_convert}
+%if "%{?variant}"
+BuildRequires:  kernel%{variant}-livepatch-devel
+%else
 BuildRequires:  kernel-default-livepatch-devel
+%endif
 %endif
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
