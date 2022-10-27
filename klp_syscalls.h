@@ -54,7 +54,7 @@
 #define KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS 1
 /* Compat stub for common syscalls. */
 #define KLP_SYSCALL_COMPAT_STUB_SYM(name) __s390_sys_ ## name
-#define KLP_COMPAT_SYSCALL_SYM(name) __s390_compat_sys_ ## name
+#define KLP_COMPAT_SYSCALL_SYM(name) __se_compat_sys_ ## name
 #endif /* CONFIG_COMPAT */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
