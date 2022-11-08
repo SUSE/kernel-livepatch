@@ -1,0 +1,9 @@
+vmlinux remove_arg_zero klpp_remove_arg_zero
+vmlinux copy_strings_kernel klpp_copy_strings_kernel
+vmlinux do_execve klpp_do_execve
+vmlinux KLP_SYSCALL_SYM(execve) KLP_SYSCALL_SYM(klpp_execve)
+vmlinux KLP_SYSCALL_COMPAT_STUB_SYM(execve) KLP_SYSCALL_COMPAT_STUB_SYM(klpp_execve) defined(KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS)
+vmlinux KLP_SYSCALL_SYM(execveat) KLP_SYSCALL_SYM(klpp_execveat)
+vmlinux KLP_SYSCALL_COMPAT_STUB_SYM(execveat) KLP_SYSCALL_COMPAT_STUB_SYM(klpp_execveat) defined(KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS)
+vmlinux KLP_COMPAT_SYSCALL_SYM(execve) KLP_COMPAT_SYSCALL_SYM(klpp_execve) IS_ENABLED(CONFIG_COMPAT)
+vmlinux KLP_COMPAT_SYSCALL_SYM(execveat) KLP_COMPAT_SYSCALL_SYM(klpp_execveat) IS_ENABLED(CONFIG_COMPAT)
