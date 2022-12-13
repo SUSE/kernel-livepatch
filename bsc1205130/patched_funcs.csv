@@ -1,0 +1,8 @@
+nfsd nfsd3_proc_read klpp_nfsd3_proc_read
+nfsd nfsd3_proc_readdir klpp_nfsd3_proc_readdir
+nfsd nfsd3_proc_readdirplus klpp_nfsd3_proc_readdirplus
+nfsd nfs3svc_decode_readargs klpp_nfs3svc_decode_readargs
+nfsd nfsd4_proc_compound klpp_nfsd4_proc_compound
+nfsd nfsd4_max_reply klpp_nfsd4_max_reply
+nfsd nfsd_proc_readdir klpp_nfsd_proc_readdir
+nfsd nfssvc_decode_readargs klpp_nfssvc_decode_readargs
