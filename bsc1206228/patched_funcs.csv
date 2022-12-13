@@ -1,0 +1,4 @@
+vmlinux __do_proc_dointvec klpp___do_proc_dointvec
+vmlinux __do_proc_douintvec klpp___do_proc_douintvec
+vmlinux __do_proc_doulongvec_minmax klpp___do_proc_doulongvec_minmax
+vmlinux proc_do_large_bitmap klpp_proc_do_large_bitmap
