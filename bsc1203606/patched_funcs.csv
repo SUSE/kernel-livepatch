@@ -1,0 +1,2 @@
+dvb_core dvb_demux_open klpp_dvb_demux_open IS_ENABLED(CONFIG_DVB_CORE)
+dvb_core dvb_dmxdev_release klpp_dvb_dmxdev_release IS_ENABLED(CONFIG_DVB_CORE)
