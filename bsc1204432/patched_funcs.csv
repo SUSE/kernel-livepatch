@@ -1,0 +1,4 @@
+l1oip l1oip_send_bh klpp_l1oip_send_bh IS_ENABLED(CONFIG_MISDN_L1OIP)
+l1oip handle_dmsg klpp_handle_dmsg IS_ENABLED(CONFIG_MISDN_L1OIP)
+l1oip handle_bmsg klpp_handle_bmsg IS_ENABLED(CONFIG_MISDN_L1OIP)
+l1oip l1oip_cleanup klpp_l1oip_cleanup IS_ENABLED(CONFIG_MISDN_L1OIP)
