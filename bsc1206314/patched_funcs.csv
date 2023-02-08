@@ -1,0 +1,2 @@
+bluetooth l2cap_rx_state_recv klpp_l2cap_rx_state_recv IS_ENABLED(CONFIG_BT)
+bluetooth l2cap_data_channel klpp_l2cap_data_channel IS_ENABLED(CONFIG_BT)
