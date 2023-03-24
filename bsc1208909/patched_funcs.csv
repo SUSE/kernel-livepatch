@@ -1,0 +1,2 @@
+mpls_router mpls_dev_sysctl_register klpp_mpls_dev_sysctl_register IS_ENABLED(CONFIG_MPLS_ROUTING)
+mpls_router mpls_dev_sysctl_unregister klpp_mpls_dev_sysctl_unregister IS_ENABLED(CONFIG_MPLS_ROUTING)
