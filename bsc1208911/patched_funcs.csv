@@ -1,0 +1,2 @@
+vmlinux inet_csk_listen_start klpp_inet_csk_listen_start
+vmlinux tcp_set_ulp klpp_tcp_set_ulp
