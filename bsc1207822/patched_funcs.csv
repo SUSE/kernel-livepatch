@@ -1,0 +1,15 @@
+vmlinux rtnl_fill_ifinfo klpp_rtnl_fill_ifinfo
+vmlinux tcf_block_find klpp_tcf_block_find
+vmlinux tc_dump_tfilter klpp_tc_dump_tfilter
+vmlinux qdisc_lookup klpp_qdisc_lookup
+vmlinux qdisc_lookup_rcu klpp_qdisc_lookup_rcu
+vmlinux qdisc_graft klpp_qdisc_graft
+vmlinux tc_get_qdisc klpp_tc_get_qdisc
+vmlinux tc_modify_qdisc klpp_tc_modify_qdisc
+vmlinux tc_dump_qdisc klpp_tc_dump_qdisc
+vmlinux tc_ctl_tclass klpp_tc_ctl_tclass
+vmlinux tc_dump_tclass klpp_tc_dump_tclass
+vmlinux tc_dump_chain klpp_tc_dump_chain
+vmlinux dev_activate klpp_dev_activate
+vmlinux dev_init_scheduler klpp_dev_init_scheduler
+vmlinux dev_shutdown klpp_dev_shutdown
