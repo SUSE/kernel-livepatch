@@ -1,0 +1,1 @@
+ene_ir ene_remove klpp_ene_remove IS_ENABLED(CONFIG_IR_ENE)
