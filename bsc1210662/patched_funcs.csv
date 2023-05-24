@@ -1,0 +1,2 @@
+iscsi_tcp iscsi_sw_tcp_host_get_param klpp_iscsi_sw_tcp_host_get_param
+iscsi_tcp iscsi_sw_tcp_session_create klpp_iscsi_sw_tcp_session_create
