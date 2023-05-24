@@ -1,0 +1,1 @@
+bluetooth hci_conn_cleanup klpp_hci_conn_cleanup IS_ENABLED(CONFIG_BT)
