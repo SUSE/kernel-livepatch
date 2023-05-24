@@ -1,0 +1,1 @@
+btsdio btsdio_remove klpp_btsdio_remove IS_ENABLED(CONFIG_BT_HCIBTSDIO)
