@@ -1,0 +1,1 @@
+sch_atm atm_tc_enqueue klpp_atm_tc_enqueue IS_ENABLED(CONFIG_NET_SCH_ATM)
