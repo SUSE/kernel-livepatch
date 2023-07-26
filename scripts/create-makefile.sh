@@ -24,4 +24,9 @@ default:
 
 clean:
 	\$(MAKE) -C \$(KDIR) M=\$(CURDIR) clean
+
 EOF
+
+for i in $(find . -type f -name "Kbuild.inc"); do
+	cat $i >> $1/Makefile
+done
