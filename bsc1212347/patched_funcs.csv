@@ -1,0 +1,1 @@
+firewire_core outbound_phy_packet_callback klpp_outbound_phy_packet_callback IS_ENABLED(CONFIG_FIREWIRE)
