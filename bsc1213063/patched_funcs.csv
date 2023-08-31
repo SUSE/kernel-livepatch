@@ -1,0 +1,1 @@
+nf_tables nft_byteorder_eval klpp_nft_byteorder_eval IS_ENABLED(CONFIG_NF_TABLES)
