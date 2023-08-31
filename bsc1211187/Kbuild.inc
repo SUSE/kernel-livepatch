@@ -1,0 +1,10 @@
+CFLAGS_bsc1211187_net_netfilter_nf_tables_api.o += -Werror
+CFLAGS_bsc1211187/bsc1211187_net_netfilter_nf_tables_api.o += -Werror
+CFLAGS_bsc1211187_net_netfilter_nft_dynset.o += -Werror
+CFLAGS_bsc1211187/bsc1211187_net_netfilter_nft_dynset.o += -Werror
+CFLAGS_bsc1211187_net_netfilter_nft_lookup.o += -Werror
+CFLAGS_bsc1211187/bsc1211187_net_netfilter_nft_lookup.o += -Werror
+CFLAGS_bsc1211187_net_netfilter_nft_objref.o += -Werror
+CFLAGS_bsc1211187/bsc1211187_net_netfilter_nft_objref.o += -Werror
+CFLAGS_livepatch_bsc1211187.o += -Werror
+CFLAGS_bsc1211187/livepatch_bsc1211187.o += -Werror

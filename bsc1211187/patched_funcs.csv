@@ -1,0 +1,4 @@
+nf_tables nf_tables_deactivate_set klpp_nf_tables_deactivate_set
+nf_tables nft_dynset_activate klpp_nft_dynset_activate
+nf_tables nft_lookup_activate klpp_nft_lookup_activate
+nft_objref nft_objref_map_activate klpp_nft_objref_map_activate
