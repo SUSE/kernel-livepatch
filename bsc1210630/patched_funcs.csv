@@ -1,0 +1,3 @@
+rdma_cm rdma_resolve_addr klpp_rdma_resolve_addr
+rdma_cm rdma_bind_addr klpp_rdma_bind_addr
+rdma_cm rdma_listen klpp_rdma_listen
