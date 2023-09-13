@@ -1,0 +1,4 @@
+cls_tcindex tcindex_destroy_rexts_work klpp_tcindex_destroy_rexts_work
+cls_tcindex tcindex_delete klpp_tcindex_delete
+cls_tcindex tcindex_set_parms klpp_tcindex_set_parms
+cls_tcindex tcindex_destroy klpp_tcindex_destroy
