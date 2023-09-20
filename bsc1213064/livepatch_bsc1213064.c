@@ -1,19 +1,24 @@
 /*
  * livepatch_bsc1213064
  *
- * Fix for CVE-2023-31248, bsc#1213064
+ * Fix for CVE-2023-31248, bsc#1213064 and CVE-2023-3390, bsc#1212934
  *
  *  Upstream commit:
  *  515ad530795c ("netfilter: nf_tables: do not ignore genmask when looking up chain by id")
+ *  1240eb93f061 ("netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE")
  *
- *  SLE12-SP5, SLE15-SP1 and SP2 commit:
+ *  SLE12-SP5, SLE15-SP1:
  *  Not affected
+ *
+ *  SLE15-SP2 and -SP3 commit:
+ *  176a7df4bbf0311d930d1e3cffcb349007229fec
  *
  *  SLE15-SP3 commit:
  *  414921d41310a07aa4648948b40c8d53f658b91a
  *
  *  SLE15-SP4 and -SP5 commit:
  *  2b5600c20d9ff2fd78fabcdf9411e1537fcd0e94
+ *  fc1ae7b2f2f69a8fe6d03dcdef0f9ab67bed27c7
  *
  *  Copyright (c) 2023 SUSE
  *  Author: Marcos Paulo de Souza <mpdesouza@suse.com>
@@ -52,7 +57,10 @@
 #include <net/netfilter/nf_flow_table.h>
 #include <net/netfilter/nf_tables_core.h>
 
-static void (*klpe_nf_tables_rule_release)(const struct nft_ctx *ctx, struct nft_rule *rule);
+static void (*klpe_nf_tables_rule_destroy)(const struct nft_ctx *ctx, struct nft_rule *rule);
+static void (*klpe_nft_rule_expr_deactivate)(const struct nft_ctx *ctx,
+				   struct nft_rule *rule,
+				   enum nft_trans_phase phase);
 
 static unsigned int (*klpe_nf_tables_net_id);
 
@@ -484,7 +492,8 @@ err_destroy_flow_rule:
 	if (flow)
 		(*klpe_nft_flow_rule_destroy)(flow);
 err_release_rule:
-	(*klpe_nf_tables_rule_release)(&ctx, rule);
+	(*klpe_nft_rule_expr_deactivate)(&ctx, rule, NFT_TRANS_PREPARE);
+	(*klpe_nf_tables_rule_destroy)(&ctx, rule);
 err_release_expr:
 	for (i = 0; i < n; i++) {
 		if (expr_info[i].ops) {
@@ -618,7 +627,7 @@ static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "nf_tables_expr_parse", (void *)&klpe_nf_tables_expr_parse,
 	  "nf_tables" },
 	{ "nf_tables_net_id", (void *)&klpe_nf_tables_net_id, "nf_tables" },
-	{ "nf_tables_rule_release", (void *)&klpe_nf_tables_rule_release,
+	{ "nf_tables_rule_destroy", (void *)&klpe_nf_tables_rule_destroy,
 	  "nf_tables" },
 	{ "nft_chain_ht_params", (void *)&klpe_nft_chain_ht_params,
 	  "nf_tables" },
@@ -627,6 +636,8 @@ static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "nft_flow_rule_create", (void *)&klpe_nft_flow_rule_create,
 	  "nf_tables" },
 	{ "nft_flow_rule_destroy", (void *)&klpe_nft_flow_rule_destroy,
+	  "nf_tables" },
+	{ "nft_rule_expr_deactivate", (void *)&klpe_nft_rule_expr_deactivate,
 	  "nf_tables" },
 	{ "nft_rule_lookup_byid", (void *)&klpe_nft_rule_lookup_byid,
 	  "nf_tables" },
