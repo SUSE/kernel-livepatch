@@ -1,7 +1,7 @@
 /*
  * livepatch_bsc1209683
  *
- * Fix for CVE-2023-1281, bsc#1209683
+ * Fix for CVE-2023-1281, bsc#1209683 and CVE-2023-1829, bsc#1210619
  *
  *  Upstream commit:
  *  ee059170b1f7 ("net/sched: tcindex: update imperfect hash filters respecting rcu")
@@ -18,8 +18,9 @@
  *  SLE15-SP2 and -SP3 commit:
  *  97b3f9df8e15cfbccf45bb33effdeb6a1ad10225
  *
- *  SLE15-SP4 commit:
+ *  SLE15-SP4 commits:
  *  aced962af6ef750f2a692b9a203ecffe2ff1b131
+ *  28b65ec9908b70cbbbed942c928edd2141631a26
  *
  *  Copyright (c) 2023 SUSE
  *  Author: Marcos Paulo de Souza <mpdesouza@suse.com>
@@ -91,7 +92,100 @@ struct tcindex_data {
 static struct tcindex_filter_result *(*klpe_tcindex_lookup)(struct tcindex_data *p,
 						    u16 key);
 
+static void klpp___tcindex_destroy_rexts(struct tcindex_filter_result *r)
+{
+	tcf_exts_destroy(&r->exts);
+	/*
+	 * Fix CVE-2023-1829
+	 *  +1 line
+	 */
+	r->exts.actions = NULL;
+	tcf_exts_put_net(&r->exts);
+}
+
+static void (*klpe_tcindex_destroy_rexts_work)(struct work_struct *work);
+
+void klpp_tcindex_destroy_rexts_work(struct work_struct *work)
+{
+	struct tcindex_filter_result *r;
+
+	r = container_of(to_rcu_work(work),
+			 struct tcindex_filter_result,
+			 rwork);
+	rtnl_lock();
+	klpp___tcindex_destroy_rexts(r);
+	rtnl_unlock();
+}
+
+static void (*klpe___tcindex_destroy_fexts)(struct tcindex_filter *f);
+
 static void (*klpe_tcindex_destroy_fexts_work)(struct work_struct *work);
+
+int klpp_tcindex_delete(struct tcf_proto *tp, void *arg, bool *last,
+			  struct netlink_ext_ack *extack)
+{
+	struct tcindex_data *p = rtnl_dereference(tp->root);
+	struct tcindex_filter_result *r = arg;
+	struct tcindex_filter __rcu **walk;
+	struct tcindex_filter *f = NULL;
+
+	pr_debug("tcindex_delete(tp %p,arg %p),p %p\n", tp, arg, p);
+	if (p->perfect) {
+		if (!r->res.class)
+			return -ENOENT;
+	} else {
+		int i;
+
+		for (i = 0; i < p->hash; i++) {
+			walk = p->h + i;
+			for (f = rtnl_dereference(*walk); f;
+			     walk = &f->next, f = rtnl_dereference(*walk)) {
+				if (&f->result == r)
+					goto found;
+			}
+		}
+		return -ENOENT;
+
+found:
+		rcu_assign_pointer(*walk, rtnl_dereference(f->next));
+	}
+	tcf_unbind_filter(tp, &r->res);
+	/* all classifiers are required to call tcf_exts_destroy() after rcu
+	 * grace period, since converted-to-rcu actions are relying on that
+	 * in cleanup() callback
+	 */
+	if (f) {
+		if (tcf_exts_get_net(&f->result.exts))
+			tcf_queue_work(&f->rwork, (*klpe_tcindex_destroy_fexts_work));
+		else
+			(*klpe___tcindex_destroy_fexts)(f);
+	} else {
+		/*
+		 * Fix CVE-2023-1829
+		 *  -4 lines, +9 lines
+		 * Do not re-enqueue if the ->rwork is already pending. Note
+		 * that tcf_queue_work() would unconditionally wipe ->rwork
+		 * before enqueueing.
+		 */
+		if (tcf_exts_get_net(&r->exts)) {
+			if (!work_pending(&r->rwork.work)) {
+				tcf_queue_work(&r->rwork, (*klpe_tcindex_destroy_rexts_work));
+			} else {
+				tcf_exts_put_net(&r->exts);
+			}
+		} else {
+			klpp___tcindex_destroy_rexts(r);
+		}
+	}
+
+	*last = false;
+	return 0;
+}
+
+static int (*klpe_tcindex_destroy_element)(struct tcf_proto *tp,
+				   void *arg, struct tcf_walker *walker);
+
+static void (*klpe_tcindex_destroy_work)(struct work_struct *work);
 
 static inline int
 valid_perfect_hash(struct tcindex_data *p)
@@ -318,8 +412,21 @@ klpp_tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base
 		tcf_exts_destroy(&new_filter_result.exts);
 	}
 
-	if (oldp)
+	/*
+	 * Fix CVE-2023-1829
+	 *  -2 lines, +10 lines
+	 */
+	if (oldp) {
+		/*
+		 * The tc_filter_wq is ordered. So only make sure
+		 * that all currently pending ->perfect[...].rwork
+		 * rcu_works get enqueued there before submitting
+		 * the work that would free ->perfect.
+		 */
+		rcu_barrier();
 		tcf_queue_work(&oldp->rwork, (*klpe_tcindex_partial_destroy_work));
+	}
+
 	return 0;
 
 errout_alloc:
@@ -334,6 +441,34 @@ errout:
 	return err;
 }
 
+static void (*klpe_tcindex_walk)(struct tcf_proto *tp, struct tcf_walker *walker);
+
+void klpp_tcindex_destroy(struct tcf_proto *tp,
+			    struct netlink_ext_ack *extack)
+{
+	struct tcindex_data *p = rtnl_dereference(tp->root);
+	struct tcf_walker walker;
+
+	pr_debug("tcindex_destroy(tp %p),p %p\n", tp, p);
+	walker.count = 0;
+	walker.skip = 0;
+	walker.fn = (*klpe_tcindex_destroy_element);
+	(*klpe_tcindex_walk)(tp, &walker);
+
+	/*
+	 * Fix CVE-2023-1829
+	 *  +7 lines
+	 */
+	/*
+	 * The tc_filter_wq is ordered. So only make sure
+	 * that all currently pending ->perfect[...].rwork
+	 * rcu_works get enqueued there before submitting
+	 * the work that would free ->perfect.
+	 */
+	rcu_barrier();
+	tcf_queue_work(&p->rwork, (*klpe_tcindex_destroy_work));
+}
+
 
 
 #define LP_MODULE "cls_tcindex"
@@ -344,15 +479,24 @@ errout:
 #include "../kallsyms_relocs.h"
 
 static struct klp_kallsyms_reloc klp_funcs[] = {
+	{ "__tcindex_destroy_fexts", (void *)&klpe___tcindex_destroy_fexts,
+	  "cls_tcindex" },
 	{ "tcindex_alloc_perfect_hash",
 	  (void *)&klpe_tcindex_alloc_perfect_hash, "cls_tcindex" },
+	{ "tcindex_destroy_element", (void *)&klpe_tcindex_destroy_element,
+	  "cls_tcindex" },
 	{ "tcindex_destroy_fexts_work",
 	  (void *)&klpe_tcindex_destroy_fexts_work, "cls_tcindex" },
+	{ "tcindex_destroy_rexts_work",
+	  (void *)&klpe_tcindex_destroy_rexts_work, "cls_tcindex" },
+	{ "tcindex_destroy_work", (void *)&klpe_tcindex_destroy_work,
+	  "cls_tcindex" },
 	{ "tcindex_filter_result_init",
 	  (void *)&klpe_tcindex_filter_result_init, "cls_tcindex" },
 	{ "tcindex_lookup", (void *)&klpe_tcindex_lookup, "cls_tcindex" },
 	{ "tcindex_partial_destroy_work",
 	  (void *)&klpe_tcindex_partial_destroy_work, "cls_tcindex" },
+	{ "tcindex_walk", (void *)&klpe_tcindex_walk, "cls_tcindex" },
 };
 
 static int module_notify(struct notifier_block *nb,
