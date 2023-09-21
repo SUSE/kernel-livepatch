@@ -1,0 +1,2 @@
+exfat exfat_find_dir_entry klpp_exfat_find_dir_entry IS_ENABLED(CONFIG_EXFAT_FS)
+exfat exfat_readdir klpp_exfat_readdir IS_ENABLED(CONFIG_EXFAT_FS)
