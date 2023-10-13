@@ -29,18 +29,11 @@ struct find_args
 	unsigned long match_count;
 };
 
-static int __find_callback(void *data, const char *name,
-			   struct module *mod, unsigned long addr)
+static int __find_callback(void *data, const char *name, unsigned long addr)
 {
 	struct find_args *args = data;
 
-	if ((mod && !args->reloc.objname) || (!mod && args->reloc.objname))
-		return 0;
-
 	if (strcmp(args->reloc.symname, name))
-		return 0;
-
-	if (args->reloc.objname && strcmp(args->reloc.objname, mod->name))
 		return 0;
 
 	args->match_count++;
@@ -58,8 +51,8 @@ static int __find_callback(void *data, const char *name,
 }
 
 static
-int (*klpe_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
-						     struct module *,
+int (*klpe_module_kallsyms_on_each_symbol)(const char *modname,
+					   int (*fn)(void *, const char *,
 						     unsigned long),
 					   void *data);
 
@@ -75,8 +68,9 @@ static int __klp_resolve_kallsyms_relocs(struct klp_kallsyms_reloc *relocs,
 		args.match_count = 0;
 
 		if (args.reloc.objname) {
-			klpe_module_kallsyms_on_each_symbol(__find_callback,
-							   &args);
+			klpe_module_kallsyms_on_each_symbol(args.reloc.objname,
+							    __find_callback,
+							    &args);
 		} else {
 			kallsyms_on_each_symbol(__find_callback, &args);
 		}
