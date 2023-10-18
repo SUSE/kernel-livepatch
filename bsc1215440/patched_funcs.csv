@@ -1,0 +1,1 @@
+sch_hfsc hfsc_change_class klpp_hfsc_change_class IS_ENABLED(CONFIG_NET_SCH_HFSC)
