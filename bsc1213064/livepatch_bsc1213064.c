@@ -1,11 +1,12 @@
 /*
  * livepatch_bsc1213064
  *
- * Fix for CVE-2023-31248, bsc#1213064 and CVE-2023-3390, bsc#1212934
+ * Fix for CVE-2023-31248, bsc#1213064, CVE-2023-3390, bsc#1212934 and CVE-2023-4147, bsc#1215118
  *
  *  Upstream commit:
  *  515ad530795c ("netfilter: nf_tables: do not ignore genmask when looking up chain by id")
  *  1240eb93f061 ("netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE")
+ *  0ebc1064e487 ("netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID")
  *
  *  SLE12-SP5, SLE15-SP1:
  *  Not affected
@@ -15,10 +16,12 @@
  *
  *  SLE15-SP3 commit:
  *  414921d41310a07aa4648948b40c8d53f658b91a
+ *  c0bb265d3423fa4d4a507b9a6a9f5e35d7103dde
  *
  *  SLE15-SP4 and -SP5 commit:
  *  2b5600c20d9ff2fd78fabcdf9411e1537fcd0e94
  *  fc1ae7b2f2f69a8fe6d03dcdef0f9ab67bed27c7
+ *  c0bb265d3423fa4d4a507b9a6a9f5e35d7103dde
  *
  *  Copyright (c) 2023 SUSE
  *  Author: Marcos Paulo de Souza <mpdesouza@suse.com>
@@ -315,8 +318,6 @@ int klpp_nf_tables_newrule(struct sk_buff *skb, const struct nfnl_info *info,
 			NL_SET_BAD_ATTR(extack, nla[NFTA_RULE_CHAIN]);
 			return PTR_ERR(chain);
 		}
-		if (nft_chain_is_bound(chain))
-			return -EOPNOTSUPP;
 
 	} else if (nla[NFTA_RULE_CHAIN_ID]) {
 		chain = klpp_nft_chain_lookup_byid(net, table, nla[NFTA_RULE_CHAIN_ID],
@@ -328,6 +329,9 @@ int klpp_nf_tables_newrule(struct sk_buff *skb, const struct nfnl_info *info,
 	} else {
 		return -EINVAL;
 	}
+
+	if (nft_chain_is_bound(chain))
+		return -EOPNOTSUPP;
 
 	if (nla[NFTA_RULE_HANDLE]) {
 		handle = be64_to_cpu(nla_get_be64(nla[NFTA_RULE_HANDLE]));
