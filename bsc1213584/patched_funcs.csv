@@ -1,0 +1,2 @@
+nf_tables __nf_tables_abort klpp___nf_tables_abort
+nf_tables nft_immediate_init klpp_nft_immediate_init
