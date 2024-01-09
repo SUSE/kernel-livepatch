@@ -1,0 +1,2 @@
+nvmet_tcp nvmet_tcp_socket_error klpp_nvmet_tcp_socket_error
+nvmet_tcp nvmet_tcp_handle_icreq klpp_nvmet_tcp_handle_icreq
