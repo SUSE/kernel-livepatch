@@ -1,0 +1,2 @@
+sch_qfq qfq_dequeue klpp_qfq_dequeue
+sch_qfq qfq_enqueue klpp_qfq_enqueue
