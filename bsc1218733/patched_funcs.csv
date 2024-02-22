@@ -1,0 +1,1 @@
+atm do_vcc_ioctl klpp_do_vcc_ioctl IS_ENABLED(CONFIG_ATM)
