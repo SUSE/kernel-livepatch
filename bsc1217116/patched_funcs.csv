@@ -1,0 +1,3 @@
+qxl qxl_mode_dumb_create klpp_qxl_mode_dumb_create IS_ENABLED(CONFIG_DRM_QXL)
+qxl qxl_alloc_ioctl klpp_qxl_alloc_ioctl IS_ENABLED(CONFIG_DRM_QXL)
+qxl qxl_alloc_surf_ioctl klpp_qxl_alloc_surf_ioctl IS_ENABLED(CONFIG_DRM_QXL)
