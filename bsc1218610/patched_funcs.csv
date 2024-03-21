@@ -1,0 +1,1 @@
+bluetooth bt_sock_recvmsg klpp_bt_sock_recvmsg IS_ENABLED(CONFIG_BT)
