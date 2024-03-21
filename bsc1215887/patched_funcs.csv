@@ -1,0 +1,4 @@
+vmlinux check_func_arg_reg_off klpp_check_func_arg_reg_off
+vmlinux do_check_common klpp_do_check_common
+vmlinux check_mem_access klpp_check_mem_access
+vmlinux check_stack_range_initialized klpp_check_stack_range_initialized
