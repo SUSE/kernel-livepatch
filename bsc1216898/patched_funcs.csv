@@ -1,0 +1,1 @@
+vmlinux insn_fetch_from_user_inatomic klpp_insn_fetch_from_user_inatomic IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT)
