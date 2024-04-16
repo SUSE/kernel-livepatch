@@ -1,0 +1,2 @@
+vmlinux vfs_read klpp_vfs_read
+vmlinux __do_readv_writev klpp___do_readv_writev
