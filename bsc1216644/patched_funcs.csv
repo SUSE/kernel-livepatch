@@ -1,0 +1,3 @@
+vmlinux vfs_read klpp_vfs_read
+vmlinux do_iter_read klpp_do_iter_read
+vmlinux loop_rw_iter klpp_loop_rw_iter
