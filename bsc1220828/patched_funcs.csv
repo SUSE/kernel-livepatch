@@ -1,0 +1,1 @@
+vmlinux tomoyo_write_control klpp_tomoyo_write_control IS_ENABLED(CONFIG_SECURITY_TOMOYO)
