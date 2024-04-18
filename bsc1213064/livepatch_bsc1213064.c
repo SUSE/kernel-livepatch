@@ -1,18 +1,21 @@
 /*
  * livepatch_bsc1213064
  *
- * Fix for CVE-2023-31248, bsc#1213064, CVE-2023-3390, bsc#1212934 and CVE-2023-4147, bsc#1215118
+ * Fix for CVE-2023-31248, bsc#1213064, CVE-2023-3390, bsc#1212934, CVE-2023-4147, bsc#1215118
+ * and CVE-2024-1086, bsc#1219435
  *
  *  Upstream commit:
  *  515ad530795c ("netfilter: nf_tables: do not ignore genmask when looking up chain by id")
  *  1240eb93f061 ("netfilter: nf_tables: incorrect error path handling with NFT_MSG_NEWRULE")
  *  0ebc1064e487 ("netfilter: nf_tables: disallow rule addition to bound chain via NFTA_RULE_CHAIN_ID")
+ *  f342de4e2f33 ("netfilter: nf_tables: reject QUEUE/DROP verdict parameters")
  *
  *  SLE12-SP5, SLE15-SP1:
  *  Not affected
  *
  *  SLE15-SP2 and -SP3 commit:
  *  176a7df4bbf0311d930d1e3cffcb349007229fec
+ *  33a2cdd70c1e180b31f92aa5fd2a3785693608a7
  *
  *  SLE15-SP3 commit:
  *  414921d41310a07aa4648948b40c8d53f658b91a
@@ -22,9 +25,11 @@
  *  2b5600c20d9ff2fd78fabcdf9411e1537fcd0e94
  *  fc1ae7b2f2f69a8fe6d03dcdef0f9ab67bed27c7
  *  c0bb265d3423fa4d4a507b9a6a9f5e35d7103dde
+ *  5f917ff63572e2a68dd0fb81f77be37e9dcb1078
  *
- *  Copyright (c) 2023 SUSE
+ *  Copyright (c) 2023-2024 SUSE
  *  Author: Marcos Paulo de Souza <mpdesouza@suse.com>
+ *  Author: Nicolai Stange <nstange@suse.de>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
  *
@@ -531,16 +536,10 @@ static int klpp_nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *dat
 	data->verdict.code = ntohl(nla_get_be32(tb[NFTA_VERDICT_CODE]));
 
 	switch (data->verdict.code) {
-	default:
-		switch (data->verdict.code & NF_VERDICT_MASK) {
-		case NF_ACCEPT:
-		case NF_DROP:
-		case NF_QUEUE:
-			break;
-		default:
-			return -EINVAL;
-		}
-		fallthrough;
+	case NF_ACCEPT:
+	case NF_DROP:
+	case NF_QUEUE:
+		break;
 	case NFT_CONTINUE:
 	case NFT_BREAK:
 	case NFT_RETURN:
@@ -571,6 +570,8 @@ static int klpp_nft_verdict_init(const struct nft_ctx *ctx, struct nft_data *dat
 		chain->use++;
 		data->verdict.chain = chain;
 		break;
+	default:
+		return -EINVAL;
 	}
 
 	desc->len = sizeof(data->verdict);
