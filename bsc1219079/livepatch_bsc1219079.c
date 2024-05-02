@@ -476,23 +476,23 @@ static inline struct ext4_sb_info *EXT4_SB(struct super_block *sb)
 #undef inline
 
 /* klp-ccp: from fs/ext4/ext4.h */
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_journal(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_compat & (( __le32)(__u32)(0x0004))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_journal(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_compat & cpu_to_le32(0x0004)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_gdt_csum(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & (( __le32)(__u32)(0x0010))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_gdt_csum(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & cpu_to_le32(0x0010)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_quota(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & (( __le32)(__u32)(0x0100))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_quota(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & cpu_to_le32(0x0100)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_metadata_csum(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & (( __le32)(__u32)(0x0400))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_metadata_csum(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & cpu_to_le32(0x0400)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_readonly(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & (( __le32)(__u32)(0x1000))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_readonly(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_ro_compat & cpu_to_le32(0x1000)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_journal_needs_recovery(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & (( __le32)(__u32)(0x0004))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_journal_needs_recovery(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & cpu_to_le32(0x0004)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) void ext4_clear_feature_journal_needs_recovery(struct super_block *sb) { EXT4_SB(sb)->s_es->s_feature_incompat &= ~(( __le32)(__u32)(0x0004)); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) void ext4_clear_feature_journal_needs_recovery(struct super_block *sb) { EXT4_SB(sb)->s_es->s_feature_incompat &= ~cpu_to_le32(0x0004); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_64bit(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & (( __le32)(__u32)(0x0080))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_64bit(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & cpu_to_le32(0x0080)) != 0); }
 
-static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_mmp(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & (( __le32)(__u32)(0x0100))) != 0); }
+static inline __attribute__((unused)) __attribute__((no_instrument_function)) bool ext4_has_feature_mmp(struct super_block *sb) { return ((EXT4_SB(sb)->s_es->s_feature_incompat & cpu_to_le32(0x0100)) != 0); }
 
 /* klp-ccp: from fs/ext4/ext4.h */
 static inline u32 ext4_chksum(struct ext4_sb_info *sbi, u32 crc,
