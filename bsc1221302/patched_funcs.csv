@@ -1,0 +1,1 @@
+iwlwifi _iwl_dbg_tlv_time_point klpp__iwl_dbg_tlv_time_point IS_ENABLED(CONFIG_IWLWIFI)
