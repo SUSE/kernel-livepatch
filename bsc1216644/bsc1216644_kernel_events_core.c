@@ -182,6 +182,34 @@ unlock:
 	return ret;
 }
 
+static int klpp___perf_event_read_size(u64 read_format, int nr_siblings)
+ {
+	int entry = sizeof(u64); /* value */
+	u64 size = 0;
+	u64 nr = 1;
+
+	if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED)
+		size += sizeof(u64);
+
+	if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING)
+		size += sizeof(u64);
+
+	if (read_format & PERF_FORMAT_ID)
+		entry += sizeof(u64);
+
+	if (read_format & PERF_FORMAT_GROUP) {
+		nr += nr_siblings;
+		size += sizeof(u64);
+	}
+
+	size += nr * entry;
+
+	if (size > INT_MAX)
+		size = INT_MAX;
+
+	return size;
+ }
+
 static int klpp_perf_read_group(struct perf_event *event,
 				   u64 read_format, char __user *buf)
 {
@@ -191,6 +219,10 @@ static int klpp_perf_read_group(struct perf_event *event,
 	u64 *values;
 
 	lockdep_assert_held(&ctx->mutex);
+
+	if (klpp___perf_event_read_size(event->attr.read_format,
+				   leader->nr_siblings) > 16*1024)
+		return -E2BIG;
 
 	values = kzalloc(event->read_size, GFP_KERNEL);
 	if (!values)
