@@ -1,21 +1,25 @@
 /*
  * livepatch_bsc1212849
  *
- * Fix for CVE-2023-3090, bsc#1212849
+ * Fix for CVE-2023-3090, bsc#1212849 and for CVE-2022-48651, bsc#1223514
  *
  *  Upstream commit:
- *  90cbed524743 ("ipvlan:Fix out-of-bounds caused by unclear skb->cb")
+ *  90cbed524743 ("ipvlan: Fix out-of-bounds caused by unclear skb->cb")
+ *  81225b2ea161 ("ipvlan: Fix out-of-bound bugs caused by unset skb->mac_header")
  *
  *  SLE12-SP5 and SLE15-SP1 commit:
  *  bd94484cb47717a3a5243a2400ca04df823b2a44
+ *  3bb99bc1136fc072f99086334b70444da66cb901
  *
  *  SLE15-SP2 and -SP3 commit:
  *  ddb692240f5be2ac125ddd9870534b8e4a650e73
+ *  0325bf2f2c93e1cb6522bcf04ae518ea3ad7b9c5
  *
  *  SLE15-SP4 and -SP5 commit:
  *  7062cceaea4512cb93ea9e24717a6086221e530e
+ *  c96a663e04c2b187e2dfe90864330d64ba2e01d6
  *
- *  Copyright (c) 2023 SUSE
+ *  Copyright (c) 2023-2024 SUSE
  *  Author: Marcos Paulo de Souza <mpdesouza@suse.com>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
@@ -281,9 +285,8 @@ out:
 #error "klp-ccp: non-taken branch"
 #endif
 
-static int ipvlan_process_outbound(struct sk_buff *skb)
+static int klpp_ipvlan_process_outbound(struct sk_buff *skb)
 {
-	struct ethhdr *ethh = eth_hdr(skb);
 	int ret = NET_XMIT_DROP;
 
 	/* The ipvlan is a pseudo-L2 device, so the packets that we receive
@@ -293,6 +296,7 @@ static int ipvlan_process_outbound(struct sk_buff *skb)
 	if (skb_mac_header_was_set(skb)) {
 		/* In this mode we dont care about
 		 * multicast and broadcast traffic */
+		struct ethhdr *ethh = eth_hdr(skb);
 		if (is_multicast_ether_addr(ethh->h_dest)) {
 			pr_debug_ratelimited(
 				"Dropped {multi|broad}cast of type=[%x]\n",
@@ -371,13 +375,13 @@ static int klpr_ipvlan_xmit_mode_l3(struct sk_buff *skb, struct net_device *dev)
 	}
 out:
 	ipvlan_skb_crossing_ns(skb, ipvlan->phy_dev);
-	return ipvlan_process_outbound(skb);
+	return klpp_ipvlan_process_outbound(skb);
 }
 
-static int klpr_ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
+static int klpp_ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
 {
 	const struct ipvl_dev *ipvlan = netdev_priv(dev);
-	struct ethhdr *eth = eth_hdr(skb);
+	struct ethhdr *eth = skb_eth_hdr(skb);
 	struct ipvl_addr *addr;
 	void *lyr3h;
 	int addr_type;
@@ -407,6 +411,7 @@ static int klpr_ipvlan_xmit_mode_l2(struct sk_buff *skb, struct net_device *dev)
 		return dev_forward_skb(ipvlan->phy_dev, skb);
 
 	} else if (is_multicast_ether_addr(eth->h_dest)) {
+		skb_reset_mac_header(skb);
 		ipvlan_skb_crossing_ns(skb, NULL);
 		ipvlan_multicast_enqueue(ipvlan->port, skb, true);
 		return NET_XMIT_SUCCESS;
@@ -429,7 +434,7 @@ int klpp_ipvlan_queue_xmit(struct sk_buff *skb, struct net_device *dev)
 
 	switch(port->mode) {
 	case IPVLAN_MODE_L2:
-		return klpr_ipvlan_xmit_mode_l2(skb, dev);
+		return klpp_ipvlan_xmit_mode_l2(skb, dev);
 	case IPVLAN_MODE_L3:
 #ifdef CONFIG_IPVLAN_L3S
 	case IPVLAN_MODE_L3S:
