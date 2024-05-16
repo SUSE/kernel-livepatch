@@ -1,0 +1,3 @@
+nfc nfc_llcp_sock_get klpp_nfc_llcp_sock_get IS_ENABLED(CONFIG_NFC)
+nfc nfc_llcp_get_sdp_ssap klpp_nfc_llcp_get_sdp_ssap IS_ENABLED(CONFIG_NFC)
+nfc nfc_llcp_rx_skb klpp_nfc_llcp_rx_skb IS_ENABLED(CONFIG_NFC)
