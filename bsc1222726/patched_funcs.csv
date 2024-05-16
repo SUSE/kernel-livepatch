@@ -1,0 +1,1 @@
+hfi1 _pad_sdma_tx_descs klpp__pad_sdma_tx_descs IS_ENABLED(CONFIG_INFINIBAND_HFI1)
