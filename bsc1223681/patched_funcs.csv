@@ -1,0 +1,1 @@
+qla2xxx qla2x00_mem_alloc klpp_qla2x00_mem_alloc IS_ENABLED(CONFIG_SCSI_QLA_FC)
