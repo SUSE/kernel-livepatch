@@ -1,0 +1,4 @@
+raid456 grow_one_stripe klpp_grow_one_stripe
+raid456 drop_one_stripe klpp_drop_one_stripe
+raid456 raid5_set_cache_size klpp_raid5_set_cache_size
+raid456 raid5_cache_count klpp_raid5_cache_count
