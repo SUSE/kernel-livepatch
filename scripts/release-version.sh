@@ -1,3 +1,3 @@
 #!/bin/bash
 
-RELEASE=SLE12_Test
+RELEASE=SLE15-SP5_Update_17
