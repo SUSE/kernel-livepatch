@@ -1,0 +1,2 @@
+vmlinux drm_client_modeset_probe klpp_drm_client_modeset_probe defined(CONFIG_X86_64) || defined(CONFIG_PPC64)
+drm drm_client_modeset_probe klpp_drm_client_modeset_probe defined(CONFIG_S390)
