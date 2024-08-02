@@ -21,7 +21,7 @@
 @@USE_KLP_CONVERT@@
 
 Name:           kernel-livepatch-@@RELEASE@@
-Version:        9
+Version:        10
 Release:        1
 %define module_num %(echo %version-%release | sed 'y/\./_/')
 License:        GPL-2.0
