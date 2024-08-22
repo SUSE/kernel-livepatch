@@ -1,0 +1,2 @@
+nvme_rdma nvme_rdma_free_queue klpp_nvme_rdma_free_queue
+nvme_rdma nvme_rdma_cm_handler klpp_nvme_rdma_cm_handler
