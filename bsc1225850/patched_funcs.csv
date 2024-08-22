@@ -1,0 +1,1 @@
+iwlmvm iwl_mvm_mld_rm_sta_id klpp_iwl_mvm_mld_rm_sta_id IS_ENABLED(CONFIG_IWLMVM)
