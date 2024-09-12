@@ -1,0 +1,5 @@
+i915 gen12_disable_metric_set klpp_gen12_disable_metric_set IS_ENABLED(CONFIG_DRM_I915)
+i915 gen12_enable_metric_set klpp_gen12_enable_metric_set IS_ENABLED(CONFIG_DRM_I915)
+i915 gen8_enable_metric_set klpp_gen8_enable_metric_set IS_ENABLED(CONFIG_DRM_I915)
+i915 gen8_disable_metric_set klpp_gen8_disable_metric_set IS_ENABLED(CONFIG_DRM_I915)
+i915 gen11_disable_metric_set klpp_gen11_disable_metric_set IS_ENABLED(CONFIG_DRM_I915)
