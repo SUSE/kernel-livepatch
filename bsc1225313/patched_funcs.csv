@@ -1,0 +1,1 @@
+amdgpu amdgpu_ttm_gart_bind klpp_amdgpu_ttm_gart_bind IS_ENABLED(CONFIG_DRM_AMDGPU)
