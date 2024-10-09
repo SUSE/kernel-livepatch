@@ -35,7 +35,7 @@
 		PARAMS(void *__data, proto),				\
 		PARAMS(__data, args))
 
-#else /* LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0) */
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 
 #define KLPR___DO_TRACE_CALL(name, args)   (*klpe___traceiter_##name)(NULL, args)
 
@@ -84,6 +84,62 @@
 			rcu_read_lock_sched_notrace();				\
 			rcu_dereference_sched((*klpe___tracepoint_##name).funcs);\
 			rcu_read_unlock_sched_notrace();			\
+		}								\
+	}									\
+
+
+#define KLPR_DECLARE_TRACE(name, proto, args)			\
+	KLPR___DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),	\
+		cpu_online(raw_smp_processor_id()),		\
+		PARAMS(void *__data, proto))
+
+#else /* LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) */
+
+#define KLPR___DO_TRACE_CALL(name, args)   __traceiter_##name(NULL, args)
+
+#define KLPR___DO_TRACE(name, args, cond, rcuidle)			\
+	do {								\
+		int __maybe_unused __idx = 0;				\
+									\
+		if (!(cond))						\
+			return;						\
+									\
+		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
+			return;						\
+									\
+		/* keep srcu and sched-rcu usage consistent */		\
+		preempt_disable_notrace();				\
+									\
+		/*							\
+		 * For rcuidle callers, use srcu since sched-rcu	\
+		 * doesn't work from the idle path.			\
+		 */							\
+		if (rcuidle) {						\
+			__idx = srcu_read_lock_notrace(&tracepoint_srcu);\
+			ct_irq_enter_irqson();				\
+		}							\
+									\
+		KLPR___DO_TRACE_CALL(name, TP_ARGS(args));		\
+									\
+		if (rcuidle) {						\
+			ct_irq_exit_irqson();				\
+			srcu_read_unlock_notrace(&tracepoint_srcu, __idx);\
+		}							\
+									\
+		preempt_enable_notrace();				\
+	} while (0)
+
+#define KLPR___DECLARE_TRACE(name, proto, args, cond, data_proto)		\
+	extern int __traceiter_##name(data_proto);			\
+	extern struct tracepoint __tracepoint_##name;			\
+	static inline void klpr_trace_##name(proto)				\
+	{									\
+		if (static_key_enabled(&__tracepoint_##name.key))	\
+			KLPR___DO_TRACE(name,					\
+				TP_ARGS(args),					\
+				TP_CONDITION(cond), 0);				\
+		if (IS_ENABLED(CONFIG_LOCKDEP) && (cond)) {			\
+			WARN_ON_ONCE(!rcu_is_watching());		\
 		}								\
 	}									\
 
