@@ -35,6 +35,9 @@
 		PARAMS(void *__data, proto),				\
 		PARAMS(__data, args))
 
+#define KLPR_TRACE_EVENT(name, proto, args) \
+	KLPR_DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
+
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 
 #define KLPR___DO_TRACE_CALL(name, args)   (*klpe___traceiter_##name)(NULL, args)
@@ -93,6 +96,9 @@
 		cpu_online(raw_smp_processor_id()),		\
 		PARAMS(void *__data, proto))
 
+#define KLPR_TRACE_EVENT(name, proto, args) \
+	KLPR_DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
+
 #else /* LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) */
 
 #define KLPR___DO_TRACE_CALL(name, args)   __traceiter_##name(NULL, args)
@@ -129,9 +135,15 @@
 		preempt_enable_notrace();				\
 	} while (0)
 
-#define KLPR___DECLARE_TRACE(name, proto, args, cond, data_proto)		\
-	extern int __traceiter_##name(data_proto);			\
-	extern struct tracepoint __tracepoint_##name;			\
+
+/* module - name of module the tracepoint is from for KLP_RELOC_SYMBOL macro */
+#include <linux/livepatch.h>
+
+#define KLPR___DECLARE_TRACE(module, name, proto, args, cond, data_proto)	\
+	extern int __traceiter_##name(data_proto) \
+			KLP_RELOC_SYMBOL(module, module, __traceiter_##name);			\
+	extern struct tracepoint __tracepoint_##name \
+			KLP_RELOC_SYMBOL(module, module, __tracepoint_##name);			\
 	static inline void klpr_trace_##name(proto)				\
 	{									\
 		if (static_key_enabled(&__tracepoint_##name.key))	\
@@ -144,14 +156,15 @@
 	}									\
 
 
-#define KLPR_DECLARE_TRACE(name, proto, args)			\
-	KLPR___DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),	\
+#define KLPR_DECLARE_TRACE(module, name, proto, args)			\
+	KLPR___DECLARE_TRACE(module, name, PARAMS(proto), PARAMS(args),	\
 		cpu_online(raw_smp_processor_id()),		\
 		PARAMS(void *__data, proto))
 
+#define KLPR_TRACE_EVENT(module, name, proto, args) \
+	KLPR_DECLARE_TRACE(module, name, PARAMS(proto), PARAMS(args))
+
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0) */
 
-#define KLPR_TRACE_EVENT(name, proto, args) \
-	KLPR_DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
 
 #endif /* _KLP_TRACE_H */
