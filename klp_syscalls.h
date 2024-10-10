@@ -11,7 +11,6 @@
 */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0)
 /* C.f. include/linux/syscalls.h */
-
 #define KLP_SYSCALL_SYM(name) SyS_ ## name
 
 #ifdef CONFIG_COMPAT
@@ -48,6 +47,7 @@
 
 #elif defined(CONFIG_S390)
 /* C.f. arch/s390/include/asm/syscall_wrapper.h */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
 #define KLP_SYSCALL_SYM(name) __se_sys_ ## name
 
 #ifdef CONFIG_COMPAT
@@ -57,6 +57,18 @@
 #define KLP_COMPAT_SYSCALL_SYM(name) __se_compat_sys_ ## name
 #endif /* CONFIG_COMPAT */
 
+#else /* LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0) */
+#define KLP_SYSCALL_SYM(name) __s390x_sys_ ## name
+
+#ifdef CONFIG_COMPAT
+#define KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS 1
+/* Compat stub for common syscalls. */
+#define KLP_SYSCALL_COMPAT_STUB_SYM(name) __s390_sys_ ## name
+#define KLP_COMPAT_SYSCALL_SYM(name)  __s390_compat_sys_ ## name
+#endif /* CONFIG_COMPAT */
+
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0) */
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
 #define KLP_SYSCALL_DECLx(x, sym, ...)			\
 	asmlinkage long sym(__MAP(x,__SC_LONG,__VA_ARGS__))
@@ -65,7 +77,8 @@
 	long sym(struct pt_regs *regs)
 #endif
 
-#else
+#elif defined(CONFIG_PPC64)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
 /* C.f. include/linux/syscalls.h */
 #define KLP_SYSCALL_SYM(name) __se_sys_ ## name
 
@@ -76,7 +89,22 @@
 #define KLP_SYSCALL_DECLx(x, sym, ...)			\
 	asmlinkage long sym(__MAP(x,__SC_LONG,__VA_ARGS__))
 
+#else /* LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0) */
+/* C.f. arch/powerpc/include/asm/syscalls_wrapper.h */
+#define KLP_SYSCALL_SYM(name) sys_ ## name
 
+#ifdef CONFIG_COMPAT
+/* C.f. include/linux/compat.h */
+#define KLP_COMPAT_SYSCALL_SYM(name) __se_compat_sys_ ## name
+#endif /* CONFIG_COMPAT */
+
+#define KLP_SYSCALL_DECLx(x, sym, ...)			\
+	long sym(const struct pt_regs *regs)
+
+#endif /* LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0) */
+
+#else
+#error "Architecture not supported."
 #endif
 
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0) */
