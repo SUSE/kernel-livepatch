@@ -1,0 +1,1 @@
+bluetooth hci_le_big_sync_established_evt klpp_hci_le_big_sync_established_evt IS_ENABLED(CONFIG_BT)
