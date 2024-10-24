@@ -128,6 +128,24 @@ if echo "$RELEASE" | \
   else
       variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
   fi
+elif echo "$RELEASE" | \
+	grep -q '^MICRO-\([0-9]\+\)-\([0-9]\+\)\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)$'; then
+  # Break $RELEASE into array of MICRO release major, minor, kernel variant
+  # and -_Update number.
+
+  cs=( \
+    $(echo "$RELEASE" | \
+      sed 's/MICRO-\([0-9]\+\)-\([0-9]\+\)\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)/\1,\2,\3,\4/' | \
+      awk -F, '{ print $1 " " ($2 ? $2 : 0) " " ($3 != "" ? $3 : "xempty") " " $4 }') \
+    )
+
+  if [ ${cs[2]} = xempty ]; then
+      # For MICRO-6-0, default kernel variant, x86_64 and s390x are
+      # enabled.
+      excarch="$excarch s390x"
+  else
+      variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
+  fi
 fi
 
 sed -i \
