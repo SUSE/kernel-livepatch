@@ -1,0 +1,2 @@
+vmlinux check_stack_access_within_bounds klpp_check_stack_access_within_bounds
+vmlinux __sys_bpf klpp___sys_bpf
