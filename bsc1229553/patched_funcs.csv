@@ -1,0 +1,1 @@
+qmi_wwan qmi_wwan_rx_fixup klpp_qmi_wwan_rx_fixup IS_ENABLED(CONFIG_USB_NET_QMI_WWAN)
