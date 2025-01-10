@@ -1,0 +1,2 @@
+vmlinux sk_setsockopt klpp_sk_setsockopt
+vmlinux tcp_retransmit_timer klpp_tcp_retransmit_timer
