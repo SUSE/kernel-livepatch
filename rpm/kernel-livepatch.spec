@@ -38,6 +38,7 @@ Source7:        kallsyms_relocs.c
 Source8:	klp_convert.h
 Source9:	klp_syscalls.h
 Source10:	klp_trace.h
+Source11:	lp-mod-checks.sh
 @@KLP_PATCHES_SOURCES@@
 BuildRequires:  kernel-syms%{variant} kernel-livepatch-tools-devel libelf-devel
 %if 0%{?use_klp_convert}
@@ -87,6 +88,10 @@ for flavor in %flavors_to_build; do
 			obj/$flavor/$module obj/$flavor/${module}_converted
 		mv obj/$flavor/${module}_converted obj/$flavor/$module
 	%endif
+
+	for module in $(find "obj/$flavor" -name '*.ko'); do
+	    %_sourcedir/lp-mod-checks.sh "$module"
+	done
 done
 
 %install

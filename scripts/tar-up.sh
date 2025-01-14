@@ -82,6 +82,7 @@ install -m 644 klp_trace.h $build_dir
 install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
 scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kernel-livepatch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
+install -m 755 scripts/lp-mod-checks.sh $build_dir/lp-mod-checks.sh
 
 while read buildenv; do
 	install -m 644 "$buildenv" "$build_dir/$(basename $buildenv)"
