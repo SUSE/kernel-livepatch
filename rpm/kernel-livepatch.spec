@@ -87,7 +87,7 @@ for flavor in %flavors_to_build; do
 	%endif
 
 	for module in $(find "obj/$flavor" -name '*.ko'); do
-	    %_sourcedir/lp-mod-checks.sh "$module"
+	    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
 	done
 done
 
