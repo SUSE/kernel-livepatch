@@ -399,11 +399,10 @@ static inline void br_vlan_set_pvid_state(struct net_bridge_vlan_group *vg,
 
 
 /* klp-ccp: from net/bridge/br_mst.c */
-static void klpp_br_mst_vlan_set_state(struct net_bridge_port *p, struct net_bridge_vlan *v,
+static void klpp_br_mst_vlan_set_state(struct net_bridge_vlan_group *vg,
+				  struct net_bridge_vlan *v,
 				  u8 state)
 {
-	struct net_bridge_vlan_group *vg = nbp_vlan_group(p);
-
 	if (br_vlan_get_state(v) == state)
 		return;
 
@@ -447,7 +446,7 @@ int klpp_br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
 		if (v->brvlan->msti != msti)
 			continue;
 
-		klpp_br_mst_vlan_set_state(p, v, state);
+		klpp_br_mst_vlan_set_state(vg, v, state);
 	}
 
 out:
@@ -466,13 +465,13 @@ static void klpp_br_mst_vlan_sync_state(struct net_bridge_vlan *pv, u16 msti)
 		 * it.
 		 */
 		if (v != pv && v->brvlan->msti == msti) {
-			klpp_br_mst_vlan_set_state(pv->port, pv, v->state);
+			klpp_br_mst_vlan_set_state(vg, pv, v->state);
 			return;
 		}
 	}
 
 	/* Otherwise, start out in a new MSTI with all ports disabled. */
-	return klpp_br_mst_vlan_set_state(pv->port, pv, BR_STATE_DISABLED);
+	return klpp_br_mst_vlan_set_state(vg, pv, BR_STATE_DISABLED);
 }
 
 int klpp_br_mst_vlan_set_msti(struct net_bridge_vlan *mv, u16 msti)
