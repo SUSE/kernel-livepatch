@@ -370,6 +370,13 @@ static inline struct net_bridge_vlan_group *nbp_vlan_group(
 	return rtnl_dereference(p->vlgrp);
 }
 
+/* manually copied: from net/bridge/br_private.h */
+static inline struct net_bridge_vlan_group *nbp_vlan_group_rcu(
+					const struct net_bridge_port *p)
+{
+	return rcu_dereference(p->vlgrp);
+}
+
 static inline u8 br_vlan_get_state(const struct net_bridge_vlan *v)
 {
 	return READ_ONCE(v->state);
@@ -422,7 +429,7 @@ int klpp_br_mst_set_state(struct net_bridge_port *p, u16 msti, u8 state,
 	int err = 0;
 
 	rcu_read_lock();
-	vg = nbp_vlan_group(p);
+	vg = nbp_vlan_group_rcu(p);
 	if (!vg)
 		goto out;
 
