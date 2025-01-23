@@ -1,0 +1,1 @@
+amdgpu mmhub_v3_3_print_l2_protection_fault_status klpp_mmhub_v3_3_print_l2_protection_fault_status IS_ENABLED(CONFIG_DRM_AMDGPU)
