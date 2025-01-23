@@ -1,0 +1,2 @@
+bridge br_mst_vlan_set_msti klpp_br_mst_vlan_set_msti
+bridge br_mst_set_state klpp_br_mst_set_state
