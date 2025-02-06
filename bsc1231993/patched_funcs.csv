@@ -1,0 +1,2 @@
+vmlinux tcp_rearm_rto klpp_tcp_rearm_rto
+vmlinux tcp_schedule_loss_probe klpp_tcp_schedule_loss_probe
