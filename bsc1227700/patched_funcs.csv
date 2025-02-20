@@ -1,0 +1,1 @@
+snd_pcm_oss snd_pcm_oss_period_size klpp_snd_pcm_oss_period_size IS_ENABLED(CONFIG_SND_PCM_OSS)
