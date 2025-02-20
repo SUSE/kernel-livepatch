@@ -1,0 +1,9 @@
+tls tls_decrypt_done klpp_tls_decrypt_done
+tls tls_tx_records klpp_tls_tx_records
+tls tls_encrypt_done klpp_tls_encrypt_done
+tls tls_push_record klpp_tls_push_record
+tls tls_sw_recvmsg klpp_tls_sw_recvmsg
+tls tls_sw_splice_read klpp_tls_sw_splice_read
+tls tls_read_size klpp_tls_read_size
+tls decrypt_skb_update klpp_decrypt_skb_update
+tls tls_push_data klpp_tls_push_data
