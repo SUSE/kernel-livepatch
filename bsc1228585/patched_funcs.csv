@@ -1,0 +1,1 @@
+idxd idxd_wq_thread klpp_idxd_wq_thread IS_ENABLED(CONFIG_INTEL_IDXD)
