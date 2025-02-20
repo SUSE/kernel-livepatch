@@ -1,0 +1,1 @@
+uvcvideo uvc_parse_standard_control klpp_uvc_parse_standard_control IS_ENABLED(CONFIG_USB_VIDEO_CLASS)
