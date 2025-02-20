@@ -1,0 +1,1 @@
+mac80211 ieee80211_change_station klpp_ieee80211_change_station IS_ENABLED(CONFIG_MAC80211)
