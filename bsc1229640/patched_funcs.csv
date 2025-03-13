@@ -1,0 +1,3 @@
+vmlinux nf_queue_entry_get_refs klpp_nf_queue_entry_get_refs
+vmlinux nf_queue klpp_nf_queue
+nfnetlink_queue nfqnl_enqueue_packet klpp_nfqnl_enqueue_packet
