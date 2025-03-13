@@ -1,0 +1,4 @@
+amdgpu dal_gpio_service_open klpp_dal_gpio_service_open IS_ENABLED(CONFIG_DRM_AMDGPU)
+amdgpu dal_gpio_service_lock klpp_dal_gpio_service_lock IS_ENABLED(CONFIG_DRM_AMDGPU)
+amdgpu dal_gpio_service_close klpp_dal_gpio_service_close IS_ENABLED(CONFIG_DRM_AMDGPU)
+amdgpu dal_gpio_service_unlock klpp_dal_gpio_service_unlock IS_ENABLED(CONFIG_DRM_AMDGPU)
