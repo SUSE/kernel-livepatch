@@ -1,0 +1,2 @@
+pm80xx mpi_ssp_completion,2 klpp_mpi_ssp_completion IS_ENABLED(CONFIG_SCSI_PM8001)
+pm80xx mpi_sata_completion,2 klpp_mpi_sata_completion IS_ENABLED(CONFIG_SCSI_PM8001)
