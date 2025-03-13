@@ -1,0 +1,1 @@
+amdgpu rn_notify_wm_ranges klpp_rn_notify_wm_ranges IS_ENABLED(CONFIG_DRM_AMDGPU)
