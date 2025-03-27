@@ -1,0 +1,4 @@
+bluetooth l2cap_sock_recv_cb klpp_l2cap_sock_recv_cb IS_ENABLED(CONFIG_BT)
+bluetooth l2cap_sock_cleanup_listen klpp_l2cap_sock_cleanup_listen IS_ENABLED(CONFIG_BT)
+bluetooth l2cap_sock_close_cb klpp_l2cap_sock_close_cb IS_ENABLED(CONFIG_BT)
+bluetooth l2cap_sock_release klpp_l2cap_sock_release IS_ENABLED(CONFIG_BT)
