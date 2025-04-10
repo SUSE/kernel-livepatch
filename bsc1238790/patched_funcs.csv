@@ -1,0 +1,1 @@
+intel_qat qat_dh_compute_value klpp_qat_dh_compute_value IS_ENABLED(CONFIG_CRYPTO_DEV_QAT)
