@@ -1,0 +1,1 @@
+bluetooth hci_event_packet klpp_hci_event_packet IS_ENABLED(CONFIG_BT)
