@@ -1,0 +1,1 @@
+net/bluetooth/bluetooth hci_conn_del_sysfs klpp_hci_conn_del_sysfs IS_ENABLED(CONFIG_BT)
