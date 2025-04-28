@@ -74,8 +74,6 @@ source $(dirname $0)/release-version.sh
 
 install -m 644 livepatch_main.c $build_dir
 install -m 644 shadow.h $build_dir
-install -m 644 kallsyms_relocs.h $build_dir
-install -m 644 kallsyms_relocs.c $build_dir
 install -m 644 klp_convert.h $build_dir
 install -m 644 klp_syscalls.h $build_dir
 install -m 644 klp_trace.h $build_dir
