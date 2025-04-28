@@ -74,7 +74,6 @@ source $(dirname $0)/release-version.sh
 
 install -m 644 livepatch_main.c $build_dir
 install -m 644 shadow.h $build_dir
-install -m 644 klp_convert.h $build_dir
 install -m 644 klp_syscalls.h $build_dir
 install -m 644 klp_trace.h $build_dir
 install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
@@ -166,18 +165,3 @@ sed -i "s/@@GITREV@@/$commit/" $build_dir/livepatch_main.c
 # changelog
 changelog=$build_dir/kernel-livepatch-"$RELEASE".changes
 scripts/gitlog2changes.pl HEAD -- > "$changelog"
-
-# klp-convert
-parse_release() {
-	echo "$1" | \
-		sed 's/SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)/\1,\3,\4/' | \
-		awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }'
-}
-
-rel=($(parse_release $RELEASE))
-#if [[ -n "${rel[0]##*Test*}" && ${rel[0]} -eq 15 && ${rel[1]} -eq 1 ]]; then
-#	sed -i "s/@@USE_KLP_CONVERT@@/%define use_klp_convert 1/" $build_dir/kernel-livepatch-"$RELEASE".spec
-#	sed -i "/^KDIR/a ccflags-y := -DUSE_KLP_CONVERT" $build_dir/Makefile
-#else
-	sed -i "s/@@USE_KLP_CONVERT@@//" $build_dir/kernel-livepatch-"$RELEASE".spec
-#fi
