@@ -1,0 +1,1 @@
+ath9k_htc htc_connect_service klpp_htc_connect_service IS_ENABLED(CONFIG_ATH9K_HTC)
