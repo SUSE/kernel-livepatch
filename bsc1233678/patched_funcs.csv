@@ -1,0 +1,5 @@
+ip_tunnel ip_tunnel_xmit klpp_ip_tunnel_xmit
+ip_tunnel ip_md_tunnel_xmit klpp_ip_md_tunnel_xmit
+ip_tunnel ip_tunnel_bind_dev klpp_ip_tunnel_bind_dev
+ip_gre gre_fill_metadata_dst klpp_gre_fill_metadata_dst
+mlxsw_spectrum mlxsw_sp_span_gretap4_route klpp_mlxsw_sp_span_gretap4_route
