@@ -42,10 +42,6 @@ static int __init klp_patch_init(void)
 
 	pr_info("livepatch: initializing\n");
 
-	retval = klp_patch_uname_init();
-	if (retval)
-		return retval;
-
 	@@KLP_PATCHES_INIT_CALLS@@;
 
 	retval = klp_enable_patch(&patch);
