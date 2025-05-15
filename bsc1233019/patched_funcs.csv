@@ -1,0 +1,1 @@
+kvm_amd nested_svm_get_tdp_pdptr klpp_nested_svm_get_tdp_pdptr IS_ENABLED(CONFIG_KVM_AMD)
