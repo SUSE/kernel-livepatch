@@ -1,0 +1,2 @@
+intel_qat qat_rsa_enc klpp_qat_rsa_enc IS_ENABLED(CONFIG_CRYPTO_DEV_QAT)
+intel_qat qat_rsa_dec klpp_qat_rsa_dec IS_ENABLED(CONFIG_CRYPTO_DEV_QAT)
