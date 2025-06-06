@@ -1,0 +1,2 @@
+bluetooth sco_sock_timeout klpp_sco_sock_timeout IS_ENABLED(CONFIG_BT)
+bluetooth sco_conn_del klpp_sco_conn_del IS_ENABLED(CONFIG_BT)
