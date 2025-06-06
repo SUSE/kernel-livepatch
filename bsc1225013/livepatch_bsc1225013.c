@@ -61,6 +61,8 @@ struct sco_conn {
 #define sco_conn_lock(c)	spin_lock(&c->lock)
 #define sco_conn_unlock(c)	spin_unlock(&c->lock)
 
+#include "../bsc1232929/livepatch_bsc1232929.h"
+
 void klpp_sco_sock_timeout(struct work_struct *work)
 {
 	struct sco_conn *conn = container_of(work, struct sco_conn,
@@ -72,9 +74,7 @@ void klpp_sco_sock_timeout(struct work_struct *work)
 		sco_conn_unlock(conn);
 		return;
 	}
-	sk = conn->sk;
-	if (sk)
-		sock_hold(sk);
+	sk = sco_sock_hold(conn);
 	sco_conn_unlock(conn);
 
 	if (!sk)
