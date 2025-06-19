@@ -1,0 +1,1 @@
+bluetooth sco_conn_del klpp_sco_conn_del IS_ENABLED(CONFIG_BT)
