@@ -1,0 +1,2 @@
+bluetooth l2cap_sock_create klpp_l2cap_sock_create IS_ENABLED(CONFIG_BT)
+bluetooth l2cap_sock_new_connection_cb klpp_l2cap_sock_new_connection_cb IS_ENABLED(CONFIG_BT)
