@@ -1,0 +1,1 @@
+gve gve_rx_poll_dqo klpp_gve_rx_poll_dqo IS_ENABLED(CONFIG_GVE)
