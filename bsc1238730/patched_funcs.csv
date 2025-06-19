@@ -1,0 +1,1 @@
+snd_usbmidi_lib snd_usbmidi_output_close klpp_snd_usbmidi_output_close IS_ENABLED(CONFIG_SND_USB_AUDIO)
