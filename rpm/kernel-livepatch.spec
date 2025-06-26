@@ -40,13 +40,6 @@ BuildRequires:  kernel-syms%{variant} kernel-livepatch-tools-devel libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
-%if ("%variant" == "%{nil}")
-  %define flavor "default"
-%else
-  # Drop the leading '-'
-  %define flavor %(echo '%{variant}' | sed 's/^.//')
-%endif
-
 %description
 This is a live patch for SUSE Linux Enterprise Server kernel.
 
@@ -67,19 +60,22 @@ sed -i 's/@@RPMRELEASE@@/%module_num/g' livepatch_main.c
 echo 'livepatch-%module_num' >Module.supported
 set -- *
 
-mkdir -p "obj/%flavor"
-cp -r "$@" "obj/%flavor"
-make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules
+for flavor in %flavors_to_build; do
+	mkdir -p "obj/$flavor"
+	cp -r "$@" "obj/$flavor"
+	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
 
-for module in $(find "obj/%flavor" -name '*.ko'); do
-    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
+	for module in $(find "obj/$flavor" -name '*.ko'); do
+	    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
+	done
 done
 
 %install
 export INSTALL_MOD_DIR=livepatch
 export INSTALL_MOD_PATH=%buildroot
-
-make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules_install
+for flavor in %flavors_to_build; do
+	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules_install
+done
 
 %changelog
 
