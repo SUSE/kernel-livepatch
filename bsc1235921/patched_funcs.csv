@@ -1,0 +1,1 @@
+snd_seq_oss snd_seq_oss_synth_sysex klpp_snd_seq_oss_synth_sysex IS_ENABLED(CONFIG_SND_SEQUENCER_OSS)
