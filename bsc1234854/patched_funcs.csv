@@ -1,0 +1,3 @@
+nfsd nfs4_xdr_dec_cb_recall klpp_nfs4_xdr_dec_cb_recall
+nfsd nfs4_xdr_dec_cb_layout klpp_nfs4_xdr_dec_cb_layout
+nfsd nfs4_xdr_dec_cb_notify_lock klpp_nfs4_xdr_dec_cb_notify_lock
