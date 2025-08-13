@@ -36,7 +36,10 @@ Source6:	klp_syscalls.h
 Source7:	klp_trace.h
 Source8:	lp-mod-checks.sh
 @@KLP_PATCHES_SOURCES@@
-BuildRequires:  kernel-syms%{variant} kernel-livepatch-tools-devel libelf-devel
+%if "%variant" != ""
+BuildRequires:  kernel%variant-devel
+%endif
+BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
