@@ -18,7 +18,6 @@
 # needssslcertforbuild
 
 %define variant @@VARIANT@@%{nil}
-@@USE_KLP_CONVERT@@
 
 Name:           kernel-livepatch-@@RELEASE@@
 Version:        1
@@ -33,20 +32,14 @@ Source2:        livepatch_main.c
 Source3:        config.sh
 Source4:        source-timestamp
 Source5:        shadow.h
-Source6:        kallsyms_relocs.h
-Source7:        kallsyms_relocs.c
-Source8:	klp_convert.h
-Source9:	klp_syscalls.h
-Source10:	klp_trace.h
+Source6:	klp_syscalls.h
+Source7:	klp_trace.h
+Source8:	lp-mod-checks.sh
 @@KLP_PATCHES_SOURCES@@
-BuildRequires:  kernel-syms%{variant} kernel-livepatch-tools-devel libelf-devel
-%if 0%{?use_klp_convert}
-%if "%{?variant}"
-BuildRequires:  kernel%{variant}-livepatch-devel
-%else
-BuildRequires:  kernel-default-livepatch-devel
+%if "%variant" != ""
+BuildRequires:  kernel%variant-devel
 %endif
-%endif
+BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
@@ -60,10 +53,7 @@ This is a live patch for SUSE Linux Enterprise Server kernel.
 @@KLP_PATCHES_SETUP_SOURCES@@
 cp %_sourcedir/livepatch_main.c .
 cp %_sourcedir/shadow.h .
-cp %_sourcedir/kallsyms_relocs.h .
-cp %_sourcedir/kallsyms_relocs.c .
 cp %_sourcedir/Makefile .
-cp %_sourcedir/klp_convert.h .
 cp %_sourcedir/klp_syscalls.h .
 cp %_sourcedir/klp_trace.h .
 
@@ -78,12 +68,9 @@ for flavor in %flavors_to_build; do
 	cp -r "$@" "obj/$flavor"
 	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
 
-	%if 0%{?use_klp_convert}
-		module=$(find "obj/$flavor" -name 'livepatch*.ko' -printf '%f')
-		klp-convert /usr/src/linux-obj/%_target_cpu/$flavor/Symbols.list \
-			obj/$flavor/$module obj/$flavor/${module}_converted
-		mv obj/$flavor/${module}_converted obj/$flavor/$module
-	%endif
+	for module in $(find "obj/$flavor" -name '*.ko'); do
+	    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
+	done
 done
 
 %install

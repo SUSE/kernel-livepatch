@@ -74,14 +74,16 @@ source $(dirname $0)/release-version.sh
 
 install -m 644 livepatch_main.c $build_dir
 install -m 644 shadow.h $build_dir
-install -m 644 kallsyms_relocs.h $build_dir
-install -m 644 kallsyms_relocs.c $build_dir
-install -m 644 klp_convert.h $build_dir
 install -m 644 klp_syscalls.h $build_dir
 install -m 644 klp_trace.h $build_dir
 install -m 644 rpm/kernel-livepatch.spec $build_dir/kernel-livepatch-"$RELEASE".spec
 scripts/register-patches.sh $build_dir/livepatch_main.c $build_dir/kernel-livepatch-"$RELEASE".spec
 install -m 644 rpm/config.sh $build_dir/config.sh
+install -m 755 scripts/lp-mod-checks.sh $build_dir/lp-mod-checks.sh
+
+while read buildenv; do
+	install -m 644 "$buildenv" "$build_dir/$(basename $buildenv)"
+done < <(find rpm -maxdepth 1 -name '_buildenv.*')
 
 # create new Makefile in $build_dir
 scripts/create-makefile.sh $build_dir
@@ -128,6 +130,39 @@ if echo "$RELEASE" | \
   else
       variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
   fi
+elif echo "$RELEASE" | \
+	grep -q '^MICRO-\([0-9]\+\)-\([0-9]\+\)\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)$'; then
+  # Break $RELEASE into array of MICRO release major, minor, kernel variant
+  # and -_Update number.
+
+  cs=( \
+    $(echo "$RELEASE" | \
+      sed 's/MICRO-\([0-9]\+\)-\([0-9]\+\)\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)/\1,\2,\3,\4/' | \
+      awk -F, '{ print $1 " " ($2 ? $2 : 0) " " ($3 != "" ? $3 : "xempty") " " $4 }') \
+    )
+
+  if [ ${cs[2]} = xempty ]; then
+      # For MICRO-6-0, default kernel variant, x86_64 and s390x are
+      # enabled.
+      excarch="$excarch s390x"
+  else
+      variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
+  fi
+elif echo "$RELEASE" | \
+	grep -q '^SLFO-Main\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)$'; then
+  # Handle SLFO-Main(-RT)_Update_0 dummy package for QA testing
+
+  cs=( \
+    $(echo "$RELEASE" | \
+      sed 's/SLFO-Main\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)/\1,\2/' | \
+      awk -F, '{ print ($1 != "" ? $1 : "xempty") " " $2 }') \
+    )
+
+  if [ ${cs[0]} = xempty ]; then
+      excarch="$excarch ppc64le s390x"
+  else
+      variant="$(echo "${cs[0]}" | tr '[:upper:]' '[:lower:]')"
+  fi
 fi
 
 sed -i \
@@ -145,18 +180,3 @@ sed -i "s/@@GITREV@@/$commit/" $build_dir/livepatch_main.c
 # changelog
 changelog=$build_dir/kernel-livepatch-"$RELEASE".changes
 scripts/gitlog2changes.pl HEAD -- > "$changelog"
-
-# klp-convert
-parse_release() {
-	echo "$1" | \
-		sed 's/SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)/\1,\3,\4/' | \
-		awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }'
-}
-
-rel=($(parse_release $RELEASE))
-#if [[ -n "${rel[0]##*Test*}" && ${rel[0]} -eq 15 && ${rel[1]} -eq 1 ]]; then
-#	sed -i "s/@@USE_KLP_CONVERT@@/%define use_klp_convert 1/" $build_dir/kernel-livepatch-"$RELEASE".spec
-#	sed -i "/^KDIR/a ccflags-y := -DUSE_KLP_CONVERT" $build_dir/Makefile
-#else
-	sed -i "s/@@USE_KLP_CONVERT@@//" $build_dir/kernel-livepatch-"$RELEASE".spec
-#fi
