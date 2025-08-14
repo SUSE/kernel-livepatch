@@ -1,0 +1,2 @@
+vmlinux hid_alloc_report_buf klpp_hid_alloc_report_buf IS_ENABLED(CONFIG_HID)
+vmlinux __hid_request klpp___hid_request IS_ENABLED(CONFIG_HID)
