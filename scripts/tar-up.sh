@@ -148,6 +148,21 @@ elif echo "$RELEASE" | \
   else
       variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
   fi
+elif echo "$RELEASE" | \
+	grep -q '^SLFO-Main\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)$'; then
+  # Handle SLFO-Main(-RT)_Update_0 dummy package for QA testing
+
+  cs=( \
+    $(echo "$RELEASE" | \
+      sed 's/SLFO-Main\(-[a-zA-Z_]\+\)\?_Update_\([0-9]\+\)/\1,\2/' | \
+      awk -F, '{ print ($1 != "" ? $1 : "xempty") " " $2 }') \
+    )
+
+  if [ ${cs[0]} = xempty ]; then
+      excarch="$excarch ppc64le s390x"
+  else
+      variant="$(echo "${cs[0]}" | tr '[:upper:]' '[:lower:]')"
+  fi
 fi
 
 sed -i \
