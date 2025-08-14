@@ -33,7 +33,7 @@
 #include <linux/string.h>
 #include <asm/uaccess.h>
 
-#include "klp_convert.h"
+#include <linux/livepatch.h>
 #include "livepatch_uname.h"
 
 #ifdef COMPAT_UTS_MACHINE
@@ -44,6 +44,8 @@
 #else
 #define override_architecture(name)	0
 #endif
+
+extern struct rw_semaphore uts_sem;
 
 /*
  * Work around broken programs that cannot handle "Linux 3.0".
@@ -78,8 +80,6 @@ static int override_release(char __user *release, size_t len)
 
 const char *klp_tag="/lp";
 
-KLP_SYM_LINKAGE struct rw_semaphore KLP_SYM(uts_sem);
-
 static int override_version(char __user *version, size_t len, char *klp_version)
 {
 	int ret = 0;
@@ -113,10 +113,10 @@ __SYSCALL_DEFINEx(1, _klp_newuname,  struct new_utsname __user *, name)
 	struct new_utsname tmp;
 	char klp_version[65] = { 0 };
 
-	down_read(&KLP_SYM(uts_sem));
+	down_read(&uts_sem);
 	memcpy(&tmp, utsname(), sizeof(tmp));
 	memcpy(klp_version, utsname()->version, sizeof(utsname()->version));
-	up_read(&KLP_SYM(uts_sem));
+	up_read(&uts_sem);
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
 		return -EFAULT;
 
@@ -129,18 +129,4 @@ __SYSCALL_DEFINEx(1, _klp_newuname,  struct new_utsname __user *, name)
 	return 0;
 }
 
-#ifndef USE_KLP_CONVERT
-int klp_patch_uname_init(void)
-{
-	unsigned long addr;
-
-	addr = kallsyms_lookup_name("uts_sem");
-	if (!addr) {
-		pr_err("livepatch: symbol uts_sem not resolved\n");
-		return -EFAULT;
-	}
-	klp_uts_sem = (struct rw_semaphore *) addr;
-
-	return 0;
-}
-#endif
+extern typeof(uts_sem) uts_sem KLP_RELOC_SYMBOL(vmlinux, vmlinux, uts_sem);
