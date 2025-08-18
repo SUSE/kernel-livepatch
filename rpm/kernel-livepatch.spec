@@ -36,10 +36,15 @@ Source6:	klp_syscalls.h
 Source7:	klp_trace.h
 Source8:	lp-mod-checks.sh
 @@KLP_PATCHES_SOURCES@@
+# Use kernel-<flavor> specific build dependencies instead of kernel-syms (bsc#1248108)
 %if "%variant" != ""
 BuildRequires:  kernel%variant-devel
+%else
+BuildRequires:  kernel-default-devel
 %endif
-BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
+BuildRequires:  pesign-obs-integration
+BuildRequires:  kernel-livepatch-tools-devel
+BuildRequires:  libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
