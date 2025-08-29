@@ -323,6 +323,12 @@ hfsc_classify(struct sk_buff *skb, struct Qdisc *sch, int *qerr)
 	return cl;
 }
 
+static bool cl_in_el_or_vttree(struct hfsc_class *cl)
+{
+   return ((cl->cl_flags & HFSC_FSC) && cl->cl_nactive) ||
+       ((cl->cl_flags & HFSC_RSC) && !RB_EMPTY_NODE(&cl->el_node));
+}
+
 int
 klpp_hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_free)
 {
@@ -349,7 +355,7 @@ klpp_hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_fr
 		return err;
 	}
 
-	if (first && !cl->cl_nactive) {
+	if (first && !cl_in_el_or_vttree(cl)) {
 		if (cl->cl_flags & HFSC_RSC)
 			init_ed(cl, len);
 		if (cl->cl_flags & HFSC_FSC)
