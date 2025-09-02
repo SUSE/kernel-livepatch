@@ -1,0 +1,3 @@
+vmlinux proc_get_inode klpp_proc_get_inode
+vmlinux proc_create_seq_private klpp_proc_create_seq_private
+vmlinux proc_create_single_data klpp_proc_create_single_data
