@@ -355,6 +355,9 @@ klpp_hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_fr
 		return err;
 	}
 
+	sch->qstats.backlog += len;
+	sch->q.qlen++;
+
 	if (first && !cl_in_el_or_vttree(cl)) {
 		if (cl->cl_flags & HFSC_RSC)
 			init_ed(cl, len);
@@ -369,9 +372,6 @@ klpp_hfsc_enqueue(struct sk_buff *skb, struct Qdisc *sch, struct sk_buff **to_fr
 			cl->qdisc->ops->peek(cl->qdisc);
 
 	}
-
-	sch->qstats.backlog += len;
-	sch->q.qlen++;
 
 	return NET_XMIT_SUCCESS;
 }
