@@ -1,0 +1,2 @@
+vmlinux netdev_nl_napi_get_doit klpp_netdev_nl_napi_get_doit
+vmlinux netdev_nl_napi_fill_one klpp_netdev_nl_napi_fill_one
