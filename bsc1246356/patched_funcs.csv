@@ -1,0 +1,3 @@
+sch_hfsc hfsc_dequeue klpp_hfsc_dequeue
+sch_hfsc update_ed klpp_update_ed
+sch_hfsc hfsc_qlen_notify klpp_hfsc_qlen_notify
