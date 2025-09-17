@@ -1,0 +1,1 @@
+vmlinux acpi_device_setup_files klpp_acpi_device_setup_files IS_ENABLED(CONFIG_ACPI)
