@@ -1,0 +1,1 @@
+libcomposite composite_os_desc_req_prepare klpp_composite_os_desc_req_prepare IS_ENABLED(CONFIG_USB_LIBCOMPOSITE)
