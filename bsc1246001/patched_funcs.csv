@@ -1,0 +1,2 @@
+vmlinux calipso_req_setattr,1 klpp_calipso_req_setattr
+vmlinux calipso_req_delattr,1 klpp_calipso_req_delattr
