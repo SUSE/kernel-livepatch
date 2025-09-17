@@ -1,0 +1,2 @@
+mlx5_core mlx5_eswitch_enable_pf_vf_vports klpp_mlx5_eswitch_enable_pf_vf_vports
+mlx5_core mlx5_eswitch_disable_pf_vf_vports klpp_mlx5_eswitch_disable_pf_vf_vports
