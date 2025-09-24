@@ -1,0 +1,1 @@
+xhci_hcd xhci_irq klpp_xhci_irq IS_ENABLED(CONFIG_USB_XHCI_HCD)
