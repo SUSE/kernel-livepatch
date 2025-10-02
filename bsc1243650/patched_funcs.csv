@@ -1,0 +1,3 @@
+sunrpc svc_create_socket klpp_svc_create_socket
+sunrpc xs_tcp_setup_socket klpp_xs_tcp_setup_socket
+sunrpc xs_udp_setup_socket klpp_xs_udp_setup_socket
