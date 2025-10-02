@@ -1,0 +1,6 @@
+sch_qfq qfq_change_class klpp_qfq_change_class
+sch_qfq qfq_delete_class klpp_qfq_delete_class
+sch_qfq qfq_dump_class klpp_qfq_dump_class
+sch_qfq qfq_dump_class_stats klpp_qfq_dump_class_stats
+sch_qfq qfq_destroy_qdisc klpp_qfq_destroy_qdisc
+sch_qfq qfq_destroy_class klpp_qfq_destroy_class
