@@ -1,0 +1,10 @@
+CFLAGS_bsc1240744_net_ipv4_ip_output.o += -Werror
+CFLAGS_bsc1240744/bsc1240744_net_ipv4_ip_output.o += -Werror
+CFLAGS_bsc1240744_net_ipv6_ip6_output.o += -Werror
+CFLAGS_bsc1240744/bsc1240744_net_ipv6_ip6_output.o += -Werror
+CFLAGS_bsc1240744_net_ipv6_output_core.o += -Werror
+CFLAGS_bsc1240744/bsc1240744_net_ipv6_output_core.o += -Werror
+CFLAGS_bsc1240744_net_ipv6_raw.o += -Werror
+CFLAGS_bsc1240744/bsc1240744_net_ipv6_raw.o += -Werror
+CFLAGS_livepatch_bsc1240744.o += -Werror
+CFLAGS_bsc1240744/livepatch_bsc1240744.o += -Werror
