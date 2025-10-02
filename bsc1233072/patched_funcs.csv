@@ -1,0 +1,2 @@
+vmlinux inet_csk_reqsk_queue_drop klpp_inet_csk_reqsk_queue_drop
+vmlinux reqsk_timer_handler klpp_reqsk_timer_handler
