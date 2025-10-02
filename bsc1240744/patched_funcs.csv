@@ -1,0 +1,4 @@
+vmlinux __ip_local_out klpp___ip_local_out
+vmlinux ip6_xmit klpp_ip6_xmit
+vmlinux __ip6_local_out klpp___ip6_local_out
+vmlinux rawv6_sendmsg klpp_rawv6_sendmsg
