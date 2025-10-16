@@ -33,7 +33,6 @@
 #include <linux/string.h>
 #include <asm/uaccess.h>
 
-#include "klp_convert.h"
 #include "livepatch_uname.h"
 
 #ifdef COMPAT_UTS_MACHINE
@@ -79,7 +78,7 @@ static int override_release(char __user *release, size_t len)
 char *klp_tag="/lp-@@GITREV@@";
 
 
-KLP_SYM_LINKAGE struct rw_semaphore KLP_SYM(uts_sem);
+static struct rw_semaphore *klpe_uts_sem;
 
 static int override_version(char __user *version, size_t len, char *klp_version)
 {
@@ -114,10 +113,10 @@ __SYSCALL_DEFINEx(1, _klp_newuname,  struct new_utsname __user *, name)
 	struct new_utsname tmp;
 	char klp_version[65] = { 0 };
 
-	down_read(&KLP_SYM(uts_sem));
+	down_read(klpe_uts_sem);
 	memcpy(&tmp, utsname(), sizeof(tmp));
 	memcpy(klp_version, utsname()->version, sizeof(utsname()->version));
-	up_read(&KLP_SYM(uts_sem));
+	up_read(klpe_uts_sem);
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
 		return -EFAULT;
 
@@ -130,7 +129,6 @@ __SYSCALL_DEFINEx(1, _klp_newuname,  struct new_utsname __user *, name)
 	return 0;
 }
 
-#ifndef USE_KLP_CONVERT
 int klp_patch_uname_init(void)
 {
 	unsigned long addr;
@@ -140,8 +138,7 @@ int klp_patch_uname_init(void)
 		pr_err("livepatch: symbol uts_sem not resolved\n");
 		return -EFAULT;
 	}
-	klp_uts_sem = (struct rw_semaphore *) addr;
+	klpe_uts_sem = (struct rw_semaphore *) addr;
 
 	return 0;
 }
-#endif
