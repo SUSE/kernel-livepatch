@@ -36,10 +36,15 @@ Source6:	klp_syscalls.h
 Source7:	klp_trace.h
 Source8:	lp-mod-checks.sh
 @@KLP_PATCHES_SOURCES@@
+# Use kernel-<flavor> specific build dependencies instead of kernel-syms (bsc#1248108)
 %if "%variant" != ""
 BuildRequires:  kernel%variant-devel
+%else
+BuildRequires:  kernel-default-devel
 %endif
-BuildRequires:  kernel-syms kernel-livepatch-tools-devel libelf-devel
+BuildRequires:  pesign-obs-integration
+BuildRequires:  kernel-livepatch-tools-devel
+BuildRequires:  libelf-devel
 ExclusiveArch:	@@EXCARCH@@
 %klp_module_package
 
@@ -63,22 +68,19 @@ sed -i 's/@@RPMRELEASE@@/%module_num/g' livepatch_main.c
 echo 'livepatch-%module_num' >Module.supported
 set -- *
 
-for flavor in %flavors_to_build; do
-	mkdir -p "obj/$flavor"
-	cp -r "$@" "obj/$flavor"
-	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules
+mkdir -p "obj/%flavor"
+cp -r "$@" "obj/%flavor"
+make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules
 
-	for module in $(find "obj/$flavor" -name '*.ko'); do
-	    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
-	done
+for module in $(find "obj/%flavor" -name '*.ko'); do
+    /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
 done
 
 %install
 export INSTALL_MOD_DIR=livepatch
 export INSTALL_MOD_PATH=%buildroot
-for flavor in %flavors_to_build; do
-	make -C %{kernel_source $flavor} M="$PWD/obj/$flavor" modules_install
-done
+
+make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules_install
 
 %changelog
 
