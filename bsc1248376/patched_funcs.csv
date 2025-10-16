@@ -1,0 +1,2 @@
+sunrpc svc_tcp_read_msg klpp_svc_tcp_read_msg
+sunrpc svc_tcp_recvfrom klpp_svc_tcp_recvfrom

@@ -38,6 +38,13 @@
 #define KLPR_TRACE_EVENT(name, proto, args) \
 	KLPR_DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
 
+#define KLPR_TRACE_EVENT_CONDITION(name, proto, args, cond)		\
+	KLPR___DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),		\
+		cpu_online(raw_smp_processor_id()) && PARAMS(cond),	\
+		PARAMS(void *__data, proto),				\
+		PARAMS(__data, args))
+
+
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
 
 #define KLPR___DO_TRACE_CALL(name, args)   (*klpe___traceiter_##name)(NULL, args)
@@ -98,6 +105,11 @@
 
 #define KLPR_TRACE_EVENT(name, proto, args) \
 	KLPR_DECLARE_TRACE(name, PARAMS(proto), PARAMS(args))
+
+#define KLPR_TRACE_EVENT_CONDITION(name, proto, args, cond)		\
+	KLPR___DECLARE_TRACE(name, PARAMS(proto), PARAMS(args),		\
+		cpu_online(raw_smp_processor_id()) && PARAMS(cond),	\
+		PARAMS(void *__data, proto))
 
 #else /* LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) */
 
@@ -163,6 +175,11 @@
 
 #define KLPR_TRACE_EVENT(module, name, proto, args) \
 	KLPR_DECLARE_TRACE(module, name, PARAMS(proto), PARAMS(args))
+
+#define KLPR_TRACE_EVENT_CONDITION(module, name, proto, args, cond)	\
+	KLPR___DECLARE_TRACE(module, name, PARAMS(proto), PARAMS(args),	\
+		cpu_online(raw_smp_processor_id()) && PARAMS(cond),	\
+		PARAMS(void *__data, proto))
 
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0) */
 
