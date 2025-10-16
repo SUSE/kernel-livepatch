@@ -76,7 +76,6 @@ install -m 644 livepatch_main.c $build_dir
 install -m 644 shadow.h $build_dir
 install -m 644 kallsyms_relocs.h $build_dir
 install -m 644 kallsyms_relocs.c $build_dir
-install -m 644 klp_convert.h $build_dir
 install -m 644 klp_syscalls.h $build_dir
 install -m 644 klp_trace.h $build_dir
 install -m 644 rpm/kgraft-patch.spec $build_dir/kgraft-patch-"$RELEASE".spec
@@ -147,18 +146,3 @@ sed -i \
 # changelog
 changelog=$build_dir/kgraft-patch-"$RELEASE".changes
 scripts/gitlog2changes.pl HEAD -- > "$changelog"
-
-# klp-convert
-parse_release() {
-	echo "$1" | \
-		sed 's/SLE\([0-9]\+\)\(-SP\([0-9]\+\)\)\?_Update_\([0-9]\+\)/\1,\3,\4/' | \
-		awk -F, '{ print $1 " " ($2 ? $2 : 0) " " $3 }'
-}
-
-rel=($(parse_release $RELEASE))
-#if [[ -n "${rel[0]##*Test*}" && ${rel[0]} -eq 15 && ${rel[1]} -eq 1 ]]; then
-#	sed -i "s/@@USE_KLP_CONVERT@@/%define use_klp_convert 1/" $build_dir/kgraft-patch-"$RELEASE".spec
-#	sed -i "/^KDIR/a ccflags-y := -DUSE_KLP_CONVERT" $build_dir/Makefile
-#else
-	sed -i "s/@@USE_KLP_CONVERT@@//" $build_dir/kgraft-patch-"$RELEASE".spec
-#fi
