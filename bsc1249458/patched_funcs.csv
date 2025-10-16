@@ -1,0 +1,2 @@
+libphy __mdiobus_c45_read klpp___mdiobus_c45_read
+libphy __mdiobus_c45_write klpp___mdiobus_c45_write
