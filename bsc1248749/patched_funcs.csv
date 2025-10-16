@@ -1,0 +1,1 @@
+mac80211 ieee80211_tdls_oper klpp_ieee80211_tdls_oper IS_ENABLED(CONFIG_MAC80211)
