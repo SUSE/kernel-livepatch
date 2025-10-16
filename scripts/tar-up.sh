@@ -116,17 +116,7 @@ if echo "$RELEASE" | \
 
   if [ ${cs[2]} = xempty ]; then
       # Variant being empty means the build is against the default kernel.
-      excarch="$excarch ppc64le"
-
-      # s390x shall be enabled from SLE12-SP4 update 13 onwards.
-      # s390x is supported for SLE12-SP5 from update 3 onwards.
-      # s390x is supported from SLE15-SP2 onwards.
-      if [ ${cs[0]} -eq 12 -a ${cs[1]} -eq 4 -a ${cs[3]} -ge 13 -o \
-	   ${cs[0]} -eq 12 -a ${cs[1]} -eq 5 -a ${cs[3]} -ge 3 -o \
-	   ${cs[0]} -eq 15 -a ${cs[1]} -ge 2 ]; then
-	  excarch="$excarch s390x"
-      fi
-
+      excarch="$excarch ppc64le s390x"
   else
       variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
   fi
