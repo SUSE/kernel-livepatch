@@ -1,0 +1,1 @@
+bluetooth l2cap_connect_create_rsp klpp_l2cap_connect_create_rsp IS_ENABLED(CONFIG_BT)
