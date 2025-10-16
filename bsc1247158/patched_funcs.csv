@@ -1,0 +1,3 @@
+vmlinux KLP_SYSCALL_SYM(memfd_secret) KLP_SYSCALL_SYM(klpp_memfd_secret) defined(CONFIG_SECRETMEM)
+vmlinux KLP_SYSCALL_COMPAT_STUB_SYM(memfd_secret) KLP_SYSCALL_COMPAT_STUB_SYM(klpp_memfd_secret) defined(KLP_ARCH_HAS_SYSCALL_COMPAT_STUBS) && defined(CONFIG_SECRETMEM)
+vmlinux __anon_inode_getfile klpp___anon_inode_getfile
