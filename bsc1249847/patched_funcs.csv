@@ -1,0 +1,1 @@
+igb igb_init_interrupt_scheme klpp_igb_init_interrupt_scheme IS_ENABLED(CONFIG_IGB)
