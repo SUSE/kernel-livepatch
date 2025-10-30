@@ -1,0 +1,1 @@
+ice ice_copy_and_init_pkg klpp_ice_copy_and_init_pkg IS_ENABLED(CONFIG_ICE)
