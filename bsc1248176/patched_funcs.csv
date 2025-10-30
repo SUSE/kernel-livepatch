@@ -1,0 +1,5 @@
+xe lmtt_pt_alloc klpp_lmtt_pt_alloc IS_ENABLED(CONFIG_DRM_XE)
+xe lmtt_destroy_pt klpp_lmtt_destroy_pt IS_ENABLED(CONFIG_DRM_XE)
+xe fini_lmtt klpp_fini_lmtt IS_ENABLED(CONFIG_DRM_XE)
+xe xe_lmtt_prepare_pages klpp_xe_lmtt_prepare_pages IS_ENABLED(CONFIG_DRM_XE)
+xe lmtt_write_pte klpp_lmtt_write_pte IS_ENABLED(CONFIG_DRM_XE)
