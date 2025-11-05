@@ -578,7 +578,7 @@ out:
 #include <linux/module.h>
 #include "../kallsyms_relocs.h"
 
-#define LP_MODULE "net/packet/af_packet"
+#define LP_MODULE "af_packet"
 
 static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "__fanout_link", (void *)&klpe___fanout_link, "af_packet" },
