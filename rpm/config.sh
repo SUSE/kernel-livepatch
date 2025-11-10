@@ -1,1 +1,1 @@
-IBS_PROJECT=SUSE:Maintenance:41480
+IBS_PROJECT=SUSE:Maintenance:
