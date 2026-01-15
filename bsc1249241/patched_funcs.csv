@@ -1,0 +1,3 @@
+vmlinux fib6_add klpp_fib6_add
+vmlinux fib6_del klpp_fib6_del
+vmlinux rt6_nlmsg_size klpp_rt6_nlmsg_size
