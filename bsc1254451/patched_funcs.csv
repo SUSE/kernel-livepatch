@@ -1,0 +1,1 @@
+vmlinux acpi_processor_get_lpi_info klpp_acpi_processor_get_lpi_info IS_ENABLED(CONFIG_ACPI_PROCESSOR)
