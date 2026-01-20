@@ -79,7 +79,11 @@ static int fib6_new_sernum(struct net *net)
 	return new;
 }
 
+#if defined(__LITTLE_ENDIAN)
 # define BITOP_BE32_SWIZZLE	(0x1F & ~7)
+#else
+# define BITOP_BE32_SWIZZLE     0
+#endif
 
 static __be32 addr_bit_set(const void *token, int fn_bit)
 {
