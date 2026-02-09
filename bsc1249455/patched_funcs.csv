@@ -1,0 +1,2 @@
+libphy __mdiobus_read klpp___mdiobus_read
+libphy __mdiobus_write klpp___mdiobus_write
