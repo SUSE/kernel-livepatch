@@ -1,0 +1,1 @@
+mac80211_hwsim hwsim_cloned_frame_received_nl klpp_hwsim_cloned_frame_received_nl IS_ENABLED(CONFIG_MAC80211_HWSIM)
