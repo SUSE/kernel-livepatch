@@ -1,1 +1,2 @@
 vmlinux inode_init_always klpp_inode_init_always
+vmlinux module_memfree klpp_module_memfree

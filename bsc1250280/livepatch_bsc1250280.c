@@ -63,29 +63,27 @@ static int (*klpe_security_inode_alloc)(struct inode *inode);
 #include <linux/iversion.h>
 #include <trace/events/writeback.h>
 
+static struct inode_operations *empty_iops;
+static struct file_operations  *no_open_fops;
+
 extern const struct address_space_operations empty_aops;
 
 extern typeof(empty_aops) empty_aops;
 
 static unsigned long __percpu (*klpe_nr_inodes);
 
-static int no_open(struct inode *inode, struct file *file)
-{
-	return -ENXIO;
-}
+static int (*klpe_no_open)(struct inode *inode, struct file *file);
 
 int klpp_inode_init_always(struct super_block *sb, struct inode *inode)
 {
-	static const struct inode_operations empty_iops;
-	static const struct file_operations no_open_fops = {.open = no_open};
 	struct address_space *const mapping = &inode->i_data;
 
 	inode->i_sb = sb;
 	inode->i_blkbits = sb->s_blocksize_bits;
 	inode->i_flags = 0;
 	atomic_set(&inode->i_count, 1);
-	inode->i_op = &empty_iops;
-	inode->i_fop = &no_open_fops;
+	inode->i_op = empty_iops;
+	inode->i_fop = no_open_fops;
 	inode->__i_nlink = 1;
 	inode->i_opflags = 0;
 	if (sb->s_xattr)
@@ -155,6 +153,19 @@ int klpp_inode_init_always(struct super_block *sb, struct inode *inode)
 typeof(klpp_inode_init_always) klpp_inode_init_always;
 
 
+#include <linux/module.h>
+static void *previous_livepatch_module_base;
+
+void __weak klpp_module_memfree(void *module_region)
+{
+	if (previous_livepatch_module_base &&
+	    previous_livepatch_module_base == module_region) {
+		return;
+	}
+
+	vfree(module_region);
+}
+
 #include "livepatch_bsc1250280.h"
 
 #include <linux/kernel.h>
@@ -163,10 +174,73 @@ typeof(klpp_inode_init_always) klpp_inode_init_always;
 static struct klp_kallsyms_reloc klp_funcs[] = {
 	{ "nr_inodes", (void *)&klpe_nr_inodes },
 	{ "security_inode_alloc", (void *)&klpe_security_inode_alloc },
+	{ "no_open", (void *)&klpe_no_open },
 };
+
+// Defined in kallsyms_relocs.c.
+extern int (*klp_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
+							   struct module *,
+							   unsigned long),
+						 void *data);
+
+static int
+__find_previous_livepatch_module(void *data, const char *name,
+					 struct module *mod, unsigned long addr)
+{
+	static struct module *previous_livepatch_module = NULL;
+
+	// We're looking for the previous previous buggy livepatch module. It contains
+	// "empty_iops" and "no_open_fops", defined as static locally, Local statics
+	// have a symbol name pattern of "<C-DECL-NAME>.[0-9]+".
+	if (!is_livepatch_module(mod) || !module_is_live(mod) || addr == 0) {
+	  return 0;
+	}
+
+	if ((!strncmp(name, "empty_iops", 10) &&
+	     strlen(name) >= 12 && name[10] == '.') ||
+	    (!strncmp(name, "no_open_fops", 12) &&
+	     strlen(name) >= 14 && name[12] == '.')) {
+		// All found symbols are expected to be defined in the same mod.
+		if (previous_livepatch_module &&
+		    previous_livepatch_module != mod) {
+			return 1;
+		}
+		previous_livepatch_module = mod;
+		previous_livepatch_module_base = mod->core_layout.base;
+	}
+
+	return 0;
+}
 
 int livepatch_bsc1250280_init(void)
 {
-	return __klp_resolve_kallsyms_relocs(klp_funcs, ARRAY_SIZE(klp_funcs));
-}
+	int ret;
 
+	ret = __klp_resolve_kallsyms_relocs(klp_funcs, ARRAY_SIZE(klp_funcs));
+	if (ret)
+		return ret;
+
+	empty_iops = kzalloc(sizeof(*empty_iops), GFP_KERNEL);
+	if (!empty_iops)
+		return -ENOMEM;
+
+	no_open_fops = kzalloc(sizeof(*no_open_fops), GFP_KERNEL);
+	if (!no_open_fops) {
+		kfree(empty_iops);
+		return -ENOMEM;
+	}
+	no_open_fops->open = klpe_no_open;
+
+	mutex_lock(&module_mutex);
+	ret = klp_module_kallsyms_on_each_symbol
+		(__find_previous_livepatch_module, NULL);
+
+	if (ret) {
+		pr_warn("livepatch: bsc#1250280: previous livepatch module search returned inconsistent results\n");
+		previous_livepatch_module_base = NULL;
+	}
+
+	mutex_unlock(&module_mutex);
+
+	return 0;
+}
