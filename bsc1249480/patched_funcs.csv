@@ -1,0 +1,1 @@
+hfi1 hfi1_get_proc_affinity klpp_hfi1_get_proc_affinity IS_ENABLED(CONFIG_INFINIBAND_HFI1)
