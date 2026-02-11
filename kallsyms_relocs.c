@@ -57,7 +57,7 @@ static int __find_callback(void *data, const char *name,
 	return 0;
 }
 
-static int (*klp_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
+int (*klp_module_kallsyms_on_each_symbol)(int (*fn)(void *, const char *,
 							   struct module *,
 							   unsigned long),
 						 void *data);
