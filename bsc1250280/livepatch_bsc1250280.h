@@ -11,4 +11,6 @@ struct inod;
 struct super_bloc;
 
 int klpp_inode_init_always(struct super_block *, struct inode *);
+void klpp_module_memfree(void *module_region);
+
 #endif /* _LIVEPATCH_BSC1250280_H */
