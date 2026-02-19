@@ -1,0 +1,2 @@
+vmlinux page_pool_put_unrefed_netmem klpp_page_pool_put_unrefed_netmem
+vmlinux page_pool_release klpp_page_pool_release
