@@ -1,0 +1,1 @@
+ath10k_core ath10k_htc_notify_tx_completion klpp_ath10k_htc_notify_tx_completion IS_ENABLED(CONFIG_ATH10K)
