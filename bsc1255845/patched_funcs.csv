@@ -1,0 +1,1 @@
+nvmet_tcp nvmet_tcp_try_recv_pdu klpp_nvmet_tcp_try_recv_pdu IS_ENABLED(CONFIG_NVME_TARGET_TCP)
