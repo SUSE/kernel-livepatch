@@ -1,0 +1,1 @@
+smc smc_create klpp_smc_create IS_ENABLED(CONFIG_SMC)
