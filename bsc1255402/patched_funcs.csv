@@ -1,0 +1,3 @@
+libceph __ceph_open_session klpp___ceph_open_session
+libceph monmap_show klpp_monmap_show
+libceph osdmap_show klpp_osdmap_show
