@@ -18,6 +18,7 @@
 # needssslcertforbuild
 
 %define variant @@VARIANT@@%{nil}
+%define with_klp_info 1
 
 Name:           kernel-livepatch-@@RELEASE@@
 Version:        10
@@ -74,6 +75,17 @@ make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules
 
 for module in $(find "obj/%flavor" -name '*.ko'); do
     /bin/sh %_sourcedir/lp-mod-checks.sh "$module"
+
+    # Generate klp info cache when supported.
+    touch info.list
+    if test -n "%{?klp_package_name}" ; then
+	MODNAME=$(/usr/sbin/modinfo -F name "$module")
+	MODSRCVERSION=$(/usr/sbin/modinfo -F srcversion "$module")
+	klp rpm_changes_to_klp_info %{_sourcedir}/%{name}.changes \
+	    %{klp_package_name}-%{version}-%{release}.%{_arch} \
+	    ${MODNAME}-${MODSRCVERSION}
+	echo "${MODNAME}-${MODSRCVERSION}" >>info.list
+    fi
 done
 
 %install
@@ -81,6 +93,11 @@ export INSTALL_MOD_DIR=livepatch
 export INSTALL_MOD_PATH=%buildroot
 
 make -C %{kernel_source %flavor} M="$PWD/obj/%flavor" modules_install
+
+# Install klp info cache when any.
+for info in $(cat info.list) ; do
+    install -D -m0644 "$info" %{buildroot}/%{_datadir}/livepatch/info/"$info"
+done
 
 %changelog
 
