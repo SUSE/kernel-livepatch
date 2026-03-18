@@ -1,0 +1,6 @@
+ip_vs __ip_vs_get_out_rt klpp___ip_vs_get_out_rt !IS_ENABLED(CONFIG_S390)
+ip_vs ip_vs_bypass_xmit klpp_ip_vs_bypass_xmit IS_ENABLED(CONFIG_S390)
+ip_vs ip_vs_dr_xmit klpp_ip_vs_dr_xmit IS_ENABLED(CONFIG_S390)
+ip_vs ip_vs_icmp_xmit klpp_ip_vs_icmp_xmit IS_ENABLED(CONFIG_S390)
+ip_vs ip_vs_nat_xmit klpp_ip_vs_nat_xmit IS_ENABLED(CONFIG_S390)
+ip_vs ip_vs_tunnel_xmit klpp_ip_vs_tunnel_xmit IS_ENABLED(CONFIG_S390)
