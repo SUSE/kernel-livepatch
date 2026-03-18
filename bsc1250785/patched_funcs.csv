@@ -1,0 +1,1 @@
+vmlinux acpi_ut_copy_iobject_to_iobject klpp_acpi_ut_copy_iobject_to_iobject IS_ENABLED(CONFIG_ACPI)
