@@ -1,0 +1,1 @@
+libata ata_pio_sector klpp_ata_pio_sector IS_ENABLED(CONFIG_ATA)
