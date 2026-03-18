@@ -1,0 +1,2 @@
+nvme nvme_probe klpp_nvme_probe
+nvme nvme_reset_work klpp_nvme_reset_work
