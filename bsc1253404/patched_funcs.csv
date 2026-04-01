@@ -1,0 +1,3 @@
+vmlinux xsk_tx_peek_release_desc_batch klpp_xsk_tx_peek_release_desc_batch
+vmlinux __xsk_generic_xmit klpp___xsk_generic_xmit
+vmlinux xsk_tx_peek_desc klpp_xsk_tx_peek_desc
