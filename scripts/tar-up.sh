@@ -117,6 +117,11 @@ if echo "$RELEASE" | \
   if [ ${cs[2]} = xempty ]; then
       # Variant being empty means the build is against the default kernel.
       excarch="$excarch ppc64le s390x"
+
+      # enable aarch64 on default kernel SLE16-SP1 onwards
+      if [ ${cs[0]} -ge 16 -a ${cs[1]} -ge 1 ]; then
+         excarch="$excarch aarch64"
+      fi
   else
       variant="$(echo "${cs[2]}" | tr '[:upper:]' '[:lower:]')"
   fi
