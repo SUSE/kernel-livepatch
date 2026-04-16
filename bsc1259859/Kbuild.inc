@@ -1,0 +1,10 @@
+CFLAGS_bsc1259859_security_apparmor_policy_unpack.o += -Werror
+CFLAGS_bsc1259859/bsc1259859_security_apparmor_policy_unpack.o += -Werror
+CFLAGS_bsc1259859_security_apparmor_policy.o += -Werror
+CFLAGS_bsc1259859/bsc1259859_security_apparmor_policy.o += -Werror
+CFLAGS_bsc1259859_security_apparmor_policy_ns.o += -Werror
+CFLAGS_bsc1259859/bsc1259859_security_apparmor_policy_ns.o += -Werror
+CFLAGS_bsc1259859_security_apparmor_apparmorfs.o += -Werror
+CFLAGS_bsc1259859/bsc1259859_security_apparmor_apparmorfs.o += -Werror
+CFLAGS_livepatch_bsc1259859.o += -Werror
+CFLAGS_bsc1259859/livepatch_bsc1259859.o += -Werror
