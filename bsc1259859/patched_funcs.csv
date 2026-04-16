@@ -1,0 +1,13 @@
+vmlinux aa_unpack klpp_aa_unpack
+vmlinux unpack_pdb klpp_unpack_pdb
+vmlinux __remove_profile klpp___remove_profile
+vmlinux aa_replace_profiles klpp_aa_replace_profiles
+vmlinux __aa_create_ns klpp___aa_create_ns
+vmlinux aa_dfa_match klpp_aa_dfa_match
+vmlinux aa_dfa_match_len klpp_aa_dfa_match_len
+vmlinux aa_dfa_unpack klpp_aa_dfa_unpack
+vmlinux ns_mkdir_op klpp_ns_mkdir_op
+vmlinux ns_rmdir_op klpp_ns_rmdir_op
+vmlinux profile_load klpp_profile_load
+vmlinux profile_remove klpp_profile_remove
+vmlinux profile_replace klpp_profile_replace
