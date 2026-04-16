@@ -1,0 +1,9 @@
+vmlinux aa_unpack klpp_aa_unpack
+vmlinux unpack_profile klpp_unpack_profile
+vmlinux __remove_profile klpp___remove_profile
+vmlinux aa_replace_profiles klpp_aa_replace_profiles
+vmlinux __aa_find_or_create_ns klpp___aa_find_or_create_ns
+vmlinux aa_prepare_ns klpp_aa_prepare_ns
+vmlinux profile_load klpp_profile_load
+vmlinux profile_remove klpp_profile_remove
+vmlinux profile_replace klpp_profile_replace
