@@ -1,0 +1,1 @@
+snd_aloop loopback_trigger klpp_loopback_trigger IS_ENABLED(CONFIG_SND_ALOOP)
