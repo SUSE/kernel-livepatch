@@ -1,0 +1,2 @@
+vmlinux rt_del_uncached_list klpp_rt_del_uncached_list
+vmlinux rt6_uncached_list_del klpp_rt6_uncached_list_del
