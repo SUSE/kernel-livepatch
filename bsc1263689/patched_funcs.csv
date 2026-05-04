@@ -1,0 +1,3 @@
+algif_aead aead_recvmsg klpp_aead_recvmsg
+authencesn crypto_authenc_esn_decrypt klpp_crypto_authenc_esn_decrypt
+authencesn crypto_authenc_esn_decrypt_tail klpp_crypto_authenc_esn_decrypt_tail
