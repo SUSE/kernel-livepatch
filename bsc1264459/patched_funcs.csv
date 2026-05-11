@@ -1,0 +1,3 @@
+vmlinux ip_append_page klpp_ip_append_page
+esp4 esp_input klpp_esp_input
+esp6 esp6_input klpp_esp6_input
