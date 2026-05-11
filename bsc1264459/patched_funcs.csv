@@ -1,0 +1,7 @@
+vmlinux ip6_append_data klpp_ip6_append_data
+vmlinux ip6_make_skb klpp_ip6_make_skb
+vmlinux ip_append_data klpp_ip_append_data
+vmlinux ip_make_skb klpp_ip_make_skb
+vmlinux ip_send_unicast_reply klpp_ip_send_unicast_reply
+esp4 esp_input klpp_esp_input
+esp6 esp6_input klpp_esp6_input
