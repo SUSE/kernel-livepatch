@@ -106,10 +106,10 @@
 #elif defined(CONFIG_ARM64)
 /* C.f. arch/arm64/include/asm/syscalls_wrapper.h */
 /* We start with 6.12 kernel version */
-#define KLP_SYSCALL_SYM(name) __arm64_sys ## name
+#define KLP_SYSCALL_SYM(name) __arm64_sys_ ## name
 
 #ifdef CONFIG_COMPAT
-#define KLP_COMPAT_SYSCALL_SYM(name) __arm64_compat_sys ## name
+#define KLP_COMPAT_SYSCALL_SYM(name) __arm64_compat_sys_ ## name
 #endif /* CONFIG_COMPAT */
 
 #define KLP_SYSCALL_DECLx(x, sym, ...)			\
