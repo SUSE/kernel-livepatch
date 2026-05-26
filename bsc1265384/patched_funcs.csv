@@ -1,0 +1,2 @@
+vmlinux do_exit klpp_do_exit
+vmlinux __ptrace_may_access klpp___ptrace_may_access
