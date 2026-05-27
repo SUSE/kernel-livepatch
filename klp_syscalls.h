@@ -103,6 +103,18 @@
 
 #endif /* LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0) */
 
+#elif defined(CONFIG_ARM64)
+/* C.f. arch/arm64/include/asm/syscalls_wrapper.h */
+/* We start with 6.12 kernel version */
+#define KLP_SYSCALL_SYM(name) __arm64_sys_ ## name
+
+#ifdef CONFIG_COMPAT
+#define KLP_COMPAT_SYSCALL_SYM(name) __arm64_compat_sys_ ## name
+#endif /* CONFIG_COMPAT */
+
+#define KLP_SYSCALL_DECLx(x, sym, ...)			\
+	asmlinkage long sym(const struct pt_regs *)
+
 #else
 #error "Architecture not supported."
 #endif
