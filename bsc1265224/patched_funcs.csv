@@ -1,0 +1,4 @@
+vmlinux skb_gro_receive klpp_skb_gro_receive
+vmlinux __pskb_copy_fclone klpp___pskb_copy_fclone
+vmlinux skb_shift klpp_skb_shift
+vmlinux skb_try_coalesce klpp_skb_try_coalesce
