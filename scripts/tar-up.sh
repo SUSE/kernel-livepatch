@@ -154,7 +154,7 @@ elif echo "$RELEASE" | \
     )
 
   if [ ${cs[0]} = xempty ]; then
-      excarch="$excarch ppc64le s390x"
+      excarch="$excarch aarch64 ppc64le s390x"
   else
       variant="$(echo "${cs[0]}" | tr '[:upper:]' '[:lower:]')"
   fi
