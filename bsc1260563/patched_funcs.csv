@@ -1,0 +1,2 @@
+vmwgfx vmw_translate_mob_ptr klpp_vmw_translate_mob_ptr IS_ENABLED(CONFIG_DRM_VMWGFX)
+vmwgfx vmw_translate_guest_ptr klpp_vmw_translate_guest_ptr IS_ENABLED(CONFIG_DRM_VMWGFX)
