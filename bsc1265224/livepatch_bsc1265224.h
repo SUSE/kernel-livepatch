@@ -2,6 +2,7 @@
 #define _LIVEPATCH_BSC1265224_H
 
 #include <linux/types.h>
+#include <linux/netdev_features.h>
 
 int livepatch_bsc1265224_init(void);
 static inline void livepatch_bsc1265224_cleanup(void) {}
@@ -13,4 +14,5 @@ bool klpp_skb_try_coalesce(struct sk_buff *to, struct sk_buff *from, bool *frags
 int klpp_skb_gro_receive(struct sk_buff *p, struct sk_buff *skb);
 int klpp_skb_shift(struct sk_buff *tgt, struct sk_buff *skb, int shiftlen);
 struct sk_buff *klpp___pskb_copy_fclone(struct sk_buff *skb, int headroom, gfp_t gfp_mask, bool fclone);
+struct sk_buff *klpp_skb_segment(struct sk_buff *skb, netdev_features_t features);
 #endif /* _LIVEPATCH_BSC1265224_H */
