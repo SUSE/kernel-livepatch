@@ -2,9 +2,11 @@
  * livepatch_bsc1258183
  *
  * Fix for CVE-2026-23111, bsc#1258183
+ * Fix for CVE-2026-23278, bsc#1260907
  *
  *  Copyright (c) 2026 SUSE
  *  Author: Lidong Zhong <lidong.zhong@suse.com>
+ *  Author: Ali Abdallah <ali.abdallah@suse.de>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
  *
@@ -30,12 +32,6 @@
 #include <linux/netlink.h>
 #include <linux/vmalloc.h>
 
-/* klp-ccp: from include/linux/rhashtable.h */
-#define _LINUX_RHASHTABLE_H
-
-/* klp-ccp: from include/linux/unaligned/packed_struct.h */
-#define _LINUX_UNALIGNED_PACKED_STRUCT_H
-
 /* klp-ccp: from net/netfilter/nf_tables_api.c */
 #include <linux/audit.h>
 #include <linux/netfilter.h>
@@ -48,11 +44,49 @@
 #include <net/net_namespace.h>
 #include <net/sock.h>
 
+extern int nft_mapelem_deactivate(const struct nft_ctx *ctx,
+				  struct nft_set *set,
+				  const struct nft_set_iter *iter,
+				  struct nft_set_elem *elem);
+
 struct nft_set_elem_catchall {
 	struct list_head	list;
 	struct rcu_head		rcu;
 	void			*elem;
 };
+
+static void nft_map_catchall_deactivate(const struct nft_ctx *ctx,
+					struct nft_set *set)
+{
+	u8 genmask = nft_genmask_next(ctx->net);
+	struct nft_set_elem_catchall *catchall;
+	struct nft_set_elem elem;
+	struct nft_set_ext *ext;
+
+	list_for_each_entry(catchall, &set->catchall_list, list) {
+		ext = nft_set_elem_ext(set, catchall->elem);
+		if (!nft_set_elem_active(ext, genmask))
+			continue;
+
+		nft_set_elem_change_active(ctx->net, set, ext);
+		elem.priv = catchall->elem;
+		nft_setelem_data_deactivate(ctx->net, set, &elem);
+	}
+}
+
+void klpp_nft_map_deactivate(const struct nft_ctx *ctx, struct nft_set *set)
+{
+	struct nft_set_iter iter = {
+		.genmask	= nft_genmask_next(ctx->net),
+		.type		= NFT_ITER_UPDATE,
+		.fn		= nft_mapelem_deactivate,
+	};
+
+	set->ops->walk(ctx, set, &iter);
+	WARN_ON_ONCE(iter.err);
+
+	nft_map_catchall_deactivate(ctx, set);
+}
 
 static void nft_setelem_data_activate(const struct net *net,
 				      const struct nft_set *set,
@@ -63,7 +97,7 @@ extern int nft_mapelem_activate(const struct nft_ctx *ctx,
 				const struct nft_set_iter *iter,
 				struct nft_set_elem *elem);
 
-static void klpp_nft_map_catchall_activate(const struct nft_ctx *ctx,
+static void nft_map_catchall_activate(const struct nft_ctx *ctx,
 				      struct nft_set *set)
 {
 	u8 genmask = nft_genmask_next(ctx->net);
@@ -79,7 +113,6 @@ static void klpp_nft_map_catchall_activate(const struct nft_ctx *ctx,
 		nft_clear(ctx->net, ext);
 		elem.priv = catchall->elem;
 		nft_setelem_data_activate(ctx->net, set, &elem);
-		break;
 	}
 }
 
@@ -94,7 +127,7 @@ void klpp_nft_map_activate(const struct nft_ctx *ctx, struct nft_set *set)
 	set->ops->walk(ctx, set, &iter);
 	WARN_ON_ONCE(iter.err);
 
-	klpp_nft_map_catchall_activate(ctx, set);
+	nft_map_catchall_activate(ctx, set);
 }
 
 void nft_data_hold(const struct nft_data *data, enum nft_data_types type);
@@ -111,6 +144,10 @@ static void nft_setelem_data_activate(const struct net *net,
 		nft_use_inc_restore(&(*nft_set_ext_obj(ext))->use);
 }
 
+void nft_setelem_data_deactivate(const struct net *net,
+				 const struct nft_set *set,
+				 struct nft_set_elem *elem);
+
 
 #include "livepatch_bsc1258183.h"
 
@@ -120,3 +157,7 @@ extern typeof(nft_data_hold) nft_data_hold
 	 KLP_RELOC_SYMBOL(nf_tables, nf_tables, nft_data_hold);
 extern typeof(nft_mapelem_activate) nft_mapelem_activate
 	 KLP_RELOC_SYMBOL(nf_tables, nf_tables, nft_mapelem_activate);
+extern typeof(nft_mapelem_deactivate) nft_mapelem_deactivate
+	 KLP_RELOC_SYMBOL(nf_tables, nf_tables, nft_mapelem_deactivate);
+extern typeof(nft_setelem_data_deactivate) nft_setelem_data_deactivate
+	 KLP_RELOC_SYMBOL(nf_tables, nf_tables, nft_setelem_data_deactivate);
