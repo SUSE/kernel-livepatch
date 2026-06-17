@@ -1,0 +1,6 @@
+vmlinux __pskb_copy_fclone klpp___pskb_copy_fclone
+vmlinux skb_segment klpp_skb_segment
+vmlinux skb_shift klpp_skb_shift
+vmlinux skb_try_coalesce klpp_skb_try_coalesce
+vmlinux skb_gro_receive klpp_skb_gro_receive
+vmlinux udp_gro_receive klpp_udp_gro_receive
