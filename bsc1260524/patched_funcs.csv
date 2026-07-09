@@ -1,0 +1,4 @@
+bridge br_cfm_cc_peer_mep_add klpp_br_cfm_cc_peer_mep_add
+bridge br_cfm_cc_peer_mep_remove klpp_br_cfm_cc_peer_mep_remove
+bridge ccm_rx_timer_start klpp_ccm_rx_timer_start
+bridge mep_delete_implementation klpp_mep_delete_implementation
