@@ -1,0 +1,1 @@
+can_gw cgw_csum_crc8_rel klpp_cgw_csum_crc8_rel IS_ENABLED(CONFIG_CAN_GW)
