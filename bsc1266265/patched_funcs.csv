@@ -1,0 +1,2 @@
+vmlinux key_alloc klpp_key_alloc
+cifs cifs_spnego_key_destroy klpp_cifs_spnego_key_destroy
