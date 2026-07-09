@@ -1,0 +1,2 @@
+vmlinux ip6_append_data klpp_ip6_append_data
+vmlinux ip6_make_skb klpp_ip6_make_skb
