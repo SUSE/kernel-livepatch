@@ -1,0 +1,1 @@
+snd_pcm snd_pcm_drain klpp_snd_pcm_drain IS_ENABLED(CONFIG_SND_PCM)
