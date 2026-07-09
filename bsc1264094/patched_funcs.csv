@@ -1,0 +1,1 @@
+usbtmc usbtmc_release klpp_usbtmc_release IS_ENABLED(CONFIG_USB_TMC)
