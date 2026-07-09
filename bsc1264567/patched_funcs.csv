@@ -1,0 +1,1 @@
+irdma irdma_rereg_user_mr klpp_irdma_rereg_user_mr IS_ENABLED(CONFIG_INFINIBAND_IRDMA)
