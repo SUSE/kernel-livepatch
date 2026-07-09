@@ -1,0 +1,3 @@
+iavf iavf_get_ethtool_stats klpp_iavf_get_ethtool_stats IS_ENABLED(CONFIG_IAVF)
+iavf iavf_get_sset_count klpp_iavf_get_sset_count IS_ENABLED(CONFIG_IAVF)
+iavf iavf_get_strings klpp_iavf_get_strings IS_ENABLED(CONFIG_IAVF)
