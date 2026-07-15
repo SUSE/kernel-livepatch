@@ -1,0 +1,4 @@
+kvm __direct_map klpp___direct_map IS_ENABLED(CONFIG_X86)
+kvm ept_fetch klpp_ept_fetch IS_ENABLED(CONFIG_X86)
+kvm paging32_fetch klpp_paging32_fetch IS_ENABLED(CONFIG_X86)
+kvm paging64_fetch klpp_paging64_fetch IS_ENABLED(CONFIG_X86)
