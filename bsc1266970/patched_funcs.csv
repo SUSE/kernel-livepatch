@@ -1,0 +1,5 @@
+kvm __link_shadow_page klpp___link_shadow_page IS_ENABLED(CONFIG_X86)
+kvm direct_page_fault klpp_direct_page_fault IS_ENABLED(CONFIG_X86)
+kvm ept_page_fault klpp_ept_page_fault IS_ENABLED(CONFIG_X86)
+kvm paging32_page_fault klpp_paging32_page_fault IS_ENABLED(CONFIG_X86)
+kvm paging64_page_fault klpp_paging64_page_fault IS_ENABLED(CONFIG_X86)
