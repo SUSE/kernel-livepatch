@@ -1,0 +1,1 @@
+kvm kvm_mmu_get_child_sp klpp_kvm_mmu_get_child_sp IS_ENABLED(CONFIG_X86)
