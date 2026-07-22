@@ -546,7 +546,7 @@ int klpp___direct_map(struct kvm_vcpu *vcpu, gpa_t gpa, int write,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != base_gfn) {
+			if (!child || child->gfn != base_gfn || child->role.direct != true) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -725,7 +725,7 @@ static int klpp_ept_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != gw->table_gfn[it.level - 2]) {
+			if (!child || child->gfn != gw->table_gfn[it.level - 2] || child->role.direct != false) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -783,7 +783,7 @@ static int klpp_ept_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != base_gfn) {
+			if (!child || child->gfn != base_gfn || child->role.direct != true) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -1055,7 +1055,7 @@ static int klpp_paging64_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != gw->table_gfn[it.level - 2]) {
+			if (!child || child->gfn != gw->table_gfn[it.level - 2] || child->role.direct != false) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -1113,7 +1113,7 @@ static int klpp_paging64_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != base_gfn) {
+			if (!child || child->gfn != base_gfn || child->role.direct != true) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -1400,7 +1400,7 @@ static int klpp_paging32_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != gw->table_gfn[it.level - 2]) {
+			if (!child || child->gfn != gw->table_gfn[it.level - 2] || child->role.direct != false) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
@@ -1458,7 +1458,7 @@ static int klpp_paging32_fetch(struct kvm_vcpu *vcpu, gva_t addr,
 			struct kvm_mmu_page *child = page_header(*it.sptep & PT64_BASE_ADDR_MASK);
 			struct kvm_mmu_page *parent_sp;
 
-			if (!child || child->gfn != base_gfn) {
+			if (!child || child->gfn != base_gfn || child->role.direct != true) {
 				parent_sp = page_header(__pa(it.sptep));
 				WARN_ON_ONCE(parent_sp->role.level == PT_PAGE_TABLE_LEVEL);
 
