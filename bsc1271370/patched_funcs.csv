@@ -1,0 +1,3 @@
+vmlinux ip_append_data klpp_ip_append_data
+vmlinux ip_make_skb klpp_ip_make_skb
+vmlinux ip_send_unicast_reply klpp_ip_send_unicast_reply
