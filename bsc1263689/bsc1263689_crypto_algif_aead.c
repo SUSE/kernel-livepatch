@@ -2,6 +2,7 @@
  * livepatch_bsc1263689
  *
  * Fix for CVE-2026-31431, bsc#1263689
+ * Fix for CVE-2026-43077, bsc#1265306
  *
  *  Copyright (c) 2026 SUSE
  *  Author: Fernando Gonzalez <fernando.gonzalez@suse.com>
@@ -272,7 +273,7 @@ static int klpp__aead_recvmsg(struct socket *sock, struct msghdr *msg,
 	if (usedpages < outlen) {
 		size_t less = outlen - usedpages;
 
-		if (used < less) {
+		if (used < less + (ctx->enc ? 0 : as)) {
 			err = -EINVAL;
 			goto free;
 		}
