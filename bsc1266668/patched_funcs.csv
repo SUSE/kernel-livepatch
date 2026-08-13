@@ -1,0 +1,1 @@
+amdkfd kfd_event_page_set klpp_kfd_event_page_set IS_ENABLED(CONFIG_DRM_AMDGPU)
