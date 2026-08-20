@@ -137,6 +137,8 @@ int tls_tx_records(struct sock *sk, int flags);
 
 int tls_strp_init(struct tls_strparser *strp, struct sock *sk);
 
+void klpp_tls_sw_write_space(struct sock *sk, struct tls_context *ctx);
+
 /* klp-ccp: from net/tls/tls_sw.c */
 noinline void tls_err_abort(struct sock *sk, int err);
 
@@ -302,6 +304,29 @@ static struct tls_sw_context_rx *init_ctx_rx(struct tls_context *ctx)
 int init_prot_info(struct tls_prot_info *prot,
 		   const struct tls_crypto_info *crypto_info,
 		   const struct tls_cipher_desc *cipher_desc);
+
+static bool tls_is_tx_ready(struct tls_sw_context_tx *ctx)
+{
+	struct tls_rec *rec;
+
+	rec = list_first_entry_or_null(&ctx->tx_list, struct tls_rec, list);
+	if (!rec)
+		return false;
+
+	return READ_ONCE(rec->tx_ready);
+}
+
+void klpp_tls_sw_write_space(struct sock *sk, struct tls_context *ctx)
+{
+	struct tls_sw_context_tx *tx_ctx = tls_sw_ctx_tx(ctx);
+
+	/* Schedule the transmission if tx list is ready */
+	if (tls_is_tx_ready(tx_ctx) &&
+	    !test_and_set_bit(BIT_TX_SCHEDULED, &tx_ctx->tx_bitmask) &&
+	    !test_bit(BIT_DISABLED_CVE_2026_23240, &tx_ctx->tx_bitmask))
+	    /*!tx_ctx->tx_work.disabled) */
+		schedule_delayed_work(&tx_ctx->tx_work.work, 0);
+}
 
 int klpp_tls_set_sw_offload(struct sock *sk, int tx)
 {
