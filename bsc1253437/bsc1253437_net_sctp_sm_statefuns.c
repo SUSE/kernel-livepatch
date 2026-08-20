@@ -2,8 +2,11 @@
  * bsc1253437_net_sctp_sm_statefuns
  *
  * Fix for CVE-2025-40204, bsc#1253437
+ * Fix for CVE-2026-53224, bsc#1270023
+ * Fix for CVE-2026-53246, bsc#1270024
  *
  *  Copyright (c) 2026 SUSE
+ *  Author: Ali Abdallah <ali.abdallah@suse.de>
  *  Author: Vincenzo Mezzela <vincenzo.mezzela@suse.com>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
@@ -22,6 +25,9 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+
+#include "livepatch_bsc1253437.h"
+
 #include <crypto/utils.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -36,6 +42,11 @@
 #include <net/sctp/sctp.h>
 #include <net/sctp/sm.h>
 #include <net/sctp/structs.h>
+
+/* klp-ccp: from net/sctp/sm_statefuns.c */
+enum sctp_ierror klpp_sctp_sf_authenticate(
+					const struct sctp_association *asoc,
+					struct sctp_chunk *chunk);
 
 enum sctp_ierror klpp_sctp_sf_authenticate(
 					const struct sctp_association *asoc,
@@ -112,8 +123,6 @@ nomem:
 	return SCTP_IERROR_NOMEM;
 }
 
-
-#include "livepatch_bsc1253437.h"
 
 #include <linux/livepatch.h>
 
