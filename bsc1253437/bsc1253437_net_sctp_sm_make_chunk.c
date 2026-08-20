@@ -2,8 +2,11 @@
  * bsc1253437_net_sctp_sm_make_chunk
  *
  * Fix for CVE-2025-40204, bsc#1253437
+ * Fix for CVE-2026-53224, bsc#1270023
+ * Fix for CVE-2026-53246, bsc#1270024
  *
  *  Copyright (c) 2026 SUSE
+ *  Author: Ali Abdallah <ali.abdallah@suse.de>
  *  Author: Vincenzo Mezzela <vincenzo.mezzela@suse.com>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
@@ -23,9 +26,7 @@
  */
 
 
-
-/* klp-ccp: from net/sctp/sm_make_chunk.c */
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+#include "livepatch_bsc1253437.h"
 
 #include <crypto/hash.h>
 #include <crypto/utils.h>
@@ -38,15 +39,11 @@
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
 #include <net/sock.h>
+
 #include <linux/skbuff.h>
 #include <linux/random.h>	/* for get_random_bytes */
 #include <net/sctp/sctp.h>
 #include <net/sctp/sm.h>
-
-/* klp-ccp: not from file */
-#undef __sctp_sm_h__
-/* klp-ccp: from include/net/sctp/sm.h */
-#ifndef __sctp_sm_h__
 
 struct sctp_association *klpp_sctp_unpack_cookie(
 					const struct sctp_endpoint *ep,
@@ -54,10 +51,6 @@ struct sctp_association *klpp_sctp_unpack_cookie(
 					struct sctp_chunk *chunk,
 					gfp_t gfp, int *err,
 					struct sctp_chunk **err_chk_p);
-
-#else
-#error "klp-ccp: a preceeding branch should have been taken"
-#endif /* __sctp_sm_h__ */
 
 /* klp-ccp: from net/sctp/sm_make_chunk.c */
 struct sctp_chunk *sctp_make_op_error(const struct sctp_association *asoc,
@@ -79,8 +72,9 @@ struct sctp_association *klpp_sctp_unpack_cookie(
 	struct sk_buff *skb = chunk->skb;
 	struct sctp_cookie *bear_cookie;
 	__u8 *digest = ep->digest;
+	struct sctp_chunkhdr *ch;
+	unsigned int len, chlen;
 	enum sctp_scope scope;
-	unsigned int len;
 	ktime_t kt;
 
 	/* Header size is static data prior to the actual cookie, including
@@ -107,6 +101,15 @@ struct sctp_association *klpp_sctp_unpack_cookie(
 	/* Process the cookie.  */
 	cookie = chunk->subh.cookie_hdr;
 	bear_cookie = &cookie->c;
+
+	ch = (struct sctp_chunkhdr *)(bear_cookie + 1);
+	chlen = ntohs(ch->length);
+	if (chlen < sizeof(struct sctp_init_chunk))
+		goto malformed;
+	if (chlen > len - fixed_size)
+		goto malformed;
+	if (bear_cookie->raw_addr_list_len > len - fixed_size - chlen)
+		goto malformed;
 
 	if (!sctp_sk(ep->base.sk)->hmac)
 		goto no_hmac;
@@ -238,8 +241,6 @@ malformed:
 	goto fail;
 }
 
-
-#include "livepatch_bsc1253437.h"
 
 #include <linux/livepatch.h>
 
