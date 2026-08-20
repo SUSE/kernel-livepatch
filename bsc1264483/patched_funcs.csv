@@ -1,0 +1,1 @@
+brcmfmac brcmf_fweh_event_worker klpp_brcmf_fweh_event_worker IS_ENABLED(CONFIG_BRCMFMAC)
