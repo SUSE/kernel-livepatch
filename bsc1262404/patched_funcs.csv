@@ -1,4 +1,5 @@
 tls tls_encrypt_done klpp_tls_encrypt_done
 tls tls_set_sw_offload klpp_tls_set_sw_offload
 tls tls_sw_cancel_work_tx klpp_tls_sw_cancel_work_tx
+tls tls_sw_write_space klpp_tls_sw_write_space
 tls tx_work_handler klpp_tx_work_handler
