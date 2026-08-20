@@ -1,0 +1,2 @@
+sctp sctp_unpack_cookie klpp_sctp_unpack_cookie
+sctp sctp_raw_to_bind_addrs klpp_sctp_raw_to_bind_addrs
