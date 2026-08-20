@@ -4,7 +4,7 @@
  * Fix for CVE-2025-40204, bsc#1253437
  *
  *  Copyright (c) 2026 SUSE
- *  Author: Vincenzo Mezzela <vincenzo.mezzela@suse.com>
+ *  Author: Ali Abdallah <ali.abdallah@suse.de>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
  *
@@ -29,21 +29,25 @@ int livepatch_bsc1253437_init(void)
 
 	int ret;
 
+	ret = bsc1253437_net_sctp_bind_addr_init();
+	if (ret)
+		return ret;
+
 	ret = bsc1253437_net_sctp_sm_make_chunk_init();
 	if (ret)
 		return ret;
 
 	ret = bsc1253437_net_sctp_sm_statefuns_init();
-	if (ret) {
-		bsc1253437_net_sctp_sm_make_chunk_cleanup();
+	if (ret)
 		return ret;
-	}
 
 	return 0;
 }
 
 void livepatch_bsc1253437_cleanup(void)
 {
+	bsc1253437_net_sctp_bind_addr_cleanup();
+
 	bsc1253437_net_sctp_sm_make_chunk_cleanup();
 
 	bsc1253437_net_sctp_sm_statefuns_cleanup();
