@@ -1,0 +1,1 @@
+vmlinux restore_signal_shadow_stack klpp_restore_signal_shadow_stack IS_ENABLED(CONFIG_X86_USER_SHADOW_STACK)
