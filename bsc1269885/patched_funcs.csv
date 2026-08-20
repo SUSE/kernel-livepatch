@@ -1,0 +1,1 @@
+cfg80211 nl80211_parse_beacon klpp_nl80211_parse_beacon IS_ENABLED(CONFIG_CFG80211)
