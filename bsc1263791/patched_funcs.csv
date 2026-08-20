@@ -1,0 +1,1 @@
+nfc nfc_llcp_rx_skb klpp_nfc_llcp_rx_skb IS_ENABLED(CONFIG_NFC)
