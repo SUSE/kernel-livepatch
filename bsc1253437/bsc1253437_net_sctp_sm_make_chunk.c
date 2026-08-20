@@ -2,8 +2,11 @@
  * bsc1253437_net_sctp_sm_make_chunk
  *
  * Fix for CVE-2025-40204, bsc#1253437
+ * Fix for CVE-2026-53224, bsc#1270023
+ * Fix for CVE-2026-53246, bsc#1270024
  *
  *  Copyright (c) 2026 SUSE
+ *  Author: Ali Abdallah <ali.abdallah@suse.de>
  *  Author: Vincenzo Mezzela <vincenzo.mezzela@suse.com>
  *
  *  Based on the original Linux kernel code. Other copyrights apply.
@@ -23,11 +26,7 @@
  */
 
 
-
-#define RETPOLINE 1
-#define CC_HAVE_ASM_GOTO 1
-/* klp-ccp: from net/sctp/sm_make_chunk.c */
-#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+#include "livepatch_bsc1253437.h"
 
 #include <crypto/hash.h>
 #include <crypto/algapi.h>
@@ -40,6 +39,7 @@
 #include <linux/scatterlist.h>
 #include <linux/slab.h>
 #include <net/sock.h>
+
 #include <linux/skbuff.h>
 #include <linux/random.h>	/* for get_random_bytes */
 #include <net/sctp/sctp.h>
@@ -66,11 +66,6 @@ static int (*klpe_sctp_assoc_set_bind_addr_from_cookie)(struct sctp_association 
 /* klp-ccp: from net/sctp/sm_make_chunk.c */
 #include <net/sctp/sm.h>
 
-/* klp-ccp: not from file */
-#undef __sctp_sm_h__
-/* klp-ccp: from include/net/sctp/sm.h */
-#ifndef __sctp_sm_h__
-
 static void (*klpe_sctp_init_cause)(struct sctp_chunk *, __be16 cause, size_t);
 
 struct sctp_association *klpp_sctp_unpack_cookie(const struct sctp_endpoint *,
@@ -78,10 +73,6 @@ struct sctp_association *klpp_sctp_unpack_cookie(const struct sctp_endpoint *,
 				       struct sctp_chunk *,
 				       gfp_t gfp, int *err,
 				       struct sctp_chunk **err_chk_p);
-
-#else
-#error "klp-ccp: a preceeding branch should have been taken"
-#endif /* __sctp_sm_h__ */
 
 /* klp-ccp: from net/sctp/sm_make_chunk.c */
 static struct sctp_chunk *(*klpe_sctp_make_op_error_space)(
@@ -99,7 +90,8 @@ struct sctp_association *klpp_sctp_unpack_cookie(
 	struct sctp_cookie *bear_cookie;
 	int headersize, bodysize, fixed_size;
 	__u8 *digest = ep->digest;
-	unsigned int len;
+	struct sctp_chunkhdr *ch;
+	unsigned int len, chlen;
 	sctp_scope_t scope;
 	struct sk_buff *skb = chunk->skb;
 	ktime_t kt;
@@ -128,6 +120,15 @@ struct sctp_association *klpp_sctp_unpack_cookie(
 	/* Process the cookie.  */
 	cookie = chunk->subh.cookie_hdr;
 	bear_cookie = &cookie->c;
+
+	ch = (struct sctp_chunkhdr *)&bear_cookie->peer_init[0];
+	chlen = ntohs(ch->length);
+	if (chlen < sizeof(struct sctp_init_chunk))
+		goto malformed;
+	if (chlen > len - fixed_size)
+		goto malformed;
+	if (bear_cookie->raw_addr_list_len > len - fixed_size - chlen)
+		goto malformed;
 
 	if (!sctp_sk(ep->base.sk)->hmac)
 		goto no_hmac;
@@ -266,8 +267,6 @@ malformed:
 	goto fail;
 }
 
-
-#include "livepatch_bsc1253437.h"
 
 #include <linux/kernel.h>
 #include <linux/module.h>
