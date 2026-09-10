@@ -1,0 +1,2 @@
+vmlinux qdisc_get_rtab klpp_qdisc_get_rtab
+vmlinux qdisc_put_rtab klpp_qdisc_put_rtab
