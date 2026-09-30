@@ -1,0 +1,1 @@
+snd_seq snd_seq_timer_delete klpp_snd_seq_timer_delete IS_ENABLED(CONFIG_SND_SEQUENCER)
