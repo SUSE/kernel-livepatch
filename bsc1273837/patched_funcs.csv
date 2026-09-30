@@ -1,0 +1,3 @@
+ifb ifb_get_ethtool_stats klpp_ifb_get_ethtool_stats
+ifb ifb_get_sset_count klpp_ifb_get_sset_count
+ifb ifb_get_strings klpp_ifb_get_strings
