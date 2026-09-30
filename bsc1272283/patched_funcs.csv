@@ -1,0 +1,2 @@
+vmlinux __blkg_release klpp___blkg_release
+vmlinux blkg_release klpp_blkg_release
