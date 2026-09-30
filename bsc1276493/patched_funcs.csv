@@ -1,0 +1,1 @@
+nfc llcp_sock_release klpp_llcp_sock_release IS_ENABLED(CONFIG_NFC)
