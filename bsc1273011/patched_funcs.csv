@@ -1,0 +1,3 @@
+ip6_vti vti6_changelink klpp_vti6_changelink
+ip6_vti vti6_siocdevprivate klpp_vti6_siocdevprivate
+ip6_vti vti6_update klpp_vti6_update
