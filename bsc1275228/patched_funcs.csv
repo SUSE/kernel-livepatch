@@ -1,0 +1,1 @@
+pppoe pppoe_sendmsg klpp_pppoe_sendmsg IS_ENABLED(CONFIG_PPPOE)
