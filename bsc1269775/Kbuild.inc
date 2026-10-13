@@ -1,0 +1,14 @@
+CFLAGS_bsc1269775_net_ipv4_netfilter_nf_log_ipv4.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_ipv4_netfilter_nf_log_ipv4.o += -Werror
+CFLAGS_bsc1269775_net_ipv6_netfilter_ip6t_eui64.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_ipv6_netfilter_ip6t_eui64.o += -Werror
+CFLAGS_bsc1269775_net_netfilter_ipset_ip_set_bitmap_ipmac.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_netfilter_ipset_ip_set_bitmap_ipmac.o += -Werror
+CFLAGS_bsc1269775_net_netfilter_ipset_ip_set_hash_ipmac.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_netfilter_ipset_ip_set_hash_ipmac.o += -Werror
+CFLAGS_bsc1269775_net_netfilter_ipset_ip_set_hash_mac.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_netfilter_ipset_ip_set_hash_mac.o += -Werror
+CFLAGS_bsc1269775_net_netfilter_xt_mac.o += -Werror
+CFLAGS_bsc1269775/bsc1269775_net_netfilter_xt_mac.o += -Werror
+CFLAGS_livepatch_bsc1269775.o += -Werror
+CFLAGS_bsc1269775/livepatch_bsc1269775.o += -Werror
