@@ -1,0 +1,1 @@
+kvm_amd sev_dbg_crypt klpp_sev_dbg_crypt IS_ENABLED(CONFIG_KVM_AMD)
