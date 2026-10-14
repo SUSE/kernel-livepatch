@@ -1,0 +1,6 @@
+nf_log_ipv4 nf_log_ip_packet klpp_nf_log_ip_packet
+ip_set_bitmap_ipmac bitmap_ipmac_kadt klpp_bitmap_ipmac_kadt
+ip_set_hash_ipmac hash_ipmac4_kadt klpp_hash_ipmac4_kadt
+ip_set_hash_ipmac hash_ipmac6_kadt klpp_hash_ipmac6_kadt
+ip_set_hash_mac hash_mac4_kadt klpp_hash_mac4_kadt
+xt_mac mac_mt klpp_mac_mt
