@@ -1,0 +1,1 @@
+kvm_amd setup_vmgexit_scratch klpp_setup_vmgexit_scratch IS_ENABLED(CONFIG_KVM_AMD_SEV)
