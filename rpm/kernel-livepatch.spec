@@ -21,7 +21,7 @@
 %define with_klp_info 1
 
 Name:           kernel-livepatch-@@RELEASE@@
-Version:        8
+Version:        9
 Release:        1
 %define module_num %(echo %version-%release | sed 'y/\./_/')
 License:        GPL-2.0
