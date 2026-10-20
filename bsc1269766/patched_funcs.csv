@@ -1,0 +1,2 @@
+ccp_crypto ccp_aes_rfc3686_complete klpp_ccp_aes_rfc3686_complete IS_ENABLED(CONFIG_CRYPTO_DEV_CCP_CRYPTO)
+ccp_crypto ccp_aes_complete klpp_ccp_aes_complete IS_ENABLED(CONFIG_CRYPTO_DEV_CCP_CRYPTO)
