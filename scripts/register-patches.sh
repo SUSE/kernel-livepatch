@@ -46,7 +46,6 @@ livepatch_spec_file="$2"
 
 # Generate list of patches
 declare -a livepatches
-declare -a patched_funcs
 for d in *; do
 	[ -d "$d" ] || continue
 	[ x"$d" = xrpm -o x"$d" = xscripts -o x"$d" = xuname_patch ] && continue
@@ -63,7 +62,6 @@ for d in *; do
 	fi
 
 	livepatches[${#livepatches[@]}]=$(basename $d)
-	patched_funcs[${#patched_funcs[@]}]=$(basename $d)/patched_funcs.csv
 done
 
 # Sort it
@@ -83,8 +81,8 @@ KLP_PATCHES_INCLUDES=$(
 
 ## Add the individual patches' replacement entries to struct livepatch.
 objs=
-if [ ${#patched_funcs[@]} -gt 0 ]; then
-    objs=$(sed 's/[[:blank:]].*//' "${patched_funcs[@]}" | \
+if [ ${#livepatches[@]} -gt 0 ]; then
+    objs=$(sed 's/[[:blank:]].*//' "${livepatches[@]/%//patched_funcs.csv}" | \
 	       grep -v '^$' | \
 	       grep -v vmlinux | sort | uniq)
 fi
@@ -99,7 +97,7 @@ KLP_PATCHES_OBJS=$(
 	    o_conds=()
 	    any_unconds=no
 	    if [ x"$o" != xvmlinux ]; then
-		for pf in "${patched_funcs[@]}"; do
+		for pf in "${livepatches[@]/%//patched_funcs.csv}"; do
 		    while read _o oldfun newfun cond; do
 			if [ -z "$_o" ]; then
 			    continue
@@ -173,7 +171,7 @@ KLP_PATCHES_OBJS=$(
 	    fi
 
 	    last_cond=
-	    for pf in "${patched_funcs[@]}"; do
+	    for pf in "${livepatches[@]/%//patched_funcs.csv}"; do
 		while read _o oldfun newfun cond; do
 		    if [ -z "$_o" ]; then
 			continue
