@@ -79,6 +79,20 @@ KLP_PATCHES_INCLUDES=$(
 		echo -n "#include \"${p}/livepatch_${p}.h\"\n"
 	done)
 
+KLP_PATCHED_FUNC_DECLS=$(
+	echo -n "/* Auto expanded KLP_PATCHED_FUNC_DECLS: */\n"
+	for p in "${livepatches[@]}"; do
+	    if [ ! -e "${p}/gen-patched-funcs-decls" ]; then
+		continue
+	    fi
+	    while read _o _oldfun newfun _cond; do
+		if [ -z "$_o" ]; then
+		    continue
+		fi
+		echo -n "extern char ${newfun}[];\n"
+	    done < "${p}/patched_funcs.csv"
+	done)
+
 ## Add the individual patches' replacement entries to struct livepatch.
 objs=
 if [ ${#livepatches[@]} -gt 0 ]; then
@@ -265,6 +279,7 @@ KLP_PATCHES_CLEANUP_CALLS=$(
 
 sed -i -f - "$livepatch_main_file" <<EOF
 s%@@KLP_PATCHES_INCLUDES@@%$KLP_PATCHES_INCLUDES%;
+s%@@KLP_PATCHED_FUNC_DECLS@@%$KLP_PATCHED_FUNC_DECLS%;
 s%\s*@@KLP_PATCHES_OBJS@@,\?%$KLP_PATCHES_OBJS%;
 s%\s*@@KLP_PATCHES_INIT_CALLS@@;\?%$KLP_PATCHES_INIT_CALLS%;
 s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@;\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
