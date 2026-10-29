@@ -46,7 +46,6 @@ livepatch_spec_file="$2"
 
 # Generate list of patches
 declare -a livepatches
-declare -a patched_funcs
 for d in *; do
 	[ -d "$d" ] || continue
 	[ x"$d" = xrpm -o x"$d" = xscripts -o x"$d" = xuname_patch ] && continue
@@ -63,7 +62,6 @@ for d in *; do
 	fi
 
 	livepatches[${#livepatches[@]}]=$(basename $d)
-	patched_funcs[${#patched_funcs[@]}]=$(basename $d)/patched_funcs.csv
 done
 
 # Sort it
@@ -81,10 +79,24 @@ KLP_PATCHES_INCLUDES=$(
 		echo -n "#include \"${p}/livepatch_${p}.h\"\n"
 	done)
 
+KLP_PATCHED_FUNC_DECLS=$(
+	echo -n "/* Auto expanded KLP_PATCHED_FUNC_DECLS: */\n"
+	for p in "${livepatches[@]}"; do
+	    if [ ! -e "${p}/gen-patched-funcs-decls" ]; then
+		continue
+	    fi
+	    while read _o _oldfun newfun _cond; do
+		if [ -z "$_o" ]; then
+		    continue
+		fi
+		echo -n "extern char ${newfun}[];\n"
+	    done < "${p}/patched_funcs.csv"
+	done)
+
 ## Add the individual patches' replacement entries to struct livepatch.
 objs=
-if [ ${#patched_funcs[@]} -gt 0 ]; then
-    objs=$(sed 's/[[:blank:]].*//' "${patched_funcs[@]}" | \
+if [ ${#livepatches[@]} -gt 0 ]; then
+    objs=$(sed 's/[[:blank:]].*//' "${livepatches[@]/%//patched_funcs.csv}" | \
 	       grep -v '^$' | \
 	       grep -v vmlinux | sort | uniq)
 fi
@@ -99,7 +111,7 @@ KLP_PATCHES_OBJS=$(
 	    o_conds=()
 	    any_unconds=no
 	    if [ x"$o" != xvmlinux ]; then
-		for pf in "${patched_funcs[@]}"; do
+		for pf in "${livepatches[@]/%//patched_funcs.csv}"; do
 		    while read _o oldfun newfun cond; do
 			if [ -z "$_o" ]; then
 			    continue
@@ -173,7 +185,7 @@ KLP_PATCHES_OBJS=$(
 	    fi
 
 	    last_cond=
-	    for pf in "${patched_funcs[@]}"; do
+	    for pf in "${livepatches[@]/%//patched_funcs.csv}"; do
 		while read _o oldfun newfun cond; do
 		    if [ -z "$_o" ]; then
 			continue
@@ -267,6 +279,7 @@ KLP_PATCHES_CLEANUP_CALLS=$(
 
 sed -i -f - "$livepatch_main_file" <<EOF
 s%@@KLP_PATCHES_INCLUDES@@%$KLP_PATCHES_INCLUDES%;
+s%@@KLP_PATCHED_FUNC_DECLS@@%$KLP_PATCHED_FUNC_DECLS%;
 s%\s*@@KLP_PATCHES_OBJS@@,\?%$KLP_PATCHES_OBJS%;
 s%\s*@@KLP_PATCHES_INIT_CALLS@@;\?%$KLP_PATCHES_INIT_CALLS%;
 s%\s*@@KLP_PATCHES_INIT_ERR_HANDLERS@@;\?%$KLP_PATCHES_INIT_ERR_HANDLERS%;
