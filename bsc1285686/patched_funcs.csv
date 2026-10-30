@@ -1,0 +1,2 @@
+vmlinux inet_sock_destruct klpp_inet_sock_destruct
+vmlinux tcp_v4_reqsk_destructor klpp_tcp_v4_reqsk_destructor
