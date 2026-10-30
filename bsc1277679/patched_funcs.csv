@@ -1,0 +1,2 @@
+snd_sof _sof_ipc3_bytes_ext_get klpp__sof_ipc3_bytes_ext_get IS_ENABLED(CONFIG_SND_SOC_SOF)
+snd_sof sof_ipc3_bytes_ext_put klpp_sof_ipc3_bytes_ext_put IS_ENABLED(CONFIG_SND_SOC_SOF)
