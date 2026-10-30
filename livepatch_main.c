@@ -26,6 +26,8 @@
 
 @@KLP_PATCHES_INCLUDES@@
 
+@@KLP_PATCHED_FUNC_DECLS@@
+
 static struct klp_object objs[] = {
 	@@KLP_PATCHES_OBJS@@
 };
