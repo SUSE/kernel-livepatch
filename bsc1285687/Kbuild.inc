@@ -1,0 +1,10 @@
+CFLAGS_bsc1285687_net_ipv4_ip_output.o += -Werror
+CFLAGS_bsc1285687/bsc1285687_net_ipv4_ip_output.o += -Werror
+CFLAGS_bsc1285687_net_xfrm_xfrm_output.o += -Werror
+CFLAGS_bsc1285687/bsc1285687_net_xfrm_xfrm_output.o += -Werror
+CFLAGS_bsc1285687_net_bridge_netfilter_nf_conntrack_bridge.o += -Werror
+CFLAGS_bsc1285687/bsc1285687_net_bridge_netfilter_nf_conntrack_bridge.o += -Werror
+CFLAGS_bsc1285687_net_netfilter_nfnetlink_queue.o += -Werror
+CFLAGS_bsc1285687/bsc1285687_net_netfilter_nfnetlink_queue.o += -Werror
+CFLAGS_bsc1285687_net_netfilter_xt_CHECKSUM.o += -Werror
+CFLAGS_bsc1285687/bsc1285687_net_netfilter_xt_CHECKSUM.o += -Werror
