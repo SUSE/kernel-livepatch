@@ -20,7 +20,7 @@
 %define variant @@VARIANT@@%{nil}
 
 Name:           kgraft-patch-@@RELEASE@@
-Version:        18
+Version:        19
 Release:        1
 %define module_num %(echo %version-%release | sed 'y/\./_/')
 License:        GPL-2.0
